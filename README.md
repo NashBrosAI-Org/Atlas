@@ -1,6 +1,6 @@
 # Atlas
 
-A client-centric work cockpit for juggling multiple customer accounts. Local React + FastAPI
+A client-centric command center for juggling multiple customer accounts. Local React + FastAPI
 app on the work Mac, backed by a ServiceNow scoped app; Microsoft 365 (email/calendar) and AI
 (summaries, decks, search) layer on in later phases.
 
@@ -13,7 +13,7 @@ app on the work Mac, backed by a ServiceNow scoped app; Microsoft 365 (email/cal
 ## Components (each has its own guardrail charter)
 - [docs/components/backend.md](docs/components/backend.md) — FastAPI orchestrator
 - [docs/components/servicenow.md](docs/components/servicenow.md) — scoped-app backend / system of record
-- [docs/components/frontend.md](docs/components/frontend.md) — React cockpit UI
+- [docs/components/frontend.md](docs/components/frontend.md) — React UI
 
 ## Implementation plans
 - [docs/superpowers/plans/2026-06-02-atlas-foundation.md](docs/superpowers/plans/2026-06-02-atlas-foundation.md) — Plan 1 (foundation slice)

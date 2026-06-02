@@ -1,6 +1,6 @@
 # Component: Backend (FastAPI service)
 
-**Purpose:** Orchestrate everything the cockpit needs — read/write ServiceNow, (later) pull
+**Purpose:** Orchestrate everything the app needs — read/write ServiceNow, (later) pull
 Microsoft Graph, (later) call Anthropic and generate decks — and expose a small JSON API to
 the local React frontend. Runs as `localhost:8000` on the work Mac.
 

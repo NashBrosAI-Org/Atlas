@@ -1,6 +1,6 @@
 # Atlas — Architecture
 
-Atlas is a **client-centric work cockpit** for someone juggling ~6 customer accounts. It is
+Atlas is a **client-centric command center** for someone juggling ~6 customer accounts. It is
 a local app on the work Mac, backed by a ServiceNow scoped app, with Microsoft 365 and AI
 layered on later.
 
@@ -9,7 +9,7 @@ layered on later.
 | Tier | Holds | Why allowed |
 |------|-------|-------------|
 | **ServiceNow employee instance** (cloud) | Tasks, clients, contacts, meetings, transcripts, emails, notes, synthetic/demo data — the system of record | User-controlled corporate-adjacent cloud; also the skill-building + demo surface |
-| **Work Mac — local** | The FastAPI service, the React cockpit, generated `.pptx`, *transient* M365 pulls, the export/backup files | Sanctioned corporate hardware |
+| **Work Mac — local** | The FastAPI service, the React app, generated `.pptx`, *transient* M365 pulls, the export/backup files | Sanctioned corporate hardware |
 | **Personal Mac — dev only** | Source code, mocks, synthetic fixtures | Never corporate data (see [CLAUDE.md](../CLAUDE.md) rule #1) |
 
 ## Shape
@@ -22,7 +22,7 @@ FastAPI service  (localhost:8000, work Mac)  ──►  Microsoft Graph   (email
         │                                    ──►  Anthropic API     (AI — Phase 3, additive)
         │                                    ──►  python-pptx + web  (decks — Phase 3)
         ▼  JSON over localhost
-React + Vite cockpit  (localhost:5173)
+React + Vite app  (localhost:5173)
 ```
 
 ## Key design decisions
@@ -35,6 +35,6 @@ React + Vite cockpit  (localhost:5173)
 - **Migration-friendly schema** (CSM/PPM-aligned names) — see [DATA-MODEL](DATA-MODEL.md).
 
 ## Phasing
-- **P1** — SN-backed cockpit (manual entry, manual transcript upload). *Plan 1 = foundation slice.*
+- **P1** — SN-backed command center (manual entry, manual transcript upload). *Plan 1 = foundation slice.*
 - **P2** — Microsoft 365 (email + calendar), gated on the Entra recon spike.
 - **P3** — AI (summaries/drafting/prioritization), semantic search, decks (`.pptx` + web, SN brand).

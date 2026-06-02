@@ -4,7 +4,7 @@ Project guardrails and conventions for anyone (human or agent) working in this r
 **Hard rules** before changing anything; they override convenience.
 
 ## What Atlas is
-A client-centric work cockpit for juggling ~6 customer accounts. **ServiceNow scoped app** =
+A client-centric command center for juggling ~6 customer accounts. **ServiceNow scoped app** =
 backend/system-of-record. **Local FastAPI (`:8000`) + React/Vite (`:5173`)** on the work Mac =
 the daily UI (not a ServiceNow Workspace). Microsoft 365 (email/calendar) and AI (summaries,
 decks, search) layer on in later phases. Full picture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).

@@ -25,7 +25,7 @@ Client (spine)                         → future CSM Account
 ```
 
 ## Invariants
-- **Client** is required context for almost every record; the cockpit slices both *across*
+- **Client** is required context for almost every record; the app slices both *across*
   clients (the "Now" view) and *into* one client (the dossier, future Plan 2/3).
 - **Note.target** and **TagM2M.target** use ServiceNow's **Document ID** field type — the
   native polymorphic pointer. Don't replace it with a pile of optional reference fields.

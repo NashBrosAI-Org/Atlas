@@ -6,7 +6,7 @@ preference for living progress docs.)
 Last updated: 2026-06-02
 
 ## Current status
-- **Phase:** P1 (SN-backed cockpit foundation) — in progress.
+- **Phase:** P1 (SN-backed command center foundation) — in progress.
 - **Active plan:** [`superpowers/plans/2026-06-02-atlas-foundation.md`](superpowers/plans/2026-06-02-atlas-foundation.md) (Plan 1).
 - **Branch:** `feature/atlas-foundation`.
 
