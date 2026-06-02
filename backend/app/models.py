@@ -1,6 +1,13 @@
 from typing import Literal, Optional
 from pydantic import BaseModel
 
+Sentiment = Literal["champion", "neutral", "detractor"]
+EngagementStatus = Literal["on_track", "at_risk", "blocked", "done"]
+ThemeStatus = Literal["open", "watching", "resolved"]
+MeetingType = Literal["teams", "zoom", "other"]
+TranscriptSource = Literal["teams", "zoom", "manual"]
+NoteType = Literal["general", "risk", "issue", "decision"]
+
 Priority = Literal["critical", "high", "medium", "low"]
 TaskStatus = Literal["open", "in_progress", "waiting", "done"]
 TaskSource = Literal["manual", "email", "meeting"]
@@ -28,3 +35,63 @@ class Task(BaseModel):
     is_commitment: bool = False
     status: TaskStatus = "open"
     source: TaskSource = "manual"
+
+
+class Contact(BaseModel):
+    sys_id: Optional[str] = None
+    name: str
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    client: Optional[str] = None
+    role_title: Optional[str] = None
+    reports_to: Optional[str] = None      # sys_id of another Contact
+    personal_notes: Optional[str] = None
+    sentiment: Sentiment = "neutral"
+
+
+class Engagement(BaseModel):
+    sys_id: Optional[str] = None
+    name: str
+    client: Optional[str] = None
+    status: EngagementStatus = "on_track"
+    start_date: Optional[str] = None
+    target_date: Optional[str] = None
+    description: Optional[str] = None
+
+
+class Theme(BaseModel):
+    sys_id: Optional[str] = None
+    name: str
+    client: Optional[str] = None
+    status: ThemeStatus = "open"
+    description: Optional[str] = None
+
+
+class Meeting(BaseModel):
+    sys_id: Optional[str] = None
+    title: str
+    client: Optional[str] = None
+    engagement: Optional[str] = None
+    datetime: Optional[str] = None
+    type: MeetingType = "teams"
+    attendees: Optional[str] = None
+    summary: Optional[str] = None
+
+
+class Transcript(BaseModel):
+    sys_id: Optional[str] = None
+    meeting: Optional[str] = None
+    client: Optional[str] = None
+    full_text: str
+    source: TranscriptSource = "manual"
+    captured_date: Optional[str] = None
+
+
+class Note(BaseModel):
+    sys_id: Optional[str] = None
+    title: str
+    body: Optional[str] = None
+    note_type: NoteType = "general"
+    target_table: Optional[str] = None    # e.g. "client", "engagement", "theme", "meeting"
+    target_id: Optional[str] = None       # sys_id of the pinned record
+    pinned: bool = False
