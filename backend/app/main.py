@@ -16,6 +16,7 @@ def health():
 
 
 from app.routers import clients, tasks  # noqa: E402
+from app.routers import dossier  # noqa: E402
 from app.crud import crud_router  # noqa: E402
 from app.models import Contact, Engagement, Theme, Meeting, Transcript, Note  # noqa: E402
 
@@ -27,3 +28,4 @@ app.include_router(crud_router("themes", "theme", Theme))
 app.include_router(crud_router("meetings", "meeting", Meeting))
 app.include_router(crud_router("transcripts", "transcript", Transcript))
 app.include_router(crud_router("notes", "note", Note))
+app.include_router(dossier.router)
