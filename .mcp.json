@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
+      },
+      "type": "stdio"
+    },
+    "code-review-graph": {
+      "command": "/Users/nick/.local/pipx/venvs/code-review-graph/bin/python",
+      "args": ["-m", "code_review_graph", "serve"],
+      "cwd": "/Users/nick/Atlas",
+      "type": "stdio"
+    }
+  }
+}
