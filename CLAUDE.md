@@ -42,6 +42,21 @@ decks, search) layer on in later phases. Full picture: [docs/ARCHITECTURE.md](do
 - Commit messages: one line, present-tense imperative ("add Now ordering").
 - Tests pass and no debug code before merging.
 
+**Concurrent sessions — one worktree each**
+Branches isolate *commits*, not the working directory: two sessions sharing one checkout also
+share the index, stash, and `HEAD`, so one session's `git add -A`/`commit`/`reset`/branch-switch
+can scoop up or clobber the other's uncommitted work. **If a session may touch this repo while
+another is active, give it its own worktree — never the same folder.** Start it isolated with
+`claude --worktree <short-desc>`, or by hand:
+```bash
+git worktree add ../atlas-<task> -b <prefix>/<short-desc> origin/main
+# work, commit, push, open + merge the PR from that folder, then:
+git worktree remove ../atlas-<task>
+```
+Background agents auto-isolate (`worktree.bgIsolation`); **interactive** sessions do not — isolate
+them with the commands above. Canonical rule (applies to every repo, not just this one):
+[`~/.claude/WORKFLOW.md`](file:///Users/nick/.claude/WORKFLOW.md) → "Concurrent sessions — one worktree each".
+
 **Python (backend)**
 - FastAPI + pydantic v2; endpoints are `async`. Python 3.11+ target.
 - **All ServiceNow access goes through the `ServiceNowClient` interface** (`app/servicenow.py`);
