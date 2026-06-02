@@ -1,8 +1,8 @@
-# Cockpit Foundation Implementation Plan (Plan 1 of the P1 series)
+# Atlas Foundation Implementation Plan (Plan 1 of the P1 series)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a working, testable vertical slice of the client cockpit — a ServiceNow scoped app holding the full data model, plus a local FastAPI + React app that reads/writes **Clients** and **Tasks** and renders a prioritized "Now" view — developed entirely against a mock ServiceNow so no live instance or corporate data is touched.
+**Goal:** Build a working, testable vertical slice of the Atlas — a ServiceNow scoped app holding the full data model, plus a local FastAPI + React app that reads/writes **Clients** and **Tasks** and renders a prioritized "Now" view — developed entirely against a mock ServiceNow so no live instance or corporate data is touched.
 
 **Architecture:** ServiceNow scoped app is the backend/database (designed to migrate to CSM/PPM later). A local Python FastAPI service runs on the work Mac, talks to ServiceNow over the Table REST API using OAuth 2.0, and exposes a small JSON API to a local React/Vite frontend. The ServiceNow integration sits behind a `ServiceNowClient` interface with an in-memory `FakeServiceNow` implementation, so the whole backend is built and tested with TDD here on the personal Mac. The live instance is only contacted on the work Mac via config.
 
@@ -42,11 +42,11 @@ These are **user actions, not code**. They only gate the "point at the live inst
 ## File / artifact structure
 
 **ServiceNow (built in the instance, captured in an Update Set):**
-- Scoped app `Client Cockpit` (scope auto-prefixed, e.g. `x_<vendor>_cockpit`).
+- Scoped app `Atlas` (scope auto-prefixed, e.g. `x_<vendor>_atlas`).
 - Tables (full model, created once): `client`, `contact`, `engagement`, `theme`, `task`, `meeting`, `transcript`, `email`, `note`, `deck`, `key_date`, `link`, `tag`, `tag_m2m`.
 - One OAuth API endpoint registration for the local app.
 
-**Local repo `client-cockpit/`:**
+**Local repo `atlas/`:**
 ```
 backend/
   app/
@@ -75,7 +75,7 @@ frontend/
     types.ts             # Client, Task TS types (mirror pydantic)
     NowView.tsx          # the prioritized task list + client filter
     App.tsx
-docs/superpowers/plans/2026-06-02-cockpit-foundation.md   # this file
+docs/superpowers/plans/2026-06-02-atlas-foundation.md   # this file
 ```
 
 ---
@@ -138,11 +138,11 @@ Plan 1 **creates all tables** (Tasks 1–11) but the **app only wires Client + T
 
 - [ ] **Step 1: Start an Update Set**
 
-In the instance: **All > System Update Sets > Local Update Sets > New**. Name: `Client Cockpit - Plan 1`. Save, then click **Make this my current set**.
+In the instance: **All > System Update Sets > Local Update Sets > New**. Name: `Atlas - Plan 1`. Save, then click **Make this my current set**.
 
 - [ ] **Step 2: Create the scoped app**
 
-Open **All > App Engine Studio** → **Create app** → **Build from scratch**. Name: `Client Cockpit`. Description: `Personal client-management cockpit`. Leave roles default. (Classic path: **All > Studio > Create Application** → scratch.) Note the generated scope name (e.g. `x_<vendor>_cockpit`) — record it in `backend/.env.example` as a comment.
+Open **All > App Engine Studio** → **Create app** → **Build from scratch**. Name: `Atlas`. Description: `Personal client-management command center`. Leave roles default. (Classic path: **All > Studio > Create Application** → scratch.) Note the generated scope name (e.g. `x_<vendor>_atlas`) — record it in `backend/.env.example` as a comment.
 
 - [ ] **Step 3: Verify**
 
@@ -152,7 +152,7 @@ Confirm the app appears under **All > App Engine Studio > (your apps)** and that
 
 ## Task 2: Create the `client` table
 
-**Artifact:** Table `client` in the cockpit scope with the fields from the reference above.
+**Artifact:** Table `client` in the Atlas scope with the fields from the reference above.
 
 - [ ] **Step 1: Create the table**
 
@@ -224,7 +224,7 @@ pip freeze > requirements.txt
 # Copy to .env (gitignored) on the WORK Mac and fill in. Leave USE_FAKE=true on the personal Mac.
 USE_FAKE=true
 SN_INSTANCE_URL=https://YOUR-INSTANCE.service-now.com
-SN_SCOPE=x_vendor_cockpit            # the scope from Task 1 Step 2
+SN_SCOPE=x_vendor_atlas            # the scope from Task 1 Step 2
 SN_OAUTH_CLIENT_ID=
 SN_OAUTH_CLIENT_SECRET=              # do NOT commit; use Keychain in prod (see auth.py)
 SN_OAUTH_USERNAME=
@@ -284,7 +284,7 @@ class Settings(BaseSettings):
 
     use_fake: bool = True
     sn_instance_url: str = "https://example.service-now.com"
-    sn_scope: str = "x_vendor_cockpit"
+    sn_scope: str = "x_vendor_atlas"
     sn_oauth_client_id: str = ""
     sn_oauth_client_secret: str = ""
     sn_oauth_username: str = ""
@@ -572,7 +572,7 @@ import httpx
 import keyring
 from app.config import Settings
 
-_KEYRING_SERVICE = "client-cockpit-sn"
+_KEYRING_SERVICE = "atlas-sn"
 
 
 class TokenManager:
@@ -664,7 +664,7 @@ from app.config import get_settings
 from app.servicenow import FakeServiceNow, HttpServiceNow, ServiceNowClient
 from app.auth import TokenManager
 
-app = FastAPI(title="Client Cockpit")
+app = FastAPI(title="Atlas")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -1075,7 +1075,7 @@ Do this only after P0 recon R1–R3 pass, on the work Mac, against your real (cl
 
 - [ ] **Step 1: Register the OAuth app in SN**
 
-In the instance: **All > System OAuth > Application Registry > New > Create an OAuth API endpoint for external clients**. Name `Client Cockpit Local`. Note the generated **Client ID** and **Client Secret**. Set **Refresh Token Lifespan** to a comfortable value (e.g. 8,640,000 s = 100 days).
+In the instance: **All > System OAuth > Application Registry > New > Create an OAuth API endpoint for external clients**. Name `Atlas Local`. Note the generated **Client ID** and **Client Secret**. Set **Refresh Token Lifespan** to a comfortable value (e.g. 8,640,000 s = 100 days).
 
 - [ ] **Step 2: Fill `.env` on the work Mac** (never commit)
 
