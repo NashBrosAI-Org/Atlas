@@ -1,6 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
-from app.main import app, get_sn
+from app.main import app
+from app.main_deps import get_sn
 from app.servicenow import FakeServiceNow
 
 
