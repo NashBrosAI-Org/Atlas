@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.main_deps import get_sn  # noqa: F401 — re-exported for conftest override
 
 app = FastAPI(title="Atlas")
 app.add_middleware(
