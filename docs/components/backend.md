@@ -12,7 +12,7 @@ the local React frontend. Runs as `localhost:8000` on the work Mac.
 - ✅ Default to `FakeServiceNow` (`USE_FAKE=true`). The live `HttpServiceNow` is selected only
   by config on the work Mac.
 - ❌ Never hold secrets in code. All config comes from `Settings` (`app/config.py`) → `.env` /
-  Keychain. See [GUARDRAILS](../GUARDRAILS.md) rule #2.
+  Keychain. See [CLAUDE.md](../../CLAUDE.md) rule #2.
 - ❌ No corporate data persisted to disk on the personal Mac during dev. Tests use the in-memory fake only.
 
 ## Guardrails
@@ -22,7 +22,7 @@ the local React frontend. Runs as `localhost:8000` on the work Mac.
   the SN client. Ordering/business rules (e.g. Now-view sort) live in clearly named helpers,
   not inline magic.
 - **Deterministic core.** The Now ordering is `priority rank → due_date → commitment`. Do not
-  make it depend on an AI call (see GUARDRAILS rule #6).
+  make it depend on an AI call (see CLAUDE.md rule #6).
 - **`get_sn` is the single DI seam** (`app/main_deps.py`), overridden in tests. Keep it that way —
   don't construct SN clients ad hoc inside routers.
 - **TDD.** Every endpoint/behavior gets a failing test first.

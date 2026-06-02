@@ -10,7 +10,7 @@ layered on later.
 |------|-------|-------------|
 | **ServiceNow employee instance** (cloud) | Tasks, clients, contacts, meetings, transcripts, emails, notes, synthetic/demo data — the system of record | User-controlled corporate-adjacent cloud; also the skill-building + demo surface |
 | **Work Mac — local** | The FastAPI service, the React cockpit, generated `.pptx`, *transient* M365 pulls, the export/backup files | Sanctioned corporate hardware |
-| **Personal Mac — dev only** | Source code, mocks, synthetic fixtures | Never corporate data (see [GUARDRAILS](GUARDRAILS.md) rule #1) |
+| **Personal Mac — dev only** | Source code, mocks, synthetic fixtures | Never corporate data (see [CLAUDE.md](../CLAUDE.md) rule #1) |
 
 ## Shape
 

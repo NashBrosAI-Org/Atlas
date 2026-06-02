@@ -1,7 +1,7 @@
 # Atlas — Data Model
 
 Spine entity is **Client**. Everything hangs off a Client. Table/field names mirror CSM/PPM
-so a later migration is a mapping, not a rebuild (see [GUARDRAILS](GUARDRAILS.md) rule #5).
+so a later migration is a mapping, not a rebuild (see [CLAUDE.md](../CLAUDE.md) rule #5).
 
 Full field-by-field definitions live in the plan's **"ServiceNow data model reference"**
 section: [`superpowers/plans/2026-06-02-atlas-foundation.md`](superpowers/plans/2026-06-02-atlas-foundation.md).

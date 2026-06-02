@@ -5,7 +5,7 @@ app on the work Mac, backed by a ServiceNow scoped app; Microsoft 365 (email/cal
 (summaries, decks, search) layer on in later phases.
 
 ## Read these first
-- **[docs/GUARDRAILS.md](docs/GUARDRAILS.md)** — the hard rules. Read before changing anything.
+- **[CLAUDE.md](CLAUDE.md)** — project guardrails + conventions. Read before changing anything.
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — the three tiers and where data is allowed to live.
 - [docs/DATA-MODEL.md](docs/DATA-MODEL.md) — the Client-centric schema.
 - [docs/PROGRESS.md](docs/PROGRESS.md) — current status, what's done, what's next.
@@ -32,4 +32,4 @@ cd frontend && npm install && npm run dev    # http://localhost:5173
 
 ## The one rule that matters most
 **No corporate data on the personal Mac.** Develop against the in-memory fake; the live
-ServiceNow instance and real credentials are touched only on the work Mac. See GUARDRAILS.
+ServiceNow instance and real credentials are touched only on the work Mac. See CLAUDE.md.

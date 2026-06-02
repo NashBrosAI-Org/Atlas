@@ -13,13 +13,13 @@ only ServiceNow in scope; there is no separate corporate ticketing instance.
 - ✅ All config (app, tables, OAuth endpoint) is captured in an **Update Set** and exported to
   the repo under `servicenow/updateset/` (config only — never data).
 - ❌ The instance is **not a durable archive** — it can be reclaimed. It must never be the only
-  copy of transcripts/emails. See [GUARDRAILS](../GUARDRAILS.md) rule #3.
+  copy of transcripts/emails. See [CLAUDE.md](../../CLAUDE.md) rule #3.
 
 ## Guardrails
 - **Migration-friendly names.** Client→Account, Engagement→Project, Contact→Contact, etc.
 - **Polymorphic via Document ID.** `Note.target` and `TagM2M.target` use SN's Document ID field
   type, not a stack of optional references.
-- **Retention is the accepted, named risk** (GUARDRAILS rule #4). Don't quietly broaden what
+- **Retention is the accepted, named risk** (CLAUDE.md rule #4). Don't quietly broaden what
   corporate content gets pushed here.
 - **Export discipline.** Whenever the schema changes: mark the Update Set complete, export XML,
   commit it. The eventual scheduled job (Plan 3) backs up the *data* too.
