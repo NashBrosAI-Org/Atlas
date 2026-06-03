@@ -44,3 +44,19 @@ export interface Dossier {
   meetings: Meeting[];
   notes: Note[];
 }
+export interface AppSettings {
+  use_fake: boolean;
+  sn_instance_url: string;
+  sn_scope: string;
+  sn_auth: string;
+  sn_oauth_username: string;
+  password_set: boolean;
+}
+export interface AppStatus {
+  fake: boolean;
+  configured: boolean;
+}
+export interface TestResult {
+  ok: boolean;
+  error?: string;
+}

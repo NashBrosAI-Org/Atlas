@@ -1,4 +1,4 @@
-import type { Client, Task, Contact, Dossier, Note, Transcript } from "./types";
+import type { Client, Task, Contact, Dossier, Note, Transcript, AppSettings, AppStatus, TestResult } from "./types";
 const BASE = "/api";
 
 /** Fetch JSON, throwing on any non-2xx response (with FastAPI's `detail` if present)
@@ -46,4 +46,16 @@ export async function createNote(n: Partial<Note>): Promise<Note> {
 }
 export async function createTranscript(t: Partial<Transcript>): Promise<Transcript> {
   return http<Transcript>("/transcripts", jsonBody("POST", t));
+}
+export async function getStatus(): Promise<AppStatus> {
+  return http<AppStatus>("/status");
+}
+export async function getSettings(): Promise<AppSettings> {
+  return http<AppSettings>("/settings");
+}
+export async function saveSettings(s: Partial<AppSettings> & { password?: string }): Promise<AppSettings> {
+  return http<AppSettings>("/settings", jsonBody("PUT", s));
+}
+export async function testConnection(): Promise<TestResult> {
+  return http<TestResult>("/test-connection", { method: "POST" });
 }
