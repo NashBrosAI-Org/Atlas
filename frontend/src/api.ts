@@ -1,38 +1,49 @@
 import type { Client, Task, Contact, Dossier, Note, Transcript } from "./types";
 const BASE = "/api";
 
+/** Fetch JSON, throwing on any non-2xx response (with FastAPI's `detail` if present)
+ *  so callers never silently receive an error body parsed as data. */
+async function http<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, init);
+  if (!res.ok) {
+    let detail = "";
+    try {
+      detail = (await res.json())?.detail ?? "";
+    } catch {
+      /* response body was not JSON */
+    }
+    throw new Error(`API ${res.status} ${res.statusText} on ${path}${detail ? `: ${detail}` : ""}`);
+  }
+  return res.json() as Promise<T>;
+}
+
+/** Shared init for JSON-body mutations. */
+function jsonBody(method: string, body: unknown): RequestInit {
+  return { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) };
+}
+
 export async function getClients(): Promise<Client[]> {
-  return (await fetch(`${BASE}/clients`)).json();
+  return http<Client[]>("/clients");
 }
 export async function getNow(client?: string): Promise<Task[]> {
   const q = client ? `?client=${encodeURIComponent(client)}` : "";
-  return (await fetch(`${BASE}/now${q}`)).json();
+  return http<Task[]>(`/now${q}`);
 }
 export async function createTask(t: Partial<Task>): Promise<Task> {
-  return (await fetch(`${BASE}/tasks`, {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(t),
-  })).json();
+  return http<Task>("/tasks", jsonBody("POST", t));
 }
 export async function completeTask(sys_id: string): Promise<Task> {
-  return (await fetch(`${BASE}/tasks/${sys_id}`, {
-    method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "done" }),
-  })).json();
+  return http<Task>(`/tasks/${sys_id}`, jsonBody("PATCH", { status: "done" }));
 }
 export async function getDossier(clientSysId: string): Promise<Dossier> {
-  return (await fetch(`${BASE}/clients/${clientSysId}/dossier`)).json();
+  return http<Dossier>(`/clients/${clientSysId}/dossier`);
 }
 export async function createContact(c: Partial<Contact>): Promise<Contact> {
-  return (await fetch(`${BASE}/contacts`, {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(c),
-  })).json();
+  return http<Contact>("/contacts", jsonBody("POST", c));
 }
 export async function createNote(n: Partial<Note>): Promise<Note> {
-  return (await fetch(`${BASE}/notes`, {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(n),
-  })).json();
+  return http<Note>("/notes", jsonBody("POST", n));
 }
 export async function createTranscript(t: Partial<Transcript>): Promise<Transcript> {
-  return (await fetch(`${BASE}/transcripts`, {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(t),
-  })).json();
+  return http<Transcript>("/transcripts", jsonBody("POST", t));
 }
