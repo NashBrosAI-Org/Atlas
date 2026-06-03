@@ -17,7 +17,7 @@ Last updated: 2026-06-02 (SN Fluent app provisioned to `nnash` — 14/14 tables 
 | 1–6 | ServiceNow scoped app + full 14-table schema | ✅ **done** — built as Fluent code (`servicenow/`) via the SDK and `install`ed to `nnash`; 14/14 tables verified | ServiceNow (`nnash`) |
 | 7–13 | FastAPI backend (config, models, ServiceNowClient + FakeServiceNow, HttpServiceNow + OAuth, DI, Clients/Tasks API, deterministic Now ordering) | ✅ done | personal Mac |
 | 14 | React Now view | ✅ done | personal Mac |
-| 15 | Point app at live instance + verify | ⏳ TODO — after the SDK provision lands | personal Mac → `nnash` |
+| 15 | Point app at live instance + verify | 🔄 **in progress** — backend now supports **basic auth** (`SN_AUTH_TYPE=basic`, `build_live_client`, reference-link parity on all verbs); live smoke test against `nnash` pending creds | personal Mac → `nnash` |
 
 ## Plan 2 task status — COMPLETE (code)
 Generic `crud_router` factory (Contact/Engagement/Theme/Meeting/Transcript/Note), polymorphic Note pinning, `GET /api/clients/{id}/dossier` aggregate, React dossier page + org chart + transcript paste + note composer. **30/30 backend tests green; frontend builds clean; dossier verified e2e against the mock.**

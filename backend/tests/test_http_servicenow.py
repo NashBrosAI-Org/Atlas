@@ -64,3 +64,50 @@ async def test_update_patches_payload():
     sn = _client(handler)
     updated = await sn.update("task", "9", {"status": "done"})
     assert updated["status"] == "done"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("verb", ["get", "create", "update"])
+async def test_reference_links_excluded_on_all_verbs(verb):
+    """Real SN returns reference fields as {link,value} objects and choices/
+    booleans as display values unless told otherwise. list already opts out;
+    get/create/update must too, so live records match the fake's plain sys_id
+    strings (the field-gap Task 15 warns about)."""
+    seen = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["url"] = str(request.url)
+        return httpx.Response(200, json={"result": {"sys_id": "9"}})
+
+    sn = _client(handler)
+    if verb == "get":
+        await sn.get("task", "9")
+    elif verb == "create":
+        await sn.create("task", {"title": "X"})
+    else:
+        await sn.update("task", "9", {"status": "done"})
+
+    assert "sysparm_exclude_reference_link=true" in seen["url"]
+    assert "sysparm_display_value=false" in seen["url"]
+
+
+@pytest.mark.asyncio
+async def test_no_token_provider_lets_client_auth_apply():
+    """With no token_provider, HttpServiceNow must NOT inject its own Bearer
+    header — leaving the httpx client's auth (e.g. BasicAuth) to apply. This is
+    the basic-auth path the live nnash instance requires (D11)."""
+    seen = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["auth"] = request.headers.get("authorization")
+        return httpx.Response(200, json={"result": []})
+
+    transport = httpx.MockTransport(handler)
+    http = httpx.AsyncClient(
+        transport=transport,
+        base_url="https://x.service-now.com",
+        auth=httpx.BasicAuth("atlas.sdk", "secret"),
+    )
+    sn = HttpServiceNow(http)  # no token_provider
+    await sn.list("x_atlas_sn_client")
+    assert seen["auth"] == httpx.BasicAuth("atlas.sdk", "secret")._auth_header
