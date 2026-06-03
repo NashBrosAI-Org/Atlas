@@ -34,6 +34,7 @@ decks, search) layer on in later phases. Full picture: [docs/ARCHITECTURE.md](do
 | R2 | Employee instance "not infinite" → data loss | Mandatory export/backup (rule #3) |
 | R3 | Entra app-reg / Graph + Teams-transcript perms may need IT | Recon spike gates P2 |
 | R4 | Work-laptop proxy may block `*.service-now.com` / Graph | Recon before go-live |
+| R5 | Shared distribution broadens the compliance surface (other users' corporate data + tenants flow through Atlas) | Each user owns it with their IT, like R1; in-app Help + SHARING.md keep it visible |
 
 ## Conventions
 

@@ -3,9 +3,10 @@ import { NowView } from "./NowView";
 import { ClientsView } from "./ClientsView";
 import { DossierView } from "./DossierView";
 import { SettingsView } from "./SettingsView";
+import { HelpView } from "./HelpView";
 import { getStatus } from "./api";
 
-type View = "now" | "clients" | "dossier" | "settings";
+type View = "now" | "clients" | "dossier" | "settings" | "help";
 
 export default function App() {
   const [view, setView] = useState<View>("now");
@@ -33,6 +34,7 @@ export default function App() {
         <button onClick={() => setView("now")}>Now</button>
         <button onClick={() => setView("clients")}>Clients</button>
         <button onClick={() => setView("settings")}>Settings</button>
+        <button onClick={() => setView("help")}>Help</button>
       </nav>
       {view === "now" && <NowView />}
       {view === "clients" && (
@@ -44,6 +46,7 @@ export default function App() {
       {view === "settings" && (
         <SettingsView onSaved={() => setView("now")} />
       )}
+      {view === "help" && <HelpView />}
     </div>
   );
 }
