@@ -8,3 +8,7 @@ __pycache__/
 dist/
 .DS_Store
 secrets/
+
+# Desktop build artifacts (dist/ already covered above)
+/build/
+/.build-venv/
