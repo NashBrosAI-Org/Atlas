@@ -30,6 +30,7 @@ def test_get_settings_hides_password_but_reports_presence(monkeypatch, tmp_path)
     assert r.status_code == 200
     body = r.json()
     assert "sn_oauth_password" not in body
+    assert "password" not in body
     assert body["password_set"] is False
     assert body["use_fake"] is True
 
@@ -44,6 +45,8 @@ def test_put_settings_persists_nonsecret_and_password(monkeypatch, tmp_path):
         "password": "hunter2",
     })
     assert r.status_code == 200
+    assert "password" not in r.json()
+    assert "sn_oauth_password" not in r.json()
     assert uc.load_overlay()["sn_instance_url"] == "https://nnash.service-now.com"
     assert uc.get_password() == "hunter2"
     got = c.get("/api/settings").json()
@@ -66,3 +69,18 @@ def test_test_connection_ok_in_demo(monkeypatch, tmp_path):
     r = c.post("/api/test-connection")
     assert r.status_code == 200
     assert r.json()["ok"] is True
+
+
+def test_test_connection_reports_failure(monkeypatch, tmp_path):
+    c = _client(monkeypatch, tmp_path)
+
+    class _Boom:
+        async def list(self, *a, **k):
+            raise RuntimeError("connection refused")
+
+    monkeypatch.setattr(deps, "get_sn", lambda: _Boom())
+    r = c.post("/api/test-connection")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["ok"] is False
+    assert "connection refused" in body["error"]
