@@ -70,6 +70,12 @@ them with the commands above. Canonical rule (applies to every repo, not just th
 - The frontend calls **only** `http://localhost:8000/api`. No direct SN/Graph calls, no secrets in
   the browser. Small, focused view files.
 
+**ServiceNow (scoped app)**
+- Built as **Fluent code via the ServiceNow SDK** (`now-sdk`), *not* hand-built in the UI. The app
+  lives in `servicenow/`; deploy with `now-sdk install` to `nnash.service-now.com` (Zurich, MFA on).
+- `now-sdk auth` is interactive (OAuth code-paste) — run it in a real/integrated terminal (e.g. VS
+  Code), not a background runner. Table/field names follow `docs/DATA-MODEL.md`, CSM/PPM-aligned (rule #5).
+
 **General**
 - One responsibility per file; keep files small enough to hold in context.
 - **Update [docs/PROGRESS.md](docs/PROGRESS.md) after each unit of work**, not at session end.
