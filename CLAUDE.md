@@ -38,19 +38,24 @@ decks, search) layer on in later phases. Full picture: [docs/ARCHITECTURE.md](do
 ## Conventions
 
 **Workflow & git** (per the user's global WORKFLOW.md)
-- Branch per change: `feature/…`, `fix/…`, `chore/…`. Never commit straight to `main`.
+- Branch naming: `feature/…`, `fix/…`, `chore/…` (kebab-case). Never commit straight to `main`.
 - Commit messages: one line, present-tense imperative ("add Now ordering").
-- Tests pass and no debug code before merging.
+- Open a PR; merge once CI is green — `gh` CLI or GitHub MCP, whichever has `NashBrosAI-Org` access (`gh` is reliable; the MCP token currently lacks org access). Never blind-merge on red/pending CI. Tests pass and no debug code before merging.
 
 **Concurrent sessions — one worktree each**
+**Worktrees are the default unit of work, not just a concurrency tool.** Every non-trivial task gets
+its own worktree (which carries its own branch); the primary checkout stays clean on `main` as the
+deploy base and never holds in-progress work. The only exception is trivial read-only work
+(questions, code review), which needs no branch or worktree.
+
 Branches isolate *commits*, not the working directory: two sessions sharing one checkout also
 share the index, stash, and `HEAD`, so one session's `git add -A`/`commit`/`reset`/branch-switch
-can scoop up or clobber the other's uncommitted work. **If a session may touch this repo while
-another is active, give it its own worktree — never the same folder.** Start it isolated with
+can scoop up or clobber the other's uncommitted work. A worktree gives each task its own directory
+*and* branch, so collisions are structurally impossible. Start one isolated with
 `claude --worktree <short-desc>`, or by hand:
 ```bash
 git worktree add ../atlas-<task> -b <prefix>/<short-desc> origin/main
-# work, commit, push, open + merge the PR from that folder, then:
+# work, commit, push, open + merge the PR from that folder, then from the primary checkout:
 git worktree remove ../atlas-<task>
 ```
 Background agents auto-isolate (`worktree.bgIsolation`); **interactive** sessions do not — isolate
