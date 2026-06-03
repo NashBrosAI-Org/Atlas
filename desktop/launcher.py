@@ -50,5 +50,24 @@ def main() -> int:
     return 0
 
 
+def _crash_log_path() -> Path:
+    base = os.environ.get("ATLAS_DATA_DIR")
+    root = Path(base) if base else Path.home() / "Library" / "Application Support" / "Atlas"
+    return root / "atlas-error.log"
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except SystemExit:
+        raise
+    except BaseException:
+        import traceback
+
+        log = _crash_log_path()
+        try:
+            log.parent.mkdir(parents=True, exist_ok=True)
+            log.write_text(traceback.format_exc())
+        except OSError:
+            pass
+        raise

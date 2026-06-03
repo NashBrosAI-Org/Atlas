@@ -1,5 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+import app.user_config as user_config
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
@@ -7,6 +9,7 @@ class Settings(BaseSettings):
     use_fake: bool = True
     sn_instance_url: str = "https://example.service-now.com"
     sn_scope: str = "x_vendor_atlas"
+    sn_auth: str = "basic"  # "basic" (D11) or "oauth"
     sn_oauth_client_id: str = ""
     sn_oauth_client_secret: str = ""
     sn_oauth_username: str = ""
@@ -14,4 +17,14 @@ class Settings(BaseSettings):
 
 
 def get_settings() -> Settings:
-    return Settings()
+    """Env/.env defaults, overlaid with the user's saved config.json and the
+    Keychain password (so in-app Settings take effect without code changes)."""
+    overlay = user_config.load_overlay()
+    base = Settings()
+    merged = base.model_dump()
+    merged.update({k: v for k, v in overlay.items() if k in merged})
+    settings = Settings(**merged)
+    pw = user_config.get_password()
+    if pw is not None:
+        settings.sn_oauth_password = pw
+    return settings

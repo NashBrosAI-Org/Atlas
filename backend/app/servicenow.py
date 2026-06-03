@@ -45,12 +45,15 @@ class FakeServiceNow:
 class HttpServiceNow:
     """Real SN Table API client. Same interface as FakeServiceNow."""
 
-    def __init__(self, http: httpx.AsyncClient, token_provider: Callable[[], str]) -> None:
+    def __init__(self, http: httpx.AsyncClient, token_provider: Optional[Callable[[], str]] = None) -> None:
         self._http = http
         self._token = token_provider
 
     def _headers(self) -> dict:
-        return {"Authorization": f"Bearer {self._token()}", "Accept": "application/json"}
+        headers = {"Accept": "application/json"}
+        if self._token is not None:
+            headers["Authorization"] = f"Bearer {self._token()}"
+        return headers
 
     @staticmethod
     def _encode_query(query: dict) -> str:
