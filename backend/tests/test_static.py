@@ -60,3 +60,14 @@ def test_mount_is_noop_when_dist_missing(tmp_path):
     assert mount_frontend(app, tmp_path / "does-not-exist") is False
     client = TestClient(app)
     assert client.get("/").status_code == 404
+
+
+def test_path_traversal_falls_back_to_index(tmp_path):
+    app = FastAPI()
+    mount_frontend(app, _make_dist(tmp_path))
+    client = TestClient(app)
+    # Percent-encoded ".." so the HTTP client doesn't normalize it away before
+    # it reaches the server; the guard must reject it and fall back to index.
+    r = client.get("/%2e%2e/%2e%2e/%2e%2e/etc/hosts")
+    assert r.status_code == 200
+    assert "Atlas" in r.text

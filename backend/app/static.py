@@ -27,8 +27,12 @@ def mount_frontend(app: FastAPI, dist: Path) -> bool:
 
     @app.get("/{full_path:path}")
     async def spa(full_path: str) -> FileResponse:
-        candidate = dist / full_path
-        if full_path and candidate.is_file():
+        # Serve a real bundled file only if it resolves to a path inside dist;
+        # otherwise fall back to index.html (SPA client-side routing). The
+        # is_relative_to check is defense-in-depth — not exploitable on a
+        # localhost single-user app, but cheap and correct.
+        candidate = (dist / full_path).resolve()
+        if full_path and candidate.is_relative_to(dist.resolve()) and candidate.is_file():
             return FileResponse(candidate)
         return FileResponse(index)
 

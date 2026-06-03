@@ -1,5 +1,10 @@
+import os
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.static import mount_frontend
 
 app = FastAPI(title="Atlas")
 app.add_middleware(
@@ -29,10 +34,6 @@ app.include_router(crud_router("meetings", "meeting", Meeting))
 app.include_router(crud_router("transcripts", "transcript", Transcript))
 app.include_router(crud_router("notes", "note", Note))
 app.include_router(dossier.router)
-
-import os  # noqa: E402
-from pathlib import Path  # noqa: E402
-from app.static import mount_frontend  # noqa: E402
 
 _default_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 _dist = Path(os.environ["ATLAS_FRONTEND_DIST"]) if os.environ.get("ATLAS_FRONTEND_DIST") else _default_dist
