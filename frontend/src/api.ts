@@ -1,5 +1,5 @@
 import type { Client, Task, Contact, Dossier, Note, Transcript } from "./types";
-const BASE = "http://localhost:8000/api";
+const BASE = "/api";
 
 export async function getClients(): Promise<Client[]> {
   return (await fetch(`${BASE}/clients`)).json();

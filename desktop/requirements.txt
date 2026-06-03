@@ -1,0 +1,5 @@
+# Desktop shell + build tooling. Installs the backend runtime deps plus the
+# native-window and packaging libraries. Used by scripts/build-desktop.sh.
+-r ../backend/requirements.txt
+pywebview==5.4
+pyinstaller==6.11.1

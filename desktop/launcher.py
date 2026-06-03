@@ -1,0 +1,54 @@
+"""Atlas desktop entrypoint.
+
+Starts the FastAPI app on a free loopback port in a background thread, waits
+for it to answer /api/health, then opens a native window pointed at it.
+Bundled by PyInstaller (see desktop/Atlas.spec) into Atlas.app.
+"""
+from __future__ import annotations
+
+import os
+import sys
+from pathlib import Path
+
+
+def _configure_bundled_paths() -> None:
+    """When frozen by PyInstaller, point the backend at the bundled frontend."""
+    meipass = getattr(sys, "_MEIPASS", None)
+    if meipass:
+        bundled_dist = Path(meipass) / "frontend" / "dist"
+        os.environ.setdefault("ATLAS_FRONTEND_DIST", str(bundled_dist))
+        # Make the bundled `app` package importable.
+        sys.path.insert(0, str(Path(meipass) / "backend"))
+    else:
+        # Running from source: ensure `backend` is importable.
+        repo = Path(__file__).resolve().parents[1]
+        sys.path.insert(0, str(repo / "backend"))
+
+
+def main() -> int:
+    _configure_bundled_paths()
+
+    # Imported after path setup so the bundled/locale backend resolves.
+    from app.main import app  # noqa: E402
+    from desktop.server import ServerThread, find_free_port, http_probe, wait_until_ready
+
+    port = find_free_port()
+    server = ServerThread(app, host="127.0.0.1", port=port)
+    server.start()
+
+    ready = wait_until_ready(lambda: http_probe(f"{server.base_url}/api/health"), timeout=20.0)
+    if not ready:
+        print("Atlas backend failed to start", file=sys.stderr)
+        server.stop()
+        return 1
+
+    import webview  # lazy: GUI dependency only needed at runtime
+
+    window = webview.create_window("Atlas", server.base_url, width=1280, height=860)
+    window.events.closed += server.stop  # stop the server when the window closes
+    webview.start()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
