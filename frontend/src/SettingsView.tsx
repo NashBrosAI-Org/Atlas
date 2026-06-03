@@ -46,6 +46,8 @@ export function SettingsView({ onSaved }: { onSaved?: () => void }) {
     setTest(null);
     try {
       setTest(await testConnection());
+    } catch (e) {
+      setTest({ ok: false, error: String(e) });
     } finally {
       setBusy(false);
     }
