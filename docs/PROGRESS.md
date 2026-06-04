@@ -3,12 +3,12 @@
 Update this **after each unit of work**, not at session end. (Per the user's standing
 preference for living progress docs.)
 
-Last updated: 2026-06-03 (desktop shell — `Atlas.app` builds & runs natively; Plan A complete)
+Last updated: 2026-06-03 (desktop trilogy A/B/C complete — installable, in-app-configurable `Atlas.app`; project docs synced)
 
 ## Current status
 - **Phase:** P1 (SN-backed command center foundation) — **Plans 1 & 2 code complete**; **SN scoped app + all 14 tables now provisioned and verified on the live `nnash` instance** via the SDK. Remaining P1 work is Plan-1 Task 15 (point the FastAPI backend at the live instance).
-- **Plans done:** [`superpowers/plans/2026-06-02-atlas-foundation.md`](superpowers/plans/2026-06-02-atlas-foundation.md) (Plan 1), [`superpowers/plans/2026-06-02-atlas-dossier.md`](superpowers/plans/2026-06-02-atlas-dossier.md) (Plan 2).
-- **Branch:** `main` (canonical). **Remote: `NashBrosAI-Org/Atlas` (private)**, pushed 2026-06-02. **CI:** GitHub Actions (backend pytest + frontend build) — green. SN Fluent app added on `feature/servicenow-fluent-app` (PR pending).
+- **Plans done:** [Plan 1 foundation](superpowers/plans/2026-06-02-atlas-foundation.md), [Plan 2 dossier](superpowers/plans/2026-06-02-atlas-dossier.md), and the desktop app — [design spec](superpowers/specs/2026-06-02-atlas-desktop-app-design.md) + [A shell](superpowers/plans/2026-06-03-atlas-desktop-shell.md) (#7) / [B in-app config](superpowers/plans/2026-06-03-atlas-in-app-config.md) (#10) / [C distribution](superpowers/plans/2026-06-03-atlas-shareable-distribution.md) (#11).
+- **Branch:** `main` (canonical). **Remote: `NashBrosAI-Org/Atlas` (private)**, pushed 2026-06-02. **CI:** GitHub Actions (backend pytest + frontend build) — green. SN Fluent app merged (#5); desktop A/B/C merged (#7/#10/#11).
 - **Desktop:** Plan A (desktop shell) complete (D13) — `Atlas.app` builds via `scripts/build-desktop.sh` and runs as a native window; serves UI + `/api` from one local process, no Gatekeeper quarantine. **Plan B (in-app configuration) complete on `feature/desktop-config`** (D14) — a Settings page configures the ServiceNow connection in-app (basic auth per D11); non-secrets → `~/Library/Application Support/Atlas/config.json`, password → Keychain; verified end-to-end in the packaged app. **Plan C (shareable distribution) complete** (D15) — `scripts/install.sh` builds + installs `Atlas.app` to `~/Applications` (no Developer ID), an in-app Help view + `docs/SHARING.md` cover setup, risk R5 logged. **Desktop trilogy (A/B/C) done.**
 - **Next:** Plan-1 **Task 15** — point the FastAPI app at `nnash` (`USE_FAKE=false`, scope `x_atlas_sn`) and confirm the dossier renders **real** records. ⚠️ The OAuth token flow in `auth.py` will hit the same walled inbound-OAuth endpoints (see D11); plan to switch the live backend to **basic auth** (local non-MFA user) like the SDK did.
 
