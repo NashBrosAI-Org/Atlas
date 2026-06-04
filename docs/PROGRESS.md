@@ -18,7 +18,7 @@ Last updated: 2026-06-03 (live READ path to `nnash` verified — Task 15; deskto
 | 1–6 | ServiceNow scoped app + full 14-table schema | ✅ **done** — built as Fluent code (`servicenow/`) via the SDK and `install`ed to `nnash`; 14/14 tables verified | ServiceNow (`nnash`) |
 | 7–13 | FastAPI backend (config, models, ServiceNowClient + FakeServiceNow, HttpServiceNow + OAuth, DI, Clients/Tasks API, deterministic Now ordering) | ✅ done | personal Mac |
 | 14 | React Now view | ✅ done | personal Mac |
-| 15 | Point app at live instance + verify | 🔄 **READ path verified live** (2026-06-03): basic auth (D14) connects to `nnash`, `x_atlas_sn_client` queryable (0 rows). Write round-trip + dossier-on-real-data pending | personal Mac → `nnash` |
+| 15 | Point app at live instance + verify | ✅ **verified live** (2026-06-03): basic auth (D14) read+write+delete round-trip against `nnash`, clean field shapes (parity fix #15). Optional follow-up: exercise the dossier endpoint on seeded real data | personal Mac → `nnash` |
 
 ## Plan 2 task status — COMPLETE (code)
 Generic `crud_router` factory (Contact/Engagement/Theme/Meeting/Transcript/Note), polymorphic Note pinning, `GET /api/clients/{id}/dossier` aggregate, React dossier page + org chart + transcript paste + note composer. **30/30 backend tests green; frontend builds clean; dossier verified e2e against the mock.**
@@ -55,7 +55,7 @@ Status: ❌ **not yet authenticated** (attempts so far ran in a non-interactive 
 ## Live connection status (Task 15) — updated 2026-06-03
 
 - **READ path verified end-to-end.** With `USE_FAKE=false` + basic auth (`atlas.sdk`, per D14/D11), building the live client and calling `list("x_atlas_sn_client")` against `nnash` returns **200 with 0 rows** — auth works, the scope/table resolve, and `allowWebServiceAccess:true` is honored (no 403). The schema is empty (fresh install).
-- **Pending:** a **write round-trip** (create→get→list) to confirm choice-defaults land (`status=active`) and that reference/boolean fields come back in the shape the frontend expects. Not yet run (it writes a row to the live instance).
+- **✅ WRITE round-trip verified (2026-06-03).** Against `nnash` with main's `get_sn` (basic auth): `create`→`get`→`list`→`delete` all succeeded; fields come back as plain `str` (`sys_id`, `status`) — no `{link,value}` objects — confirming the parity fix on real data. Test row was deleted (instance left clean, 0 rows). **Task 15 functionally complete.** Config note: main reads `SN_AUTH` + `SN_OAUTH_USERNAME`/`SN_OAUTH_PASSWORD` (+ config.json/Keychain overlay from D14); the local `.env` was realigned to those names.
 - **✅ Reference-link parity fixed (#15).** `sysparm_exclude_reference_link=true` + `sysparm_display_value=false` now apply on **get/create/update** (was `list`-only), so live reference fields come back as plain `sys_id` strings matching the fake. (This was the one useful piece of the old `feature/backend-live-basic-auth` branch / PR #6 — the rest was superseded by D14's basic auth; PR #6 closed and the branch deleted.)
 
 ## Decisions (ADR-style log)
