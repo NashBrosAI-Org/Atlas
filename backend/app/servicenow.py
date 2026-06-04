@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Protocol, Optional, Callable
 import itertools
 import httpx
@@ -14,9 +15,13 @@ class FakeServiceNow:
     """In-memory stand-in for the SN Table API. Used in tests and on the
     personal Mac (USE_FAKE=true) so no live instance is required."""
 
-    def __init__(self) -> None:
+    def __init__(self, clock: Optional[Callable[[], datetime]] = None) -> None:
         self._tables: dict[str, dict[str, dict]] = {}
         self._ids = itertools.count(1)
+        self._clock = clock or (lambda: datetime.now(timezone.utc))
+
+    def _now_iso(self) -> str:
+        return self._clock().strftime("%Y-%m-%dT%H:%M:%SZ")
 
     def _table(self, table: str) -> dict[str, dict]:
         return self._tables.setdefault(table, {})
@@ -32,13 +37,15 @@ class FakeServiceNow:
 
     async def create(self, table: str, payload: dict) -> dict:
         sys_id = f"fake{next(self._ids):06d}"
-        record = {**payload, "sys_id": sys_id}
+        ts = self._now_iso()
+        record = {**payload, "sys_id": sys_id, "sys_created_on": ts, "sys_updated_on": ts}
         self._table(table)[sys_id] = record
         return record
 
     async def update(self, table: str, sys_id: str, payload: dict) -> dict:
         record = self._table(table)[sys_id]
         record.update(payload)
+        record["sys_updated_on"] = self._now_iso()
         return record
 
 
