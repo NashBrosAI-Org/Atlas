@@ -51,6 +51,23 @@ export interface AppSettings {
   sn_auth: string;
   sn_oauth_username: string;
   password_set: boolean;
+  cooling_days: number;
+  stale_days: number;
+}
+export interface ActivityEvent {
+  type: string;
+  title: string;
+  when: string;
+  client: string;
+  client_name: string;
+  status: string | null;
+}
+export interface RadarEntry {
+  client: string;
+  client_name: string;
+  last_activity: string;
+  days_quiet: number;
+  tier: "cooling" | "stale";
 }
 export interface AppStatus {
   fake: boolean;

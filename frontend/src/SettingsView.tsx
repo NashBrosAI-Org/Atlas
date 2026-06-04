@@ -28,6 +28,8 @@ export function SettingsView({ onSaved }: { onSaved?: () => void }) {
         sn_instance_url: snap.sn_instance_url,
         sn_scope: snap.sn_scope,
         sn_oauth_username: snap.sn_oauth_username,
+        cooling_days: snap.cooling_days,
+        stale_days: snap.stale_days,
         ...(password ? { password } : {}),
       });
       setS(saved);
@@ -85,6 +87,18 @@ export function SettingsView({ onSaved }: { onSaved?: () => void }) {
         <label>Scope
           <input value={s.sn_scope}
                  onChange={(e) => set({ sn_scope: e.target.value })} />
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Radar thresholds (days)</legend>
+        <label>Cooling after
+          <input type="number" min={1} value={s.cooling_days}
+                 onChange={(e) => set({ cooling_days: Number(e.target.value) })} />
+        </label>
+        <label>Stale after
+          <input type="number" min={1} value={s.stale_days}
+                 onChange={(e) => set({ stale_days: Number(e.target.value) })} />
         </label>
       </fieldset>
 

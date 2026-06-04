@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { Dossier } from "./types";
-import { getDossier } from "./api";
+import type { Dossier, ActivityEvent } from "./types";
+import { getDossier, getTimeline } from "./api";
 import { OrgChart } from "./OrgChart";
 import { NoteComposer } from "./NoteComposer";
 import { TranscriptPaste } from "./TranscriptPaste";
@@ -16,8 +16,12 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export function DossierView({ clientSysId, onBack }: { clientSysId: string; onBack: () => void }) {
   const [d, setD] = useState<Dossier | null>(null);
+  const [timeline, setTimeline] = useState<ActivityEvent[] | null>(null);
   const refresh = () => getDossier(clientSysId).then(setD);
   useEffect(() => { refresh(); }, [clientSysId]);
+  useEffect(() => {
+    getTimeline(clientSysId).then(setTimeline).catch(() => setTimeline([]));
+  }, [clientSysId]);
   if (!d) return <p style={{ margin: "2rem" }}>Loading…</p>;
 
   return (
@@ -50,6 +54,22 @@ export function DossierView({ clientSysId, onBack }: { clientSysId: string; onBa
         <ul>{d.notes.map((n) => <li key={n.sys_id}><strong>[{n.note_type}]</strong> {n.title}</li>)}</ul>
         <NoteComposer targetTable="client" targetId={clientSysId} onSaved={refresh} />
       </Section>
+
+      <section>
+        <h3>Timeline</h3>
+        {timeline === null ? <p>Loading…</p>
+          : timeline.length === 0 ? <p>No activity yet.</p>
+          : (
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {timeline.map((e, i) => (
+                <li key={i} style={{ padding: "3px 0" }}>
+                  <span style={{ color: "#888" }}>{e.when.slice(0, 10)}</span> — {e.title}
+                  {e.status ? <em style={{ color: "#888" }}> ({e.status})</em> : null}
+                </li>
+              ))}
+            </ul>
+          )}
+      </section>
     </div>
   );
 }
