@@ -55,12 +55,17 @@ class HttpServiceNow:
             headers["Authorization"] = f"Bearer {self._token()}"
         return headers
 
+    # Make real SN responses match the fake's shape: reference fields as plain
+    # sys_id strings (not {link,value}) and raw stored values (not display
+    # labels). Applied to every verb for consistency.
+    _PARAMS = {"sysparm_display_value": "false", "sysparm_exclude_reference_link": "true"}
+
     @staticmethod
     def _encode_query(query: dict) -> str:
         return "^".join(f"{k}={v}" for k, v in query.items())
 
     async def list(self, table, query=None):
-        params = {"sysparm_display_value": "false", "sysparm_exclude_reference_link": "true"}
+        params = dict(self._PARAMS)
         if query:
             params["sysparm_query"] = self._encode_query(query)
         r = await self._http.get(f"/api/now/table/{table}", params=params, headers=self._headers())
@@ -68,18 +73,24 @@ class HttpServiceNow:
         return r.json()["result"]
 
     async def get(self, table, sys_id):
-        r = await self._http.get(f"/api/now/table/{table}/{sys_id}", headers=self._headers())
+        r = await self._http.get(
+            f"/api/now/table/{table}/{sys_id}", params=self._PARAMS, headers=self._headers()
+        )
         if r.status_code == 404:
             return None
         r.raise_for_status()
         return r.json()["result"]
 
     async def create(self, table, payload):
-        r = await self._http.post(f"/api/now/table/{table}", json=payload, headers=self._headers())
+        r = await self._http.post(
+            f"/api/now/table/{table}", params=self._PARAMS, json=payload, headers=self._headers()
+        )
         r.raise_for_status()
         return r.json()["result"]
 
     async def update(self, table, sys_id, payload):
-        r = await self._http.patch(f"/api/now/table/{table}/{sys_id}", json=payload, headers=self._headers())
+        r = await self._http.patch(
+            f"/api/now/table/{table}/{sys_id}", params=self._PARAMS, json=payload, headers=self._headers()
+        )
         r.raise_for_status()
         return r.json()["result"]
