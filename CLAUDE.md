@@ -48,6 +48,12 @@ layer on in later phases. Full picture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE
 - Open a PR; merge once CI is green — `gh` CLI or GitHub MCP, whichever has `NashBrosAI-Org` access (`gh` is reliable; the MCP token currently lacks org access). Never blind-merge on red/pending CI. Tests pass and no debug code before merging.
 
 **Concurrent sessions — one worktree each**
+> **Session start (do this first, automatically — do not ask):** the moment a session is going to
+> make *any* edit, put it in its own worktree *before touching a file* — `claude --worktree <task>`
+> or the `EnterWorktree` tool. **Never edit the primary `main` checkout directly.** This is
+> mandatory and automatic; treat it as the first step of every non-trivial task, not a prompt for
+> the user. (Three merge conflicts in one session traced to skipping this — see D8/D10.)
+
 **Worktrees are the default unit of work, not just a concurrency tool.** Every non-trivial task gets
 its own worktree (which carries its own branch); the primary checkout stays clean on `main` as the
 deploy base and never holds in-progress work. The only exception is trivial read-only work
