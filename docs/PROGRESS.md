@@ -3,14 +3,14 @@
 Update this **after each unit of work**, not at session end. (Per the user's standing
 preference for living progress docs.)
 
-Last updated: 2026-06-03 (desktop trilogy A/B/C complete — installable, in-app-configurable `Atlas.app`; project docs synced)
+Last updated: 2026-06-03 (live READ path to `nnash` verified — Task 15; desktop trilogy A/B/C complete; project docs synced)
 
 ## Current status
 - **Phase:** P1 (SN-backed command center foundation) — **Plans 1 & 2 code complete**; **SN scoped app + all 14 tables now provisioned and verified on the live `nnash` instance** via the SDK. Remaining P1 work is Plan-1 Task 15 (point the FastAPI backend at the live instance).
 - **Plans done:** [Plan 1 foundation](superpowers/plans/2026-06-02-atlas-foundation.md), [Plan 2 dossier](superpowers/plans/2026-06-02-atlas-dossier.md), and the desktop app — [design spec](superpowers/specs/2026-06-02-atlas-desktop-app-design.md) + [A shell](superpowers/plans/2026-06-03-atlas-desktop-shell.md) (#7) / [B in-app config](superpowers/plans/2026-06-03-atlas-in-app-config.md) (#10) / [C distribution](superpowers/plans/2026-06-03-atlas-shareable-distribution.md) (#11).
 - **Branch:** `main` (canonical). **Remote: `NashBrosAI-Org/Atlas` (private)**, pushed 2026-06-02. **CI:** GitHub Actions (backend pytest + frontend build) — green. SN Fluent app merged (#5); desktop A/B/C merged (#7/#10/#11).
 - **Desktop:** Plan A (desktop shell) complete (D13) — `Atlas.app` builds via `scripts/build-desktop.sh` and runs as a native window; serves UI + `/api` from one local process, no Gatekeeper quarantine. **Plan B (in-app configuration) complete on `feature/desktop-config`** (D14) — a Settings page configures the ServiceNow connection in-app (basic auth per D11); non-secrets → `~/Library/Application Support/Atlas/config.json`, password → Keychain; verified end-to-end in the packaged app. **Plan C (shareable distribution) complete** (D15) — `scripts/install.sh` builds + installs `Atlas.app` to `~/Applications` (no Developer ID), an in-app Help view + `docs/SHARING.md` cover setup, risk R5 logged. **Desktop trilogy (A/B/C) done.**
-- **Next:** Plan-1 **Task 15** — point the FastAPI app at `nnash` (`USE_FAKE=false`, scope `x_atlas_sn`) and confirm the dossier renders **real** records. ⚠️ The OAuth token flow in `auth.py` will hit the same walled inbound-OAuth endpoints (see D11); plan to switch the live backend to **basic auth** (local non-MFA user) like the SDK did.
+- **Next:** finish Plan-1 **Task 15**. Basic auth is already wired on `main` (D14) and the **READ path is verified live** (this session, 2026-06-03 — see "Live connection status" below). Remaining: a **write round-trip** (create→get→list) against `nnash`, then confirm the dossier renders **real** records. Watch the mock-vs-real field gaps (booleans as `"true"/"false"`, choice/date formats, reference fields, pagination).
 
 ## Plan 1 task status — COMPLETE (code)
 | Task | What | Status | Where it runs |
@@ -18,7 +18,7 @@ Last updated: 2026-06-03 (desktop trilogy A/B/C complete — installable, in-app
 | 1–6 | ServiceNow scoped app + full 14-table schema | ✅ **done** — built as Fluent code (`servicenow/`) via the SDK and `install`ed to `nnash`; 14/14 tables verified | ServiceNow (`nnash`) |
 | 7–13 | FastAPI backend (config, models, ServiceNowClient + FakeServiceNow, HttpServiceNow + OAuth, DI, Clients/Tasks API, deterministic Now ordering) | ✅ done | personal Mac |
 | 14 | React Now view | ✅ done | personal Mac |
-| 15 | Point app at live instance + verify | ⏳ TODO — after the SDK provision lands | personal Mac → `nnash` |
+| 15 | Point app at live instance + verify | 🔄 **READ path verified live** (2026-06-03): basic auth (D14) connects to `nnash`, `x_atlas_sn_client` queryable (0 rows). Write round-trip + dossier-on-real-data pending | personal Mac → `nnash` |
 
 ## Plan 2 task status — COMPLETE (code)
 Generic `crud_router` factory (Contact/Engagement/Theme/Meeting/Transcript/Note), polymorphic Note pinning, `GET /api/clients/{id}/dossier` aggregate, React dossier page + org chart + transcript paste + note composer. **30/30 backend tests green; frontend builds clean; dossier verified e2e against the mock.**
@@ -51,6 +51,12 @@ Status: ❌ **not yet authenticated** (attempts so far ran in a non-interactive 
 - Then Plan-1 Task 15: point the FastAPI app at `nnash` (`USE_FAKE=false`, OAuth) and confirm the dossier renders **real** records — watch for the mock-vs-real field gaps (booleans as `"true"/"false"`, choice/date formats, list pagination).
 
 > "App repo publish" (the **Application Repository**) is a *later* step — that's for pushing the finished app to *other* instances in the org. Getting it into `nnash` from this repo is the `install` above.
+
+## Live connection status (Task 15) — updated 2026-06-03
+
+- **READ path verified end-to-end.** With `USE_FAKE=false` + basic auth (`atlas.sdk`, per D14/D11), building the live client and calling `list("x_atlas_sn_client")` against `nnash` returns **200 with 0 rows** — auth works, the scope/table resolve, and `allowWebServiceAccess:true` is honored (no 403). The schema is empty (fresh install).
+- **Pending:** a **write round-trip** (create→get→list) to confirm choice-defaults land (`status=active`) and that reference/boolean fields come back in the shape the frontend expects. Not yet run (it writes a row to the live instance).
+- **⚠️ Stale branch `feature/backend-live-basic-auth` (was PR #6) — DO NOT MERGE AS-IS.** It predates / overlaps D14's basic-auth, which is canonical on `main`. **But** it carries one fix `main` still lacks: `sysparm_exclude_reference_link=true` + `sysparm_display_value=false` on **get/create/update** (currently `list`-only in `app/servicenow.py`). Without it, live reference fields return as `{link,value}` objects instead of plain `sys_id` strings — a real mock-vs-real gap. **Action:** port just that parity change onto `main`'s `HttpServiceNow`, then delete the stale branch.
 
 ## Decisions (ADR-style log)
 
