@@ -51,7 +51,9 @@ async def test_connection() -> dict:
     """Make one lightweight call through the current client. In demo mode this
     always succeeds; live, it surfaces auth/URL errors as ok=False + message."""
     try:
-        await main_deps.get_sn().list("sys_user", {"sysparm_limit": "1"})
+        # A single authenticated GET is enough to prove reachability + creds;
+        # no query needed (the client's list() turns a dict into a sysparm_query).
+        await main_deps.get_sn().list("sys_user")
         return {"ok": True}
     except Exception as exc:  # noqa: BLE001 — report any failure to the UI
         return {"ok": False, "error": str(exc)}
