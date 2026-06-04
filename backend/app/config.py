@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     sn_oauth_client_secret: str = ""
     sn_oauth_username: str = ""
     sn_oauth_password: str = ""
+    cooling_days: int = 14
+    stale_days: int = 30
 
 
 def get_settings() -> Settings:
