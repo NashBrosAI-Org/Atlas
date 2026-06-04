@@ -56,7 +56,7 @@ Status: ❌ **not yet authenticated** (attempts so far ran in a non-interactive 
 
 - **READ path verified end-to-end.** With `USE_FAKE=false` + basic auth (`atlas.sdk`, per D14/D11), building the live client and calling `list("x_atlas_sn_client")` against `nnash` returns **200 with 0 rows** — auth works, the scope/table resolve, and `allowWebServiceAccess:true` is honored (no 403). The schema is empty (fresh install).
 - **Pending:** a **write round-trip** (create→get→list) to confirm choice-defaults land (`status=active`) and that reference/boolean fields come back in the shape the frontend expects. Not yet run (it writes a row to the live instance).
-- **⚠️ Stale branch `feature/backend-live-basic-auth` (was PR #6) — DO NOT MERGE AS-IS.** It predates / overlaps D14's basic-auth, which is canonical on `main`. **But** it carries one fix `main` still lacks: `sysparm_exclude_reference_link=true` + `sysparm_display_value=false` on **get/create/update** (currently `list`-only in `app/servicenow.py`). Without it, live reference fields return as `{link,value}` objects instead of plain `sys_id` strings — a real mock-vs-real gap. **Action:** port just that parity change onto `main`'s `HttpServiceNow`, then delete the stale branch.
+- **✅ Reference-link parity fixed (#15).** `sysparm_exclude_reference_link=true` + `sysparm_display_value=false` now apply on **get/create/update** (was `list`-only), so live reference fields come back as plain `sys_id` strings matching the fake. (This was the one useful piece of the old `feature/backend-live-basic-auth` branch / PR #6 — the rest was superseded by D14's basic auth; PR #6 closed and the branch deleted.)
 
 ## Decisions (ADR-style log)
 
