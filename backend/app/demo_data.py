@@ -1,6 +1,7 @@
 """Sample data for demo mode (USE_FAKE). Populates an in-memory FakeServiceNow so
-the app looks alive on first run. Called ONLY from the desktop launcher (never in
-tests — the test suite relies on the fake starting empty)."""
+the app looks alive on first run. Auto-invoked ONLY by the desktop launcher — it
+never runs against the app's shared fake during tests, so other tests start empty.
+(test_demo_data.py calls it directly against its own throwaway FakeServiceNow.)"""
 from datetime import datetime, timedelta, timezone
 
 from app.config import get_settings
