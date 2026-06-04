@@ -84,3 +84,12 @@ def test_test_connection_reports_failure(monkeypatch, tmp_path):
     body = r.json()
     assert body["ok"] is False
     assert "connection refused" in body["error"]
+
+
+def test_threshold_settings_roundtrip(monkeypatch, tmp_path):
+    c = _client(monkeypatch, tmp_path)
+    defaults = c.get("/api/settings").json()
+    assert defaults["cooling_days"] == 14 and defaults["stale_days"] == 30
+    c.put("/api/settings", json={"cooling_days": 7, "stale_days": 21})
+    got = c.get("/api/settings").json()
+    assert got["cooling_days"] == 7 and got["stale_days"] == 21

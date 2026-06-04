@@ -1,6 +1,9 @@
 """Sample data for demo mode (USE_FAKE). Populates an in-memory FakeServiceNow so
-the app looks alive on first run. Called ONLY from the desktop launcher (never in
-tests — the test suite relies on the fake starting empty)."""
+the app looks alive on first run. Auto-invoked ONLY by the desktop launcher — it
+never runs against the app's shared fake during tests, so other tests start empty.
+(test_demo_data.py calls it directly against its own throwaway FakeServiceNow.)"""
+from datetime import datetime, timedelta, timezone
+
 from app.config import get_settings
 from app.servicenow import ServiceNowClient
 
@@ -47,3 +50,23 @@ async def seed_demo(sn: ServiceNowClient) -> None:
                                  "status": "watching"})
     await sn.create(t("note"), {"title": "Acme renewal at risk if SSO slips", "note_type": "risk",
                                 "target_table": "client", "target_id": acme["sys_id"], "pinned": True})
+
+    # Backdate two active clients so the stale-client radar visibly demonstrates in demo
+    # mode (FakeServiceNow stamps sys_created_on from its clock). Demo-only; relies on the
+    # fake's _clock, so guard for it.
+    if hasattr(sn, "_clock"):
+        original_clock = sn._clock
+        now = datetime.now(timezone.utc)
+        try:
+            sn._clock = lambda: now - timedelta(days=20)  # cooling (>= 14 days quiet)
+            wonka = await sn.create(t("client"), {"name": "Wonka Industries",
+                                                  "short_code": "WONK", "status": "active"})
+            await sn.create(t("task"), {"title": "Check in with Wonka", "client": wonka["sys_id"],
+                                        "priority": "medium", "status": "open"})
+            sn._clock = lambda: now - timedelta(days=45)  # stale (>= 30 days quiet)
+            stark = await sn.create(t("client"), {"name": "Stark Solutions",
+                                                  "short_code": "STRK", "status": "active"})
+            await sn.create(t("task"), {"title": "Stark renewal — overdue touch",
+                                        "client": stark["sys_id"], "priority": "high", "status": "open"})
+        finally:
+            sn._clock = original_clock

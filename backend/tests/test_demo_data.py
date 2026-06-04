@@ -46,3 +46,15 @@ async def test_seed_dossier_shape_for_first_client():
     notes = await fake.list(_t("note"))
     assert contacts_any
     assert any(n.get("target_table") == "client" for n in notes)
+
+
+@pytest.mark.asyncio
+async def test_seed_produces_radar_flaggable_clients():
+    from app.awareness import stale_radar
+
+    fake = FakeServiceNow()
+    await seed_demo(fake)
+    radar = await stale_radar(fake, get_settings().sn_scope, cooling_days=14, stale_days=30)
+    tiers = {r["client_name"]: r["tier"] for r in radar}
+    assert tiers.get("Stark Solutions") == "stale"
+    assert tiers.get("Wonka Industries") == "cooling"

@@ -4,9 +4,10 @@ import { ClientsView } from "./ClientsView";
 import { DossierView } from "./DossierView";
 import { SettingsView } from "./SettingsView";
 import { HelpView } from "./HelpView";
+import { AwarenessView } from "./AwarenessView";
 import { getStatus } from "./api";
 
-type View = "now" | "clients" | "dossier" | "settings" | "help";
+type View = "now" | "clients" | "dossier" | "settings" | "help" | "awareness";
 
 export default function App() {
   const [view, setView] = useState<View>("now");
@@ -33,6 +34,7 @@ export default function App() {
       <nav style={{ display: "flex", gap: 12, padding: "8px 16px", borderBottom: "1px solid #ddd", fontFamily: "system-ui" }}>
         <button onClick={() => setView("now")}>Now</button>
         <button onClick={() => setView("clients")}>Clients</button>
+        <button onClick={() => setView("awareness")}>Awareness</button>
         <button onClick={() => setView("settings")}>Settings</button>
         <button onClick={() => setView("help")}>Help</button>
       </nav>
@@ -42,6 +44,9 @@ export default function App() {
       )}
       {view === "dossier" && clientSysId && (
         <DossierView clientSysId={clientSysId} onBack={() => setView("clients")} />
+      )}
+      {view === "awareness" && (
+        <AwarenessView onOpenClient={(id) => { setClientSysId(id); setView("dossier"); }} />
       )}
       {view === "settings" && (
         <SettingsView onSaved={() => setView("now")} />

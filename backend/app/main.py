@@ -36,6 +36,8 @@ app.include_router(crud_router("transcripts", "transcript", Transcript))
 app.include_router(crud_router("notes", "note", Note))
 app.include_router(dossier.router)
 app.include_router(settings_router.router)
+from app.routers import awareness as awareness_router  # noqa: E402
+app.include_router(awareness_router.router)
 
 _default_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 _dist = Path(os.environ["ATLAS_FRONTEND_DIST"]) if os.environ.get("ATLAS_FRONTEND_DIST") else _default_dist

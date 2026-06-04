@@ -8,7 +8,8 @@ from app.config import get_settings
 router = APIRouter(prefix="/api")
 
 # Non-secret settings the UI may read/write.
-_NON_SECRET = ("use_fake", "sn_instance_url", "sn_scope", "sn_auth", "sn_oauth_username")
+_NON_SECRET = ("use_fake", "sn_instance_url", "sn_scope", "sn_auth", "sn_oauth_username",
+               "cooling_days", "stale_days")
 
 
 class SettingsIn(BaseModel):
@@ -17,6 +18,8 @@ class SettingsIn(BaseModel):
     sn_scope: str | None = None
     sn_auth: str | None = None
     sn_oauth_username: str | None = None
+    cooling_days: int | None = None
+    stale_days: int | None = None
     password: str | None = None  # write-only; never returned
 
 
