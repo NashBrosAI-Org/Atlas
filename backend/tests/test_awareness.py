@@ -106,3 +106,29 @@ async def test_radar_active_client_with_no_activity_uses_own_age():
     await sn.create(f"{SCOPE}_client", {"name": "Ghost", "status": "active"})
     radar = await stale_radar(sn, SCOPE, cooling_days=14, stale_days=30, now=NOW)
     assert radar and radar[0]["client_name"] == "Ghost" and radar[0]["tier"] == "stale"
+
+
+@pytest.mark.asyncio
+async def test_mixed_timestamp_formats_sort_correctly():
+    # meeting domain date in SN format (space, naive) at noon; task created (Z format) at 9am, same day.
+    # Correct order: meeting (12:00) before task (09:00) when newest-first.
+    sn = FakeServiceNow(clock=lambda: datetime(2026, 6, 2, 9, 0, 0, tzinfo=timezone.utc))
+    c = await sn.create(f"{SCOPE}_client", {"name": "Acme", "status": "active"})
+    await sn.create(f"{SCOPE}_task", {"title": "T", "client": c["sys_id"]})          # created 09:00 Z
+    await sn.create(f"{SCOPE}_meeting", {"title": "M", "client": c["sys_id"],
+                                         "datetime": "2026-06-02 12:00:00"})           # SN format, noon
+    tl = await build_timeline(sn, SCOPE, c["sys_id"])
+    assert [e["type"] for e in tl] == ["meeting", "task"]   # noon before 9am, newest-first
+    # all `when` values normalized to canonical Z form:
+    assert all(e["when"].endswith("Z") and "T" in e["when"] for e in tl)
+
+
+@pytest.mark.asyncio
+async def test_radar_handles_sn_format_naive_timestamp():
+    # A client whose only activity is an SN-format (naive) meeting date must not crash _days_since.
+    sn = FakeServiceNow(clock=lambda: datetime(2026, 6, 1, 0, 0, 0, tzinfo=timezone.utc))
+    c = await sn.create(f"{SCOPE}_client", {"name": "Acme", "status": "active"})
+    await sn.create(f"{SCOPE}_meeting", {"title": "M", "client": c["sys_id"],
+                                         "datetime": "2026-05-01 09:00:00"})  # ~60 days before NOW
+    radar = await stale_radar(sn, SCOPE, cooling_days=14, stale_days=30, now=NOW)
+    assert radar and radar[0]["client_name"] == "Acme" and radar[0]["tier"] == "stale"

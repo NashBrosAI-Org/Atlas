@@ -7,10 +7,27 @@ from typing import Optional
 from app.servicenow import ServiceNowClient
 
 
+def _parse_dt(ts: str) -> datetime:
+    """Parse fake (ISO Z), ISO-offset, or live-SN (`YYYY-MM-DD HH:MM:SS`, naive)
+    timestamps into a timezone-aware UTC datetime."""
+    dt = datetime.fromisoformat(ts.strip().replace("Z", "+00:00"))
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
+def _canonical(ts: str) -> str:
+    """Normalize any supported timestamp string to `YYYY-MM-DDTHH:MM:SSZ` so that
+    lexical sorting equals chronological sorting. Unparseable values pass through."""
+    if not ts:
+        return ""
+    try:
+        return _parse_dt(ts).astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        return ts
+
+
 def event_time(record: dict, domain_field: Optional[str] = None) -> str:
-    if domain_field and record.get(domain_field):
-        return record[domain_field]
-    return record.get("sys_created_on", "")
+    raw = record[domain_field] if (domain_field and record.get(domain_field)) else record.get("sys_created_on", "")
+    return _canonical(raw)
 
 
 def _ev(type_: str, title: str, when: str, client: str, client_name: str,
@@ -69,8 +86,10 @@ async def recent_activity(sn: ServiceNowClient, scope: str, limit: int = 50) -> 
 def _days_since(iso: str, now: datetime) -> int:
     if not iso:
         return 10 ** 6
-    dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
-    return (now - dt).days
+    try:
+        return (now - _parse_dt(iso)).days
+    except ValueError:
+        return 10 ** 6
 
 
 async def stale_radar(sn: ServiceNowClient, scope: str, cooling_days: int,
