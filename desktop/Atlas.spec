@@ -39,6 +39,6 @@ coll = COLLECT(exe, a.binaries, a.datas, name="Atlas")
 app = BUNDLE(
     coll,
     name="Atlas.app",
-    icon=None,  # placeholder; real .icns added in a later plan
+    icon=os.path.join(REPO, "desktop", "assets", "Atlas.icns"),
     bundle_identifier="dev.nashops.atlas",
 )
