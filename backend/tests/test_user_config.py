@@ -27,3 +27,11 @@ def test_password_roundtrip_via_keychain(monkeypatch):
     assert uc.get_password() == "hunter2"
     uc.clear_password()
     assert uc.get_password() is None
+
+
+def test_get_password_returns_none_when_no_backend(monkeypatch):
+    def _raise(*_a, **_k):
+        raise uc.keyring.errors.NoKeyringError("no backend")
+
+    monkeypatch.setattr(uc.keyring, "get_password", _raise)
+    assert uc.get_password() is None  # must not crash (headless CI has no keyring)

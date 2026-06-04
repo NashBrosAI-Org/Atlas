@@ -32,6 +32,13 @@ def main() -> int:
     from app.main import app  # noqa: E402
     from desktop.server import ServerThread, find_free_port, http_probe, wait_until_ready
 
+    from app.config import get_settings
+    if get_settings().use_fake:
+        import asyncio
+        from app.demo_data import seed_demo
+        from app.main_deps import get_sn
+        asyncio.run(seed_demo(get_sn()))
+
     port = find_free_port()
     server = ServerThread(app, host="127.0.0.1", port=port)
     server.start()

@@ -50,7 +50,12 @@ def save_password(password: str) -> None:
 
 
 def get_password() -> Optional[str]:
-    return keyring.get_password(_KEYRING_SERVICE, _PASSWORD_KEY)
+    # Resilient on machines with no keyring backend (e.g. headless CI): treat a
+    # missing backend as "no password stored" rather than crashing get_settings().
+    try:
+        return keyring.get_password(_KEYRING_SERVICE, _PASSWORD_KEY)
+    except keyring.errors.KeyringError:
+        return None
 
 
 def clear_password() -> None:
