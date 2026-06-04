@@ -5,9 +5,13 @@ Project guardrails and conventions for anyone (human or agent) working in this r
 
 ## What Atlas is
 A client-centric command center for juggling ~6 customer accounts. **ServiceNow scoped app** =
-backend/system-of-record. **Local FastAPI (`:8000`) + React/Vite (`:5173`)** on the work Mac =
-the daily UI (not a ServiceNow Workspace). Microsoft 365 (email/calendar) and AI (summaries,
-decks, search) layer on in later phases. Full picture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+backend/system-of-record. The daily UI is a **native macOS desktop app** (`Atlas.app`): a FastAPI
+backend serving a React UI from **one** local process, wrapped in a native window
+(pywebview + PyInstaller) — not a ServiceNow Workspace, not a browser tab. It's configured entirely
+in-app (a Settings page; password → Keychain, non-secrets → `~/Library/Application Support/Atlas/`)
+and installed with `scripts/install.sh` (local build, no Apple Developer ID). In dev it still runs as
+FastAPI (`:8000`) + Vite (`:5173`). Microsoft 365 (email/calendar) and AI (summaries, decks, search)
+layer on in later phases. Full picture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Hard rules (the guardrails)
 
@@ -73,8 +77,9 @@ them with the commands above. Canonical rule (applies to every repo, not just th
 
 **TypeScript / React (frontend)**
 - `src/types.ts` mirrors the backend pydantic models — change both together.
-- The frontend calls **only** `http://localhost:8000/api`. No direct SN/Graph calls, no secrets in
-  the browser. Small, focused view files.
+- The frontend calls **only** the relative `/api` — same-origin when packaged (FastAPI serves the
+  built bundle); a Vite dev proxy forwards `/api` → `:8000` in `npm run dev`. No direct SN/Graph
+  calls, no secrets in the client. Small, focused view files.
 
 **ServiceNow (scoped app)**
 - Built as **Fluent code via the ServiceNow SDK** (`now-sdk`), *not* hand-built in the UI. The app
@@ -101,4 +106,8 @@ cd backend && source .venv/bin/activate && pytest -v
 USE_FAKE=true uvicorn app.main:app --reload --port 8000
 # frontend (separate terminal; needs backend on :8000)
 cd frontend && npm run dev
+
+# desktop app — build & install a native Atlas.app to ~/Applications (re-run to update)
+bash scripts/install.sh          # builds + installs + opens (needs Node + Python 3.10–3.13)
+bash scripts/build-desktop.sh    # just build dist/Atlas.app without installing
 ```

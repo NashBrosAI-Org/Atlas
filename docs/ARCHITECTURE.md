@@ -9,25 +9,32 @@ layered on later.
 | Tier | Holds | Why allowed |
 |------|-------|-------------|
 | **ServiceNow employee instance** (cloud) | Tasks, clients, contacts, meetings, transcripts, emails, notes, synthetic/demo data — the system of record | User-controlled corporate-adjacent cloud; also the skill-building + demo surface |
-| **Work Mac — local** | The FastAPI service, the React app, generated `.pptx`, *transient* M365 pulls, the export/backup files | Sanctioned corporate hardware |
+| **Work Mac — local** | `Atlas.app` (the packaged FastAPI + React app), per-user config (`~/Library/Application Support/Atlas/config.json`) + Keychain credentials, generated `.pptx`, *transient* M365 pulls, export/backup files | Sanctioned corporate hardware |
 | **Personal Mac — dev only** | Source code, mocks, synthetic fixtures | Never corporate data (see [CLAUDE.md](../CLAUDE.md) rule #1) |
 
 ## Shape
 
 ```
-ServiceNow scoped app (DB + workflows)
-        ▲  OAuth 2.0 / Table REST API
-        │
-FastAPI service  (localhost:8000, work Mac)  ──►  Microsoft Graph   (email/cal — Phase 2)
-        │                                    ──►  Anthropic API     (AI — Phase 3, additive)
-        │                                    ──►  python-pptx + web  (decks — Phase 3)
-        ▼  JSON over localhost
-React + Vite app  (localhost:5173)
+              Atlas.app — native macOS window (pywebview + PyInstaller)
+                         │  packaged = ONE local process
+ServiceNow scoped app   ▼
+   (DB + workflows)   FastAPI service (127.0.0.1, work Mac)  ──►  Microsoft Graph  (email/cal — P2)
+        ▲   Table REST   │   serves the built React UI at /    ──►  Anthropic API    (AI — P3, additive)
+        │   API, basic   │   JSON API under /api               ──►  python-pptx + web (decks — P3)
+        └───auth (D11)───┤
+                         ▼
+                  React UI  (served same-origin when packaged; Vite dev server :5173 in dev)
 ```
 
 ## Key design decisions
 - **SN is the backend, the local app is the frontend.** No ServiceNow Workspace UI — the
   custom React app is the daily surface.
+- **Delivered as a native macOS desktop app.** FastAPI serves the built React bundle from one
+  local process inside a pywebview window; PyInstaller bundles it into `Atlas.app`, installed via
+  `scripts/install.sh` (built locally → no Gatekeeper quarantine, **no Apple Developer ID**).
+  Configured in-app via a Settings page: non-secrets in `~/Library/Application Support/Atlas/config.json`,
+  the ServiceNow password in the macOS Keychain. The live ServiceNow connection uses **basic auth**
+  (OAuth is walled on `nnash` — decision D11). See plans A/B/C in [superpowers/plans/](superpowers/plans/).
 - **ServiceNow access sits behind an interface** (`ServiceNowClient`) with an in-memory
   `FakeServiceNow`, so the whole backend is built and tested with **no live instance and no
   corporate data** on the personal Mac.
