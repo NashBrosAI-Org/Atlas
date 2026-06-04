@@ -64,3 +64,28 @@ async def test_update_patches_payload():
     sn = _client(handler)
     updated = await sn.update("task", "9", {"status": "done"})
     assert updated["status"] == "done"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("verb", ["get", "create", "update"])
+async def test_reference_links_excluded_on_all_verbs(verb):
+    """Real SN returns reference fields as {link,value} objects and choices/
+    booleans as display values unless told otherwise. list already opts out;
+    get/create/update must too, so live records match the fake's plain sys_id
+    strings (the field-gap Task 15 warns about)."""
+    seen = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["url"] = str(request.url)
+        return httpx.Response(200, json={"result": {"sys_id": "9"}})
+
+    sn = _client(handler)
+    if verb == "get":
+        await sn.get("task", "9")
+    elif verb == "create":
+        await sn.create("task", {"title": "X"})
+    else:
+        await sn.update("task", "9", {"status": "done"})
+
+    assert "sysparm_exclude_reference_link=true" in seen["url"]
+    assert "sysparm_display_value=false" in seen["url"]
