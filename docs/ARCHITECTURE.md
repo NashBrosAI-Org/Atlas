@@ -38,6 +38,11 @@ ServiceNow scoped app   ▼
 - **ServiceNow access sits behind an interface** (`ServiceNowClient`) with an in-memory
   `FakeServiceNow`, so the whole backend is built and tested with **no live instance and no
   corporate data** on the personal Mac.
+- **Awareness is computed, not stored** (Plan 3a). `app/awareness.py` aggregates an activity
+  timeline + stale-client radar from existing records on read (`/api/awareness/*`); nothing new is
+  persisted. Records are time-ordered by domain date or `sys_created_on` — `FakeServiceNow` now
+  stamps `sys_created_on`/`sys_updated_on`, and awareness **normalizes timestamps** to handle both
+  the fake's ISO-`Z` form and live ServiceNow's `YYYY-MM-DD HH:MM:SS` (relevant when wiring live data).
 - **Deterministic-first.** The core value (what to work on) is plain task management, not AI.
 - **Migration-friendly schema** (CSM/PPM-aligned names) — see [DATA-MODEL](DATA-MODEL.md).
 
