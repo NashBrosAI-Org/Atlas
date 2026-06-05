@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from app import summaries
+from app import extraction, summaries
 from app.ai import AIClient
 from app.config import get_settings
 from app.main_deps import get_ai, get_sn
@@ -31,6 +31,13 @@ async def summary_client(client_id: str, sn: ServiceNowClient = Depends(get_sn),
     if out is None:
         raise HTTPException(status_code=404, detail=f"client {client_id} not found")
     return {"summary": out}
+
+
+@router.post("/extract/contact")
+async def extract_contact(body: dict, ai: AIClient = Depends(get_ai)) -> dict:
+    """Extract {name, role_title, email, phone} from an email signature (AI + regex)."""
+    _require_ai_enabled()
+    return await extraction.extract_contact_fields(ai, body.get("signature", ""))
 
 
 @router.post("/summary/transcript/{transcript_id}")

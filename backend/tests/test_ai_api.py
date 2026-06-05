@@ -32,6 +32,27 @@ def test_summary_endpoint_and_status(monkeypatch, tmp_path):
     assert status["enabled"] is True
 
 
+def test_extract_contact_endpoint(monkeypatch, tmp_path):
+    monkeypatch.setenv("ATLAS_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("AI_ENABLED", "true")
+    c = _client(FakeServiceNow())
+
+    r = c.post("/api/ai/extract/contact", json={"signature": "Jane Doe\njane@acme.com"})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["email"] == "jane@acme.com"
+    assert "name" in body
+
+
+def test_extract_contact_endpoint_gated_when_ai_disabled(monkeypatch, tmp_path):
+    monkeypatch.setenv("ATLAS_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("AI_ENABLED", "false")
+    c = _client(FakeServiceNow())
+
+    r = c.post("/api/ai/extract/contact", json={"signature": "Jane Doe\njane@acme.com"})
+    assert r.status_code == 403
+
+
 def test_summary_endpoint_is_gated_when_ai_disabled(monkeypatch, tmp_path):
     monkeypatch.setenv("ATLAS_DATA_DIR", str(tmp_path))
     monkeypatch.setenv("AI_ENABLED", "false")
