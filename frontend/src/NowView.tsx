@@ -5,6 +5,14 @@ import { MeetingPrepPanel } from "./MeetingPrepPanel";
 
 const PRIORITIES = ["critical", "high", "medium", "low"] as const;
 
+/** Plain-English reason a task sits where it does in the deterministic Now order. */
+function rankReason(t: Task): string {
+  const parts = [`priority: ${t.priority ?? "medium"}`,
+                 `due: ${t.due_date ?? "none"}`,
+                 t.is_commitment ? "commitment (sorts ahead of ties)" : "not a commitment"];
+  return "Ranked by " + parts.join(" · ");
+}
+
 function TaskComposer({ clients, defaultClient, onAdded }:
   { clients: Client[]; defaultClient: string; onAdded: () => void }) {
   const [title, setTitle] = useState("");
@@ -198,9 +206,14 @@ export function NowView() {
       </select>
       <TaskComposer clients={clients} defaultClient={filter} onAdded={refresh} />
       <FocusPanel />
+      <p style={{ fontSize: 12, color: "#888", margin: "8px 0 0" }}>
+        Ordered deterministically: <strong>priority</strong> → <strong>due date</strong> →
+        commitments first. (Hover a task to see why it ranks where it does.)
+      </p>
       <ul style={{ listStyle: "none", padding: 0 }}>
         {tasks.map((t) => (
-          <li key={t.sys_id} style={{ display: "flex", gap: 8, padding: "8px 0", borderBottom: "1px solid #eee" }}>
+          <li key={t.sys_id} title={rankReason(t)}
+              style={{ display: "flex", gap: 8, padding: "8px 0", borderBottom: "1px solid #eee" }}>
             <span style={{ width: 70, fontWeight: 600 }}>{t.priority}</span>
             <span style={{ flex: 1 }}>{t.is_commitment ? "🤝 " : ""}{t.title}</span>
             <span style={{ width: 100, color: "#888" }}>{t.due_date ?? "—"}</span>

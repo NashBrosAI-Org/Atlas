@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { MeetingPrep } from "./types";
 import { getMeetingPrep } from "./api";
 
@@ -8,24 +8,34 @@ export function MeetingPrepPanel({ meetingId, onClose }:
   { meetingId: string; onClose: () => void }) {
   const [prep, setPrep] = useState<MeetingPrep | null>(null);
   const [err, setErr] = useState("");
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     getMeetingPrep(meetingId).then(setPrep).catch((e) => setErr(String(e)));
   }, [meetingId]);
+
+  // a11y: Escape closes; move focus into the dialog on open.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    closeRef.current?.focus();
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
 
   return (
     <div onClick={onClose} style={{
       position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)",
       display: "flex", alignItems: "flex-start", justifyContent: "center", zIndex: 1000,
     }}>
-      <div onClick={(e) => e.stopPropagation()} style={{
+      <div role="dialog" aria-modal="true" aria-label="Meeting prep"
+        onClick={(e) => e.stopPropagation()} style={{
         background: "#fff", borderRadius: 8, padding: 20, margin: "6vh 16px",
         maxWidth: 560, width: "100%", maxHeight: "85vh", overflowY: "auto",
         fontFamily: "system-ui", boxShadow: "0 8px 30px rgba(0,0,0,0.25)",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h2 style={{ margin: 0, fontSize: 17 }}>Meeting prep</h2>
-          <button onClick={onClose}>Close</button>
+          <button ref={closeRef} onClick={onClose}>Close</button>
         </div>
 
         {err && <p style={{ color: "#b00020" }}>{err}</p>}
