@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getSettings, saveSettings, testConnection, getBackupStatus, runExport, restoreBackup } from "./api";
 import type { AppSettings, TestResult, BackupStatus } from "./types";
+import { InfoHint } from "./InfoHint";
 
 export function SettingsView({ onSaved }: { onSaved?: () => void }) {
   const [s, setS] = useState<AppSettings | null>(null);
@@ -100,10 +101,12 @@ export function SettingsView({ onSaved }: { onSaved?: () => void }) {
         <input type="checkbox" checked={s.use_fake}
                onChange={(e) => set({ use_fake: e.target.checked })} />
         Try with demo data (no instance needed)
+        <InfoHint text="Runs Atlas against built-in synthetic data so you can explore every feature without connecting a real ServiceNow instance." />
       </label>
 
       <fieldset disabled={s.use_fake}>
         <label>Instance URL
+          <InfoHint text="The base URL of your ServiceNow instance, e.g. https://yourinstance.service-now.com." />
           <input value={s.sn_instance_url}
                  onChange={(e) => set({ sn_instance_url: e.target.value })}
                  placeholder="https://yourinstance.service-now.com" />
@@ -118,13 +121,14 @@ export function SettingsView({ onSaved }: { onSaved?: () => void }) {
                  placeholder={s.password_set ? "•••••••• (leave blank to keep)" : ""} />
         </label>
         <label>Scope
+          <InfoHint text="The scoped-app namespace Atlas reads and writes through on your instance (matches the installed Atlas app)." />
           <input value={s.sn_scope}
                  onChange={(e) => set({ sn_scope: e.target.value })} />
         </label>
       </fieldset>
 
       <fieldset>
-        <legend>Radar thresholds (days)</legend>
+        <legend>Radar thresholds (days)<InfoHint text="Active clients with no activity for this many days show on the Awareness radar." /></legend>
         <label>Cooling after
           <input type="number" min={1} value={s.cooling_days}
                  onChange={(e) => set({ cooling_days: Number(e.target.value) })} />
@@ -136,7 +140,7 @@ export function SettingsView({ onSaved }: { onSaved?: () => void }) {
       </fieldset>
 
       <fieldset>
-        <legend>Backup</legend>
+        <legend>Backup<InfoHint text="Snapshots all records to a JSON file off-instance; the ServiceNow instance is not a durable archive." /></legend>
         <p>
           Export every record to a JSON snapshot. The ServiceNow instance is not a durable
           archive — keep an off-instance copy. Atlas also backs up on launch when the last

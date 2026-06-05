@@ -56,7 +56,7 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
   Escape/click-out to close). Shipped (PR #48).
 - 🟢 **Global search** — `GET /api/search` across clients/tasks/contacts/notes/engagements + a Search
   tab. Shipped (PR #47).
-- 🔵 **Self-documenting UI (user request)** — info icons / inline explainer text next to fields across the app (what each field does, how domains/aliases drive matching, etc.), so the tool teaches its own use.
+- 🟢 **Self-documenting UI (user request)** — reusable `InfoHint` (accessible ⓘ) + concise explainers on the non-obvious fields (Settings thresholds/backup/connection, client domains/aliases, key-date recurring, tags). Shipped (PR #51).
 - 🟢 **Modal a11y** — Escape-to-close + focus + `role=dialog` on `MeetingPrepPanel` (QuickCapture already had Escape). Shipped (PR #50).
 - 🔵 **Retention controls UI** — surface/choose which mail folders get ingested (keeps the R1/D2
   retained-scope visible and user-controlled).

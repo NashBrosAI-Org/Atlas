@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { TagOnRecord } from "./types";
 import { attachTag, detachTag } from "./api";
+import { InfoHint } from "./InfoHint";
 
 /** Tag chips for a record, with inline add (Enter) and per-chip remove (×). */
 export function TagEditor({ targetTable, targetId, tags, onChanged }:
@@ -46,6 +47,7 @@ export function TagEditor({ targetTable, targetId, tags, onChanged }:
       <input placeholder="Add tag…" value={name} disabled={busy}
         onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && add()}
         style={{ width: 120, fontSize: 13 }} />
+      <InfoHint text="Tags are cross-cutting labels you can filter and search by." />
     </div>
   );
 }
