@@ -59,8 +59,6 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
   tab. Shipped (PR #47).
 - 🟢 **Self-documenting UI (user request)** — reusable `InfoHint` (accessible ⓘ) + concise explainers on the non-obvious fields (Settings thresholds/backup/connection, client domains/aliases, key-date recurring, tags). Shipped (PR #51).
 - 🟢 **Modal a11y** — Escape-to-close + focus + `role=dialog` on `MeetingPrepPanel` (QuickCapture already had Escape). Shipped (PR #50).
-- 🔵 **Retention controls UI** — surface/choose which mail folders get ingested (keeps the R1/D2
-  retained-scope visible and user-controlled).
 - 🟢 **Prioritization explainability** — Now list shows an ordering legend + per-row hover "why it ranks" (priority→due→commitment). Shipped (PR #50).
 
 ### Project hygiene
