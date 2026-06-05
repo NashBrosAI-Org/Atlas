@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     sn_oauth_client_secret: str = ""
     sn_oauth_username: str = ""
     sn_oauth_password: str = ""
+    m365_use_fake: bool = True   # personal Mac builds against FakeGraph (hard rule #1)
     cooling_days: int = 14
     stale_days: int = 30
     backup_max_age_days: int = 7  # a backup older than this is "stale" (Plan 3d)
