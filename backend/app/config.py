@@ -1,10 +1,17 @@
+import os
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 import app.user_config as user_config
 
+# Which dotenv file to load. Defaults to `.env` in production; tests set
+# ATLAS_ENV_FILE="" (→ None) so they never pick up the dev machine's live
+# backend/.env (which points at the real instance) — keeps tests deterministic.
+_ENV_FILE = os.environ.get("ATLAS_ENV_FILE", ".env") or None
+
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=_ENV_FILE, extra="ignore")
 
     use_fake: bool = True
     sn_instance_url: str = "https://example.service-now.com"
