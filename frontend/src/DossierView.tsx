@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Dossier, ActivityEvent } from "./types";
-import { getDossier, getTimeline, deleteLink } from "./api";
+import { getDossier, getTimeline, deleteLink, getAIStatus, summarizeClient } from "./api";
 import { OrgChart } from "./OrgChart";
 import { NoteComposer } from "./NoteComposer";
 import { TranscriptPaste } from "./TranscriptPaste";
@@ -28,17 +28,41 @@ export function DossierView({ clientSysId, onBack }: { clientSysId: string; onBa
   const [d, setD] = useState<Dossier | null>(null);
   const [timeline, setTimeline] = useState<ActivityEvent[] | null>(null);
   const [prepId, setPrepId] = useState<string | null>(null);
+  const [aiEnabled, setAiEnabled] = useState(false);
+  const [summary, setSummary] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const refresh = () => getDossier(clientSysId).then(setD);
   useEffect(() => { refresh(); }, [clientSysId]);
   useEffect(() => {
     getTimeline(clientSysId).then(setTimeline).catch(() => setTimeline([]));
   }, [clientSysId]);
+  useEffect(() => {
+    getAIStatus().then((s) => setAiEnabled(s.enabled)).catch(() => setAiEnabled(false));
+  }, []);
   if (!d) return <p style={{ margin: "2rem" }}>Loading…</p>;
 
   return (
     <div style={{ maxWidth: 820, margin: "2rem auto", fontFamily: "system-ui" }}>
       <button onClick={onBack}>← Clients</button>
       <h1>{d.client.name}</h1>
+
+      {aiEnabled && (
+        <Section title="AI summary">
+          <button
+            disabled={busy}
+            onClick={() => {
+              setBusy(true);
+              summarizeClient(clientSysId)
+                .then((r) => setSummary(r.summary))
+                .catch((e) => setSummary(`Error: ${e.message}`))
+                .finally(() => setBusy(false));
+            }}
+          >
+            {busy ? "Summarizing…" : "Summarize"}
+          </button>
+          {summary !== null && <p style={{ whiteSpace: "pre-wrap" }}>{summary}</p>}
+        </Section>
+      )}
 
       <Section title={`Tags (${d.tags.length})`}>
         <TagEditor targetTable="client" targetId={clientSysId} tags={d.tags} onChanged={refresh} />

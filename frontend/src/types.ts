@@ -143,3 +143,4 @@ export interface ExportResult {
   created_at: string;
   counts: Record<string, number>;
 }
+export interface AIStatus { enabled: boolean; model: string; }
