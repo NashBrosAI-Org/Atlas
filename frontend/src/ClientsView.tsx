@@ -22,17 +22,21 @@ export function ClientsView({ onOpen }: { onOpen: (sysId: string) => void }) {
   const [shortCode, setShortCode] = useState("");
   const [status, setStatus] = useState("active");
   const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
 
-  const refresh = () => getClients().then(setClients);
+  const refresh = () => getClients().then(setClients).catch((e) => setMsg(String(e)));
   useEffect(() => { refresh(); }, []);
 
   async function add() {
     if (!name.trim() || busy) return;
     setBusy(true);
+    setMsg("");
     try {
       await createClient({ name: name.trim(), short_code: shortCode.trim() || undefined, status });
       setName(""); setShortCode(""); setStatus("active");
       await refresh();
+    } catch (e) {
+      setMsg(String(e));
     } finally {
       setBusy(false);
     }
@@ -56,6 +60,7 @@ export function ClientsView({ onOpen }: { onOpen: (sysId: string) => void }) {
           </select>
         </label>
         <button style={{ ...btnStyle, marginTop: 8 }} disabled={busy || !name.trim()} onClick={add}>Add client</button>
+        {msg && <p style={{ ...helpStyle, color: "#b00020" }}>{msg}</p>}
       </div>
 
       <ul style={{ listStyle: "none", padding: 0 }}>
@@ -73,6 +78,7 @@ function ClientRow({ client, onOpen, onSaved }: {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Client>(client);
   const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
 
   useEffect(() => { setDraft(client); }, [client]);
 
@@ -81,6 +87,7 @@ function ClientRow({ client, onOpen, onSaved }: {
   async function save() {
     if (!client.sys_id || busy) return;
     setBusy(true);
+    setErr("");
     try {
       await updateClient(client.sys_id, {
         short_code: draft.short_code,
@@ -91,6 +98,8 @@ function ClientRow({ client, onOpen, onSaved }: {
       });
       await onSaved();
       setEditing(false);
+    } catch (e) {
+      setErr(String(e));
     } finally {
       setBusy(false);
     }
@@ -127,6 +136,7 @@ function ClientRow({ client, onOpen, onSaved }: {
             <textarea style={{ ...inputStyle, minHeight: 60, resize: "vertical" }} value={draft.notes ?? ""} onChange={(e) => set({ notes: e.target.value })} />
           </label>
           <button style={{ ...btnStyle, marginTop: 8 }} disabled={busy} onClick={save}>Save</button>
+          {err && <p style={{ ...helpStyle, color: "#b00020" }}>{err}</p>}
         </div>
       )}
     </li>
