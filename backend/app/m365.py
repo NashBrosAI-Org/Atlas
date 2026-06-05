@@ -29,6 +29,18 @@ def normalize_message(msg: dict) -> dict:
     }
 
 
+def normalize_event(evt: dict) -> dict:
+    """Map a Graph calendar event to an x_atlas_sn_meeting row (minus client/sys_id)."""
+    attendees = ", ".join(_addr(a) for a in (evt.get("attendees") or []) if _addr(a))
+    return {
+        "graph_event_id": evt.get("id", ""),
+        "title": evt.get("subject", ""),
+        "datetime": (evt.get("start") or {}).get("dateTime", ""),
+        "attendees": attendees,
+        "type": "teams" if evt.get("isOnlineMeeting") else "other",
+    }
+
+
 def _domain(addr: str) -> str:
     return addr.split("@", 1)[1].lower() if "@" in addr else ""
 
