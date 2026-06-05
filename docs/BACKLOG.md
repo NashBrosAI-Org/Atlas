@@ -57,11 +57,10 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
 - 🟢 **Global search** — `GET /api/search` across clients/tasks/contacts/notes/engagements + a Search
   tab. Shipped (PR #47).
 - 🔵 **Self-documenting UI (user request)** — info icons / inline explainer text next to fields across the app (what each field does, how domains/aliases drive matching, etc.), so the tool teaches its own use.
-- 🔵 **Modal a11y** — `MeetingPrepPanel` (and future modals) need Escape-to-close + focus handling.
+- 🟢 **Modal a11y** — Escape-to-close + focus + `role=dialog` on `MeetingPrepPanel` (QuickCapture already had Escape). Shipped (PR #50).
 - 🔵 **Retention controls UI** — surface/choose which mail folders get ingested (keeps the R1/D2
   retained-scope visible and user-controlled).
-- 🔵 **Prioritization explainability** — show *why* a task ranks where it does (priority → due →
-  commitment), reinforcing that the Now view is deterministic.
+- 🟢 **Prioritization explainability** — Now list shows an ordering legend + per-row hover "why it ranks" (priority→due→commitment). Shipped (PR #50).
 
 ### Project hygiene
 - 🟡 **`.md` guardrail consolidation** — slim the always-loaded `CLAUDE.md`, move per-language
