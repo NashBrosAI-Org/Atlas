@@ -73,36 +73,26 @@ Background agents auto-isolate (`worktree.bgIsolation`); **interactive** session
 them with the commands above. Canonical rule (applies to every repo, not just this one):
 [`~/.claude/WORKFLOW.md`](file:///Users/nick/.claude/WORKFLOW.md) → "Concurrent sessions — one worktree each".
 
-**Python (backend)**
-- FastAPI + pydantic v2; endpoints are `async`. Python 3.11+ target.
-- **All ServiceNow access goes through the `ServiceNowClient` interface** (`app/servicenow.py`);
-  `get_sn` (`app/main_deps.py`) is the single DI seam, overridden in tests. No ad-hoc SN clients.
-- Routers stay thin: validate (pydantic models in `app/models.py`) → call the client. Cross-record
-  logic (ordering, prep assembly) lives in named helpers, not inline magic.
-- **TDD:** failing test first, against `FakeServiceNow`. `pytest` (`asyncio_mode=auto`).
-
-**TypeScript / React (frontend)**
-- `src/types.ts` mirrors the backend pydantic models — change both together.
-- The frontend calls **only** the relative `/api` — same-origin when packaged (FastAPI serves the
-  built bundle); a Vite dev proxy forwards `/api` → `:8000` in `npm run dev`. No direct SN/Graph
-  calls, no secrets in the client. Small, focused view files.
-
-**ServiceNow (scoped app)**
-- Built as **Fluent code via the ServiceNow SDK** (`now-sdk`), *not* hand-built in the UI. The app
-  lives in `servicenow/`; deploy with `now-sdk install` to `nnash.service-now.com` (Zurich, MFA on).
-- `now-sdk auth` is interactive (OAuth code-paste) — run it in a real/integrated terminal (e.g. VS
-  Code), not a background runner. Table/field names follow `docs/DATA-MODEL.md`, CSM/PPM-aligned (rule #5).
+**Code standards (per-language)** — moved out of this always-loaded file to keep it lean:
+[docs/CODE-STANDARDS.md](docs/CODE-STANDARDS.md) (Python/backend seams + TDD, TS/React, ServiceNow,
+general). `backend/`, `frontend/`, and `servicenow/` each carry a thin `CLAUDE.md` that auto-loads
+when you work there and points to that file + the matching [component charter](docs/components/).
+Two that bear repeating: **all external access sits behind an interface** (`ServiceNowClient` /
+`GraphClient` / `AIClient`, each with a `Fake*` and a single `get_*` DI seam), and **`src/types.ts`
+mirrors the backend models — change both together.**
 
 **General**
 - One responsibility per file; keep files small enough to hold in context.
 - **Update [docs/PROGRESS.md](docs/PROGRESS.md) after each unit of work**, not at session end.
-  Record significant decisions in its **Decisions** log.
+  Record significant decisions in its **Decisions** log; queue smaller ideas in
+  [docs/BACKLOG.md](docs/BACKLOG.md).
 
 ## Docs index
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — tiers, data flow, phasing
 - [docs/DATA-MODEL.md](docs/DATA-MODEL.md) — Client-centric schema
 - [docs/PROGRESS.md](docs/PROGRESS.md) — status tracker + **decision log (ADR-style)**
 - [docs/BACKLOG.md](docs/BACKLOG.md) — queued feature ideas / gaps (lighter than the phase roadmap)
+- [docs/CODE-STANDARDS.md](docs/CODE-STANDARDS.md) — per-language conventions (backend/frontend/SN)
 - [docs/components/](docs/components/) — per-component charters (each with its own guardrails)
 - [docs/superpowers/plans/](docs/superpowers/plans/) — implementation plans
 
