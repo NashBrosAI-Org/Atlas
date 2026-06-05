@@ -21,3 +21,8 @@ async def list_clients(sn: ServiceNowClient = Depends(get_sn)) -> list[dict]:
 async def create_client(body: Client, sn: ServiceNowClient = Depends(get_sn)) -> dict:
     payload = body.model_dump(exclude_none=True, exclude={"sys_id"})
     return await sn.create(_table(), payload)
+
+
+@router.patch("/{sys_id}")
+async def update_client(sys_id: str, body: dict, sn: ServiceNowClient = Depends(get_sn)) -> dict:
+    return await sn.update(_table(), sys_id, body)
