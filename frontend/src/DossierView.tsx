@@ -8,6 +8,12 @@ import { TagEditor } from "./TagEditor";
 import { KeyDateComposer } from "./KeyDateComposer";
 import { LinkComposer } from "./LinkComposer";
 
+/** Only http(s) URLs are safe as an anchor href; anything else (javascript:,
+ *  data:) would be an XSS sink. Returns the URL if safe, else undefined. */
+function safeHref(url?: string): string | undefined {
+  return url && /^https?:\/\//i.test(url.trim()) ? url : undefined;
+}
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section style={{ marginTop: 20 }}>
@@ -65,7 +71,7 @@ export function DossierView({ clientSysId, onBack }: { clientSysId: string; onBa
       <Section title={`Links (${d.links.length})`}>
         <ul>{d.links.map((l) => (
           <li key={l.sys_id}>
-            {l.url ? <a href={l.url} target="_blank" rel="noreferrer">{l.title}</a> : l.title}{" "}
+            {safeHref(l.url) ? <a href={safeHref(l.url)} target="_blank" rel="noreferrer">{l.title}</a> : l.title}{" "}
             <button aria-label={`Remove ${l.title}`} title="Remove"
               onClick={() => deleteLink(l.sys_id!).then(refresh)}
               style={{ border: "none", background: "none", color: "#b00020", cursor: "pointer" }}>×</button>
