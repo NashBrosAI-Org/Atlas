@@ -12,3 +12,6 @@ secrets/
 # Desktop build artifacts (dist/ already covered above)
 /build/
 /.build-venv/
+
+# Playwright MCP browser-automation artifacts (screenshots, console logs, page snapshots)
+.playwright-mcp/
