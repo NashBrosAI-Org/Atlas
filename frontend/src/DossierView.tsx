@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Dossier, ActivityEvent } from "./types";
 import { getDossier, getTimeline, deleteLink, getAIStatus, summarizeClient } from "./api";
 import { OrgChart } from "./OrgChart";
+import { ContactEditor } from "./ContactEditor";
 import { NoteComposer } from "./NoteComposer";
 import { TranscriptPaste } from "./TranscriptPaste";
 import { TagEditor } from "./TagEditor";
@@ -74,6 +75,7 @@ export function DossierView({ clientSysId, onBack }: { clientSysId: string; onBa
 
       <Section title={`Contacts (${d.contacts.length})`}>
         <OrgChart contacts={d.contacts} />
+        <ContactEditor contacts={d.contacts} clientSysId={clientSysId} onChanged={refresh} />
       </Section>
 
       <Section title={`Engagements (${d.engagements.length})`}>
