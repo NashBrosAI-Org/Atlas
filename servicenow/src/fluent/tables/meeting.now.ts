@@ -18,5 +18,7 @@ export const x_atlas_sn_meeting = Table({
         }),
         attendees: StringColumn({ label: 'Attendees', maxLength: 1000 }),
         summary: StringColumn({ label: 'Summary', maxLength: 8000 }),
+        // Calendar-ingest idempotency key (Graph event id).
+        graph_event_id: StringColumn({ label: 'Graph Event ID', maxLength: 200 }),
     },
 })

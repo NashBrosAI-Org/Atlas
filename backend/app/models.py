@@ -77,6 +77,7 @@ class Meeting(BaseModel):
     type: MeetingType = "teams"
     attendees: Optional[str] = None
     summary: Optional[str] = None
+    graph_event_id: Optional[str] = None   # set by calendar ingest; idempotency key
 
 
 class Transcript(BaseModel):

@@ -25,6 +25,7 @@ export interface Theme {
 export interface Meeting {
   sys_id?: string; title: string; client?: string; engagement?: string;
   datetime?: string; type?: "teams" | "zoom" | "other"; attendees?: string; summary?: string;
+  graph_event_id?: string;
 }
 export interface Transcript {
   sys_id?: string; meeting?: string; client?: string; full_text: string;
