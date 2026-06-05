@@ -1,4 +1,4 @@
-import type { Client, Task, Contact, Dossier, Note, Transcript, AppSettings, AppStatus, TestResult, ActivityEvent, RadarEntry, BackupStatus, ExportResult, TagOnRecord, KeyDate, Reminder, Link } from "./types";
+import type { Client, Task, Contact, Dossier, Note, Transcript, AppSettings, AppStatus, TestResult, ActivityEvent, RadarEntry, BackupStatus, ExportResult, TagOnRecord, KeyDate, Reminder, Link, Briefing, SyncResult } from "./types";
 const BASE = "/api";
 
 /** Fetch JSON, throwing on any non-2xx response (with FastAPI's `detail` if present)
@@ -94,4 +94,13 @@ export async function createLink(l: Partial<Link>): Promise<Link> {
 }
 export async function deleteLink(sys_id: string): Promise<unknown> {
   return http(`/links/${sys_id}`, { method: "DELETE" });
+}
+export async function getBriefing(): Promise<Briefing> {
+  return http<Briefing>("/briefing");
+}
+export async function syncMail(): Promise<SyncResult> {
+  return http<SyncResult>("/m365/sync", { method: "POST" });
+}
+export async function syncCalendar(): Promise<SyncResult> {
+  return http<SyncResult>("/m365/calendar/sync", { method: "POST" });
 }
