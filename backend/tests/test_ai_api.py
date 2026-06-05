@@ -86,3 +86,21 @@ def test_summary_endpoint_is_gated_when_ai_disabled(monkeypatch, tmp_path):
     # ai_enabled is the real switch: the endpoint is blocked server-side, not just hidden in the UI.
     assert c.post(f"/api/ai/summary/client/{cid}").status_code == 403
     assert c.get("/api/ai/status").json()["enabled"] is False
+
+
+def test_prioritize_endpoint_enabled(monkeypatch, tmp_path):
+    monkeypatch.setenv("ATLAS_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("AI_ENABLED", "true")
+    sn = FakeServiceNow()
+    c = _client(sn)
+
+    r = c.post("/api/ai/prioritize")
+    assert r.status_code == 200 and r.json()["suggestion"] == "S"
+
+
+def test_prioritize_endpoint_is_gated_when_ai_disabled(monkeypatch, tmp_path):
+    monkeypatch.setenv("ATLAS_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("AI_ENABLED", "false")
+    c = _client(FakeServiceNow())
+
+    assert c.post("/api/ai/prioritize").status_code == 403

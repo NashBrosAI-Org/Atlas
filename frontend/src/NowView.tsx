@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Client, Task, Briefing } from "./types";
-import { getClients, getNow, completeTask, getBriefing, syncMail, syncCalendar, createTask } from "./api";
+import { getClients, getNow, completeTask, getBriefing, syncMail, syncCalendar, createTask, getAIStatus, suggestFocus } from "./api";
 import { MeetingPrepPanel } from "./MeetingPrepPanel";
 
 const PRIORITIES = ["critical", "high", "medium", "low"] as const;
@@ -139,6 +139,46 @@ function TodayCard({ onSynced }: { onSynced: () => void }) {
   );
 }
 
+/** Advisory AI focus suggestion (rule #6). It NEVER reorders or mutates the task
+ *  list — the deterministic Now order stays authoritative; this is text-only help. */
+function FocusPanel() {
+  const [enabled, setEnabled] = useState(false);
+  const [suggestion, setSuggestion] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  useEffect(() => { getAIStatus().then((s) => setEnabled(s.enabled)).catch(() => setEnabled(false)); }, []);
+
+  async function run() {
+    if (busy) return;
+    setBusy(true);
+    setMsg("");
+    try {
+      const r = await suggestFocus();
+      setSuggestion(r.suggestion);
+    } catch (e) {
+      setMsg(String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!enabled) return null;
+
+  return (
+    <div style={{ border: "1px solid #e0d8c0", borderRadius: 8, padding: 12, margin: "12px 0", background: "#fcfbf6" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <strong style={{ fontSize: 13 }}>AI focus (suggestion — your Now order is unchanged)</strong>
+        <button disabled={busy} onClick={run}>Suggest focus</button>
+      </div>
+      {msg && <p style={{ color: "#b00020", fontSize: 13, margin: "6px 0 0" }}>{msg}</p>}
+      {suggestion && (
+        <div style={{ whiteSpace: "pre-wrap", fontSize: 13, marginTop: 8, color: "#333" }}>{suggestion}</div>
+      )}
+    </div>
+  );
+}
+
 export function NowView() {
   const [clients, setClients] = useState<Client[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -157,6 +197,7 @@ export function NowView() {
         {clients.map((c) => <option key={c.sys_id} value={c.sys_id}>{c.name}</option>)}
       </select>
       <TaskComposer clients={clients} defaultClient={filter} onAdded={refresh} />
+      <FocusPanel />
       <ul style={{ listStyle: "none", padding: 0 }}>
         {tasks.map((t) => (
           <li key={t.sys_id} style={{ display: "flex", gap: 8, padding: "8px 0", borderBottom: "1px solid #eee" }}>
