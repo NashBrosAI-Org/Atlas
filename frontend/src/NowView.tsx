@@ -32,7 +32,7 @@ function TodayCard({ onSynced }: { onSynced: () => void }) {
     }
   }
 
-  if (!b) return null;
+  if (!b) return msg ? <p style={{ color: "#b00020", fontSize: 13 }}>{msg}</p> : null;
 
   return (
     <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 16, marginBottom: 24, background: "#fafafa" }}>
@@ -49,8 +49,8 @@ function TodayCard({ onSynced }: { onSynced: () => void }) {
         <strong style={{ fontSize: 13 }}>Meetings</strong>
         {b.todays_meetings.length === 0 ? <span style={{ color: "#888" }}> — none today</span> : (
           <ul style={{ margin: "4px 0", paddingLeft: 18 }}>
-            {b.todays_meetings.map((m) => (
-              <li key={m.sys_id}>{m.title}{" "}
+            {b.todays_meetings.map((m, i) => (
+              <li key={m.sys_id ?? i}>{m.title}{" "}
                 <span style={{ color: "#888" }}>{(m.datetime ?? "").slice(11, 16)}</span></li>
             ))}
           </ul>
