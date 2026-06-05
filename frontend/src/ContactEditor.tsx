@@ -128,7 +128,7 @@ function ContactRow({ contact, contacts, onSaved }: {
         role_title: draft.role_title,
         email: draft.email,
         phone: draft.phone,
-        sentiment: draft.sentiment ?? "neutral",
+        sentiment: draft.sentiment,
         reports_to: draft.reports_to || undefined,
       });
       await onSaved();

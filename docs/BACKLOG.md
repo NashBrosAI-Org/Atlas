@@ -14,8 +14,8 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
 - 🟡 **Contact role-titles manager, autofilled from email signature (editable).** Add/edit contacts'
   `role_title` (and email, reports-to, sentiment). *Today:* `role_title` is display-only in the
   OrgChart; `createContact` exists but is wired to no form; there is **no** signature parsing.
-  **Two parts:** (a) contact CRUD UI — **building this session** (deterministic); (b) signature →
-  fields extraction — an **AI/parsing capability**, queued under P3 behind the `AIClient` seam
+  **Two parts:** (a) contact CRUD UI — ✅ **shipped (PR #39)** (`ContactEditor`); (b) signature →
+  fields extraction — an **AI/parsing capability**, still queued under P3 behind the `AIClient` seam
   (a `FakeAI`-backed `extract_contact_fields(signature) -> {role_title, email, phone}`; user edits
   before save). See the P3 extraction item below.
 
@@ -25,8 +25,9 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
   the top of the Now list; defaults the client to the active filter. Shipped (PR #38).
 - 🟢 **Client CRUD UI** — create / edit clients (name, short_code, status, email_domains, aliases,
   notes) on the Clients tab. Shipped (PR #37).
-- 🟡 **Contact CRUD UI** — add/edit contacts inline on the dossier (name, role_title, email, phone,
-  reports_to, sentiment). **Building this session.**
+- 🟢 **Contact CRUD UI** — add/edit contacts on the dossier (`ContactEditor`: composer + per-row
+  Edit/Save; name, role_title, email, phone, sentiment, reports_to). Shipped (PR #39). Part (b) of
+  the role-titles request — **email-signature autofill** — remains queued under P3 extraction below.
 - 🔵 **P3 extraction capability** — generalize "parse an email signature" into an `AIClient`-backed
   extractor reused for contacts, and later for pulling action items from transcripts/emails. (P3.)
 - 🔵 **Association review UI** — confirm/correct auto-associated emails & meetings, so the user can
