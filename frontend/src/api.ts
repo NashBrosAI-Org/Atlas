@@ -123,3 +123,6 @@ export async function getAIStatus(): Promise<AIStatus> { return http<AIStatus>("
 export async function summarizeClient(id: string): Promise<{ summary: string }> {
   return http(`/ai/summary/client/${id}`, { method: "POST" });
 }
+export async function extractContactFromSignature(signature: string): Promise<{ name: string; role_title: string; email: string; phone: string }> {
+  return http("/ai/extract/contact", jsonBody("POST", { signature }));
+}

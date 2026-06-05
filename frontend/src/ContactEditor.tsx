@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Contact } from "./types";
-import { createContact, updateContact } from "./api";
+import { createContact, updateContact, getAIStatus, extractContactFromSignature } from "./api";
 
 const SENTIMENTS: Contact["sentiment"][] = ["champion", "neutral", "detractor"];
 
@@ -46,6 +46,31 @@ function ContactComposer({ contacts, clientSysId, onSaved }: {
   const [reportsTo, setReportsTo] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [aiEnabled, setAiEnabled] = useState(false);
+  const [signature, setSignature] = useState("");
+  const [autofilling, setAutofilling] = useState(false);
+
+  useEffect(() => {
+    getAIStatus().then((s) => setAiEnabled(s.enabled)).catch(() => setAiEnabled(false));
+  }, []);
+
+  async function autofill() {
+    if (!signature.trim() || autofilling) return;
+    setAutofilling(true);
+    setErr("");
+    try {
+      const f = await extractContactFromSignature(signature);
+      // Pre-fill the composer; the user reviews/edits before clicking Add.
+      if (f.name) setName(f.name);
+      if (f.role_title) setRoleTitle(f.role_title);
+      if (f.email) setEmail(f.email);
+      if (f.phone) setPhone(f.phone);
+    } catch (e) {
+      setErr(String(e));
+    } finally {
+      setAutofilling(false);
+    }
+  }
 
   async function add() {
     if (!name.trim() || busy) return;
@@ -74,6 +99,22 @@ function ContactComposer({ contacts, clientSysId, onSaved }: {
   return (
     <div style={{ border: "1px solid #eee", borderRadius: 6, padding: 12, background: "#fafafa" }}>
       <strong style={{ fontSize: 14 }}>Add contact</strong>
+      {aiEnabled && (
+        <div style={{ marginTop: 8, paddingBottom: 8, borderBottom: "1px solid #eee" }}>
+          <label style={labelStyle}>Autofill from signature
+            <textarea
+              style={{ ...inputStyle, minHeight: 64, resize: "vertical" }}
+              value={signature}
+              onChange={(e) => setSignature(e.target.value)}
+              placeholder="Paste an email signature here…"
+            />
+          </label>
+          <button style={btnStyle} disabled={autofilling || !signature.trim()} onClick={autofill}>
+            {autofilling ? "Autofilling…" : "Autofill"}
+          </button>
+          <p style={helpStyle}>Pre-fills the fields below — review before adding.</p>
+        </div>
+      )}
       <label style={labelStyle}>Name *
         <input style={inputStyle} value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Doe" />
       </label>
