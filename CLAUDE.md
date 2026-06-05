@@ -102,6 +102,7 @@ them with the commands above. Canonical rule (applies to every repo, not just th
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — tiers, data flow, phasing
 - [docs/DATA-MODEL.md](docs/DATA-MODEL.md) — Client-centric schema
 - [docs/PROGRESS.md](docs/PROGRESS.md) — status tracker + **decision log (ADR-style)**
+- [docs/BACKLOG.md](docs/BACKLOG.md) — queued feature ideas / gaps (lighter than the phase roadmap)
 - [docs/components/](docs/components/) — per-component charters (each with its own guardrails)
 - [docs/superpowers/plans/](docs/superpowers/plans/) — implementation plans
 
