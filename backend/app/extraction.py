@@ -37,9 +37,14 @@ def _regex_extract(signature: str) -> dict:
     return out
 
 
+_MAX_SIGNATURE = 4000  # signatures are short; cap input so the regex pass can't be
+                       # driven quadratic by a huge paste (e.g. a forwarded thread).
+
+
 async def extract_contact_fields(ai: AIClient, signature: str) -> dict:
     """Return {name, role_title, email, phone}. Prefer the AI's JSON; fill any gaps
     from a regex pass. Always returns all four keys (empty string when unknown)."""
+    signature = (signature or "")[:_MAX_SIGNATURE]
     raw = await ai.complete(system=_SYSTEM, prompt=signature, max_tokens=300)
     ai_data = _parse_json(raw)
     fallback = _regex_extract(signature)

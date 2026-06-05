@@ -28,3 +28,22 @@ async def test_extract_ai_partial_filled_by_regex():
     out = await extraction.extract_contact_fields(ai, SIG)
     assert out["role_title"] == "VP Engineering"   # from AI
     assert out["email"] == "jane@acme.com"          # from regex fallback
+
+
+@pytest.mark.asyncio
+async def test_extract_caps_huge_input_and_returns_promptly():
+    import time
+    ai = FakeAI(canned="[junk]")  # forces the regex fallback path
+    huge = "a" * 200_000          # would be quadratic on the email regex if uncapped
+    start = time.monotonic()
+    out = await extraction.extract_contact_fields(ai, huge)
+    assert (time.monotonic() - start) < 1.0     # input is capped, so this is fast
+    assert set(out) == {"name", "role_title", "email", "phone"}
+
+
+@pytest.mark.asyncio
+async def test_extract_ignores_non_dict_json():
+    ai = FakeAI(canned='["not", "a", "dict"]')  # valid JSON, wrong shape → regex fallback
+    out = await extraction.extract_contact_fields(ai, "Jane Doe\njane@acme.com")
+    assert out["email"] == "jane@acme.com"
+    assert out["name"] == "Jane Doe"
