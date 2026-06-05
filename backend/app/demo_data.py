@@ -65,6 +65,11 @@ async def seed_demo(sn: ServiceNowClient) -> None:
                                     "date": (today + timedelta(days=90)).isoformat(),
                                     "reminder_lead_days": "7", "client": globex["sys_id"]})
 
+    await sn.create(t("link"), {"title": "Acme SharePoint", "url": "https://example.com/acme-sp",
+                                "client": acme["sys_id"]})
+    await sn.create(t("link"), {"title": "Globex Jira board", "url": "https://example.com/globex-jira",
+                                "client": globex["sys_id"]})
+
     # Backdate two active clients so the stale-client radar visibly demonstrates in demo
     # mode (FakeServiceNow stamps sys_created_on from its clock). Demo-only; relies on the
     # fake's _clock, so guard for it.

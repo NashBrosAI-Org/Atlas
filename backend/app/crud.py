@@ -35,4 +35,10 @@ def crud_router(name: str, table_suffix: str, model: Type[BaseModel]) -> APIRout
     async def patch_record(sys_id: str, body: dict, sn: ServiceNowClient = Depends(get_sn)) -> dict:
         return await sn.update(table(), sys_id, body)
 
+    @router.delete("/{sys_id}")
+    async def delete_record(sys_id: str, sn: ServiceNowClient = Depends(get_sn)) -> dict:
+        if not await sn.delete(table(), sys_id):
+            raise HTTPException(status_code=404, detail=f"{name} {sys_id} not found")
+        return {"deleted": True}
+
     return router

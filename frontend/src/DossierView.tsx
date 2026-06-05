@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import type { Dossier, ActivityEvent } from "./types";
-import { getDossier, getTimeline } from "./api";
+import { getDossier, getTimeline, deleteLink } from "./api";
 import { OrgChart } from "./OrgChart";
 import { NoteComposer } from "./NoteComposer";
 import { TranscriptPaste } from "./TranscriptPaste";
 import { TagEditor } from "./TagEditor";
 import { KeyDateComposer } from "./KeyDateComposer";
+import { LinkComposer } from "./LinkComposer";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -59,6 +60,18 @@ export function DossierView({ clientSysId, onBack }: { clientSysId: string; onBa
           </li>
         ))}</ul>
         <KeyDateComposer clientSysId={clientSysId} onSaved={refresh} />
+      </Section>
+
+      <Section title={`Links (${d.links.length})`}>
+        <ul>{d.links.map((l) => (
+          <li key={l.sys_id}>
+            {l.url ? <a href={l.url} target="_blank" rel="noreferrer">{l.title}</a> : l.title}{" "}
+            <button aria-label={`Remove ${l.title}`} title="Remove"
+              onClick={() => deleteLink(l.sys_id!).then(refresh)}
+              style={{ border: "none", background: "none", color: "#b00020", cursor: "pointer" }}>×</button>
+          </li>
+        ))}</ul>
+        <LinkComposer clientSysId={clientSysId} onSaved={refresh} />
       </Section>
 
       <Section title={`Meetings (${d.meetings.length})`}>

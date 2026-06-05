@@ -59,6 +59,12 @@ export interface Reminder {
   client_name: string;
   contact: string;
 }
+export interface Link {
+  sys_id?: string;
+  title: string;
+  url?: string;
+  client?: string;
+}
 export interface Dossier {
   client: Client;
   contacts: Contact[];
@@ -67,6 +73,7 @@ export interface Dossier {
   open_tasks: Task[];
   meetings: Meeting[];
   key_dates: KeyDate[];
+  links: Link[];
   notes: Note[];
   tags: TagOnRecord[];
 }
