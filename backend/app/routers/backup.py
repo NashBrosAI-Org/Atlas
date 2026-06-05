@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from app import backup, user_config
 from app.config import get_settings
@@ -15,6 +15,15 @@ async def export(sn: ServiceNowClient = Depends(get_sn)) -> dict:
     path = await backup.write_export(sn, s.sn_scope)
     export = await backup.build_export(sn, s.sn_scope)
     return {"path": str(path), "created_at": export["created_at"], "counts": export["counts"]}
+
+
+@router.post("/restore")
+async def restore(sn: ServiceNowClient = Depends(get_sn)) -> dict:
+    """Restore the most recent snapshot (upsert by sys_id). 404 if no backup exists."""
+    result = await backup.restore_latest(sn, get_settings().sn_scope)
+    if result is None:
+        raise HTTPException(status_code=404, detail="no backup to restore")
+    return result
 
 
 @router.get("/status")

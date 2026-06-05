@@ -83,6 +83,9 @@ export async function getBackupStatus(): Promise<BackupStatus> {
 export async function runExport(): Promise<ExportResult> {
   return http<ExportResult>("/backup/export", { method: "POST" });
 }
+export async function restoreBackup(): Promise<{ created: number; updated: number; from: string }> {
+  return http("/backup/restore", { method: "POST" });
+}
 export async function getTagsOn(table: string, id: string): Promise<TagOnRecord[]> {
   return http<TagOnRecord[]>(`/tags/on/${table}/${encodeURIComponent(id)}`);
 }

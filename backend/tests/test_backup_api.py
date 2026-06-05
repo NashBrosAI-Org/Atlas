@@ -41,3 +41,18 @@ def test_status_before_and_after_export(monkeypatch, tmp_path):
     assert after.json()["last_backup"] is not None
     assert after.json()["count"] == 1
     assert after.json()["stale"] is False
+
+
+def test_restore_endpoint(monkeypatch, tmp_path):
+    c = _client(monkeypatch, tmp_path)
+    # No backup yet → 404.
+    assert c.post("/api/backup/restore").status_code == 404
+
+    c.post("/api/clients", json={"name": "Acme", "status": "active"})
+    c.post("/api/backup/export")
+
+    r = c.post("/api/backup/restore")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["created"] + body["updated"] >= 1
+    assert body["from"].startswith("atlas-backup-")

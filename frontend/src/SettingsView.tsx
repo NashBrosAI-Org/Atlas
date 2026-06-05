@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getSettings, saveSettings, testConnection, getBackupStatus, runExport } from "./api";
+import { getSettings, saveSettings, testConnection, getBackupStatus, runExport, restoreBackup } from "./api";
 import type { AppSettings, TestResult, BackupStatus } from "./types";
 
 export function SettingsView({ onSaved }: { onSaved?: () => void }) {
@@ -53,6 +53,21 @@ export function SettingsView({ onSaved }: { onSaved?: () => void }) {
       setTest(await testConnection());
     } catch (e) {
       setTest({ ok: false, error: String(e) });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function restoreNow() {
+    if (!window.confirm("Restore the latest backup? This upserts records by sys_id into the current instance.")) return;
+    setBusy(true);
+    setBkMsg("");
+    try {
+      const r = await restoreBackup();
+      setBkMsg(`Restored from ${r.from}: ${r.created} created, ${r.updated} updated.`);
+      setBk(await getBackupStatus());
+    } catch (e) {
+      setBkMsg(String(e));
     } finally {
       setBusy(false);
     }
@@ -135,6 +150,7 @@ export function SettingsView({ onSaved }: { onSaved?: () => void }) {
             : "…"}
         </p>
         <button disabled={busy} onClick={exportNow}>Export now</button>
+        <button disabled={busy || !bk?.last_backup} onClick={restoreNow} style={{ marginLeft: 8 }}>Restore latest</button>
         {bkMsg && <p className="settings-msg">{bkMsg}</p>}
       </fieldset>
 

@@ -37,3 +37,16 @@ async def test_delete_removes_record():
     assert await sn.get("task", c["sys_id"]) is None
     # Deleting a missing record is a no-op, not an error.
     assert await sn.delete("task", "nope") is False
+
+
+@pytest.mark.asyncio
+async def test_create_honors_provided_sys_id_and_timestamps_without_collision():
+    sn = FakeServiceNow()
+    restored = await sn.create("task", {"sys_id": "fake000001", "title": "Restored",
+                                        "sys_created_on": "2020-01-01T00:00:00Z"})
+    assert restored["sys_id"] == "fake000001"
+    assert restored["sys_created_on"] == "2020-01-01T00:00:00Z"  # preserved, not re-stamped
+    # A subsequent generated id must not collide with the restored one.
+    fresh = await sn.create("task", {"title": "New"})
+    assert fresh["sys_id"] != "fake000001"
+    assert len(await sn.list("task")) == 2

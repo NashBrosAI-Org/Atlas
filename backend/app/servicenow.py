@@ -36,10 +36,26 @@ class FakeServiceNow:
     async def get(self, table: str, sys_id: str) -> Optional[dict]:
         return self._table(table).get(sys_id)
 
+    def _new_id(self, table: str) -> str:
+        # Skip ids already present so a generated id can't collide with one carried
+        # in by a restore (which preserves the original sys_id).
+        rows = self._table(table)
+        while True:
+            sys_id = f"fake{next(self._ids):06d}"
+            if sys_id not in rows:
+                return sys_id
+
     async def create(self, table: str, payload: dict) -> dict:
-        sys_id = f"fake{next(self._ids):06d}"
         ts = self._now_iso()
-        record = {**payload, "sys_id": sys_id, "sys_created_on": ts, "sys_updated_on": ts}
+        # Honor a caller-supplied sys_id / timestamps (used by restore to preserve
+        # cross-record references and original dates); otherwise generate/stamp.
+        sys_id = payload.get("sys_id") or self._new_id(table)
+        record = {
+            **payload,
+            "sys_id": sys_id,
+            "sys_created_on": payload.get("sys_created_on") or ts,
+            "sys_updated_on": payload.get("sys_updated_on") or ts,
+        }
         self._table(table)[sys_id] = record
         return record
 
