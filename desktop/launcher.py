@@ -33,11 +33,23 @@ def main() -> int:
     from desktop.server import ServerThread, find_free_port, http_probe, wait_until_ready
 
     from app.config import get_settings
-    if get_settings().use_fake:
+    settings = get_settings()
+    if settings.use_fake:
         import asyncio
         from app.demo_data import seed_demo
         from app.main_deps import get_sn
         asyncio.run(seed_demo(get_sn()))
+    else:
+        # On-launch backup so a recent off-instance copy of live data always
+        # exists (CLAUDE.md rule #3, risks R2/R3). Never block launch on it.
+        import asyncio
+        from app import backup
+        from app.main_deps import get_sn
+        try:
+            asyncio.run(backup.autobackup_if_stale(
+                get_sn(), settings.sn_scope, settings.backup_max_age_days))
+        except Exception as exc:  # noqa: BLE001 — backup must not stop the app
+            print(f"Atlas auto-backup skipped: {exc}", file=sys.stderr)
 
     port = find_free_port()
     server = ServerThread(app, host="127.0.0.1", port=port)

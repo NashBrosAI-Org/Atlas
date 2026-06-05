@@ -25,6 +25,11 @@ def _config_file() -> Path:
     return _data_dir() / "config.json"
 
 
+def backups_dir() -> Path:
+    """Where data snapshots are written (off-instance archive, CLAUDE.md rule #3)."""
+    return _data_dir() / "backups"
+
+
 def load_overlay() -> dict[str, Any]:
     """Non-secret settings the user saved, or {} if none yet."""
     path = _config_file()

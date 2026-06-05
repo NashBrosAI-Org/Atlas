@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getSettings, saveSettings, testConnection } from "./api";
-import type { AppSettings, TestResult } from "./types";
+import { getSettings, saveSettings, testConnection, getBackupStatus, runExport } from "./api";
+import type { AppSettings, TestResult, BackupStatus } from "./types";
 
 export function SettingsView({ onSaved }: { onSaved?: () => void }) {
   const [s, setS] = useState<AppSettings | null>(null);
@@ -8,9 +8,12 @@ export function SettingsView({ onSaved }: { onSaved?: () => void }) {
   const [test, setTest] = useState<TestResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  const [bk, setBk] = useState<BackupStatus | null>(null);
+  const [bkMsg, setBkMsg] = useState("");
 
   useEffect(() => {
     getSettings().then(setS).catch((e) => setMsg(String(e)));
+    getBackupStatus().then(setBk).catch(() => {});
   }, []);
 
   if (!s) return <div className="settings">Loading settings…</div>;
@@ -50,6 +53,21 @@ export function SettingsView({ onSaved }: { onSaved?: () => void }) {
       setTest(await testConnection());
     } catch (e) {
       setTest({ ok: false, error: String(e) });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function exportNow() {
+    setBusy(true);
+    setBkMsg("");
+    try {
+      const r = await runExport();
+      const total = Object.values(r.counts).reduce((a, b) => a + b, 0);
+      setBkMsg(`Exported ${total} record(s) → ${r.path}`);
+      setBk(await getBackupStatus());
+    } catch (e) {
+      setBkMsg(String(e));
     } finally {
       setBusy(false);
     }
@@ -100,6 +118,24 @@ export function SettingsView({ onSaved }: { onSaved?: () => void }) {
           <input type="number" min={1} value={s.stale_days}
                  onChange={(e) => set({ stale_days: Number(e.target.value) })} />
         </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Backup</legend>
+        <p>
+          Export every record to a JSON snapshot. The ServiceNow instance is not a durable
+          archive — keep an off-instance copy. Atlas also backs up on launch when the last
+          one is older than {bk?.max_age_days ?? 7} days.
+        </p>
+        <p className={bk?.stale ? "err" : "ok"}>
+          {bk
+            ? bk.last_backup
+              ? `Last backup: ${new Date(bk.last_backup).toLocaleString()} (${bk.count} total)${bk.stale ? " — overdue" : ""}`
+              : "No backups yet"
+            : "…"}
+        </p>
+        <button disabled={busy} onClick={exportNow}>Export now</button>
+        {bkMsg && <p className="settings-msg">{bkMsg}</p>}
       </fieldset>
 
       <div className="settings-actions">
