@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from datetime import date, timedelta
+
+from fastapi import APIRouter, Depends, HTTPException
 
 from app import m365
 from app.config import get_settings
@@ -14,3 +16,24 @@ async def sync(sn: ServiceNowClient = Depends(get_sn),
                graph: GraphClient = Depends(get_graph)) -> dict:
     """Ingest mail from Graph into retained Email records + flagged-mail tasks."""
     return await m365.ingest_emails(graph, sn, get_settings().sn_scope)
+
+
+@router.post("/calendar/sync")
+async def calendar_sync(start: str | None = None, end: str | None = None,
+                        sn: ServiceNowClient = Depends(get_sn),
+                        graph: GraphClient = Depends(get_graph)) -> dict:
+    """Ingest calendar events in [start, end] (default: today .. +30d) as Meetings.
+    Defaults are full-day UTC bounds — a date-only end (e.g. "2026-07-04") would sort
+    before that day's timestamped events and silently drop them."""
+    start = start or date.today().isoformat() + "T00:00:00Z"
+    end = end or (date.today() + timedelta(days=30)).isoformat() + "T23:59:59Z"
+    return await m365.ingest_events(graph, sn, get_settings().sn_scope, start, end)
+
+
+@router.get("/prep/{meeting_id}")
+async def meeting_prep(meeting_id: str, sn: ServiceNowClient = Depends(get_sn)) -> dict:
+    """Assemble a prep brief (meeting + client context) for an upcoming meeting."""
+    prep = await m365.build_meeting_prep(sn, get_settings().sn_scope, meeting_id)
+    if prep is None:
+        raise HTTPException(status_code=404, detail=f"meeting {meeting_id} not found")
+    return prep
