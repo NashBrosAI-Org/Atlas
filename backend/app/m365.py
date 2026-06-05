@@ -47,14 +47,17 @@ def _domain(addr: str) -> str:
 
 
 def match_client(from_addr: str, clients: list[dict]) -> Optional[str]:
-    """Return the sys_id of the client whose email_domains contains the sender's
-    domain, else None. email_domains is a comma/space-separated list."""
-    dom = _domain(from_addr)
-    if not dom:
+    """Return the sys_id of the client matching the sender — by email domain
+    (email_domains) or by an explicit full-address alias (email_aliases). Both are
+    comma/space-separated, case-insensitive. None if no match."""
+    addr = from_addr.strip().lower()
+    if not addr:
         return None
+    dom = _domain(addr)
     for c in clients:
         domains = {d.strip().lower() for d in (c.get("email_domains") or "").replace(",", " ").split()}
-        if dom in domains:
+        aliases = {a.strip().lower() for a in (c.get("email_aliases") or "").replace(",", " ").split()}
+        if (dom and dom in domains) or (addr in aliases):
             return c.get("sys_id")
     return None
 

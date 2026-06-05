@@ -37,6 +37,21 @@ def test_match_client_by_sender_domain():
     assert m365.match_client("", clients) is None
 
 
+def test_match_client_by_explicit_alias():
+    clients = [
+        {"sys_id": "c1", "name": "Acme", "email_domains": "acme.com",
+         "email_aliases": "jane.personal@gmail.com, acmeboss@outlook.com"},
+        {"sys_id": "c2", "name": "Globex", "email_domains": "globex.com"},
+    ]
+    # domain still wins
+    assert m365.match_client("x@acme.com", clients) == "c1"
+    # explicit off-domain alias matches (case-insensitive)
+    assert m365.match_client("Jane.Personal@GMAIL.com", clients) == "c1"
+    assert m365.match_client("acmeboss@outlook.com", clients) == "c1"
+    # unrelated still None
+    assert m365.match_client("someone@outlook.com", clients) is None
+
+
 async def _seed_client(sn):
     return (await sn.create(f"{SCOPE}_client",
                             {"name": "Acme", "email_domains": "acme.com"}))["sys_id"]
