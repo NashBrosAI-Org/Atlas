@@ -6,7 +6,7 @@ from datetime import date, datetime, time, timezone
 from typing import Optional
 
 from app import awareness, reminders
-from app.routers.tasks import now_sort_key
+from app.ordering import active_now_tasks
 from app.servicenow import ServiceNowClient
 
 
@@ -15,8 +15,7 @@ async def build_briefing(sn: ServiceNowClient, scope: str, today: Optional[date]
                          stale_days: int = 30) -> dict:
     today = today or date.today()
 
-    tasks = [t for t in await sn.list(f"{scope}_task") if t.get("status") != "done"]
-    now_tasks = sorted(tasks, key=now_sort_key)[:now_limit]
+    now_tasks = active_now_tasks(await sn.list(f"{scope}_task"), now_limit)
 
     meetings = [m for m in await sn.list(f"{scope}_meeting")
                 if (m.get("datetime") or "")[:10] == today.isoformat()]

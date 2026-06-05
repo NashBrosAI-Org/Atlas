@@ -2,24 +2,16 @@ from typing import Optional
 from fastapi import APIRouter, Depends
 from app.config import get_settings
 from app.models import Task
+from app.ordering import active_now_tasks
 from app.servicenow import ServiceNowClient
 from app.main_deps import get_sn
 
 router = APIRouter(prefix="/api", tags=["tasks"])
 _settings = get_settings()
 
-_PRIORITY_RANK = {"critical": 0, "high": 1, "medium": 2, "low": 3}
-
 
 def _table() -> str:
     return f"{_settings.sn_scope}_task"
-
-
-def now_sort_key(t: dict):
-    rank = _PRIORITY_RANK.get(t.get("priority", "medium"), 2)
-    due = t.get("due_date") or "9999-12-31"
-    commit = 0 if str(t.get("is_commitment")) in ("True", "true", "1") else 1
-    return (rank, due, commit)
 
 
 @router.get("/tasks")
@@ -41,6 +33,4 @@ async def update_task(sys_id: str, body: dict, sn: ServiceNowClient = Depends(ge
 @router.get("/now")
 async def now_view(client: Optional[str] = None, sn: ServiceNowClient = Depends(get_sn)) -> list[dict]:
     query = {"client": client} if client else None
-    rows = await sn.list(_table(), query=query)
-    rows = [t for t in rows if t.get("status") != "done"]
-    return sorted(rows, key=now_sort_key)
+    return active_now_tasks(await sn.list(_table(), query=query))

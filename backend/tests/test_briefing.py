@@ -44,6 +44,14 @@ async def test_build_briefing_aggregates_day(sn):
 
 
 @pytest.mark.asyncio
+async def test_briefing_empty_state(sn):
+    b = await briefing.build_briefing(sn, SCOPE, today=date(2026, 6, 4))
+    assert b["date"] == "2026-06-04"
+    assert b["now_tasks"] == [] and b["todays_meetings"] == []
+    assert b["reminders"] == [] and b["radar"] == []
+
+
+@pytest.mark.asyncio
 async def test_now_tasks_respects_limit(sn):
     cid = await _client(sn)
     for i in range(7):
