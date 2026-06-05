@@ -144,6 +144,8 @@ Significant decisions and their rationale, newest last.
 
 **D41 — Small polish: explainability + modal a11y (backlog).** The Now view shows an ordering legend ("priority → due date → commitments first") and a per-row hover tooltip (`rankReason`) explaining why each task ranks where it does — reinforcing the deterministic core. `MeetingPrepPanel` gains Escape-to-close, focus-on-open, and `role="dialog"`/`aria-modal` (QuickCapture already had Escape). Frontend tests (3) + build green. Queue: [BACKLOG.md](BACKLOG.md).
 
+**D42 — Self-documenting UI (backlog, user request).** A reusable `InfoHint` component (accessible ⓘ — native `title` + `aria-label`, no deps) plus one-sentence explainers on the non-obvious fields/sections: Settings (radar thresholds, backup, instance URL/scope, demo-data toggle), the Clients manager (email domains/aliases), key-date recurring/type, and dossier tags. Targeted ~9 high-value spots rather than every field. Vitest smoke test for `InfoHint`; 4 frontend tests + build green. Queue: [BACKLOG.md](BACKLOG.md).
+
 ## Next plans (after the instance is live)
 - **Plan 3 — COMPLETE:** ✅ 3a activity timeline + stale-client radar (D16); ✅ 3d export/backup (D17); ✅ 3b tags (D18); ✅ 3c key dates + reminders (D19); ✅ Links (D20).
 - **Plan P2 — M365 (planned D22):** ✅ Phase 1 email (D23); ✅ Phase 2 calendar + meeting-prep (D24); ✅ Phase 3 briefing (D25); ✅ daily-driver UI — Today card + sync (D26); ✅ meeting-prep view (D27) — **entire deterministic P2 surface built & demo-able behind `FakeGraph`**; ⛔ only **live `HttpGraph` + auth (Phase 4)** remains, gated on the **[Entra recon spike](P2-ENTRA-RECON.md)** (R3/R4), work-Mac only. Plan: [`superpowers/plans/2026-06-04-atlas-p2-m365.md`](superpowers/plans/2026-06-04-atlas-p2-m365.md).
