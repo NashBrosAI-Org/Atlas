@@ -87,3 +87,44 @@ async def test_autobackup_if_stale_writes_only_when_due(sn, data_dir):
     later = await backup.autobackup_if_stale(sn, "x_atlas_sn", max_age_days=7,
                                              now=datetime(2026, 6, 20, tzinfo=timezone.utc))
     assert later is not None and later.is_file()
+
+
+SCOPE = "x_atlas_sn"
+
+
+async def test_import_snapshot_upserts_and_preserves_sys_ids_and_refs():
+    src = FakeServiceNow()
+    cid = (await src.create(f"{SCOPE}_client", {"name": "Acme"}))["sys_id"]
+    await src.create(f"{SCOPE}_task", {"title": "Renewal", "client": cid, "status": "open"})
+    export = await backup.build_export(src, SCOPE)
+
+    # Restore into a fresh (wiped) instance.
+    dest = FakeServiceNow()
+    result = await backup.import_snapshot(dest, SCOPE, export)
+    assert result["created"] == 2 and result["updated"] == 0
+
+    clients = await dest.list(f"{SCOPE}_client")
+    tasks = await dest.list(f"{SCOPE}_task")
+    assert clients[0]["sys_id"] == cid                 # sys_id preserved
+    assert tasks[0]["client"] == cid                   # cross-record reference intact
+
+    # Re-importing updates in place (idempotent), does not duplicate.
+    again = await backup.import_snapshot(dest, SCOPE, export)
+    assert again["created"] == 0 and again["updated"] == 2
+    assert len(await dest.list(f"{SCOPE}_client")) == 1
+
+
+async def test_restore_latest_reads_newest_file(sn, data_dir):
+    await sn.create(f"{SCOPE}_client", {"name": "Acme"})
+    await backup.write_export(sn, SCOPE, now=datetime(2026, 6, 1, tzinfo=timezone.utc))
+    await sn.create(f"{SCOPE}_client", {"name": "Globex"})
+    await backup.write_export(sn, SCOPE, now=datetime(2026, 6, 5, tzinfo=timezone.utc))  # newest: 2 clients
+
+    dest = FakeServiceNow()
+    result = await backup.restore_latest(dest, SCOPE)
+    assert result["created"] == 2                       # from the newest snapshot
+    assert {c["name"] for c in await dest.list(f"{SCOPE}_client")} == {"Acme", "Globex"}
+
+
+async def test_restore_latest_none_when_no_backups(data_dir):
+    assert await backup.restore_latest(FakeServiceNow(), SCOPE) is None

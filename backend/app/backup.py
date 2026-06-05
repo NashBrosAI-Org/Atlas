@@ -83,3 +83,46 @@ async def autobackup_if_stale(sn: ServiceNowClient, scope: str, max_age_days: in
     if not is_backup_stale(max_age_days, now):
         return None
     return await write_export(sn, scope, now=now)
+
+
+async def import_snapshot(sn: ServiceNowClient, scope: str, export: dict) -> dict:
+    """Restore a snapshot into the instance: upsert each row **by `sys_id`** — update
+    if it still exists, else (re)create preserving its `sys_id` so cross-record
+    references survive. The recovery half of rule #3 / risk R2. Returns counts.
+
+    Note: real ServiceNow's Table API may not honor a supplied `sys_id` on insert;
+    a full-wipe live restore that must preserve references is a follow-up (sys_id
+    remap pass). Round-trips faithfully against FakeServiceNow."""
+    tables = export.get("tables", {})
+    created = updated = 0
+    for short in TABLES:
+        for row in tables.get(short, []):
+            sys_id = row.get("sys_id")
+            existing = await sn.get(f"{scope}_{short}", sys_id) if sys_id else None
+            if existing is not None:
+                await sn.update(f"{scope}_{short}", sys_id, row)
+                updated += 1
+            else:
+                await sn.create(f"{scope}_{short}", row)
+                created += 1
+    return {"created": created, "updated": updated}
+
+
+def latest_backup_path() -> Optional[Path]:
+    """Path of the newest snapshot file, or None if none exist."""
+    dest = user_config.backups_dir()
+    if not dest.is_dir():
+        return None
+    files = [(p, _parse_stamp(p.name)) for p in dest.glob("atlas-backup-*.json")]
+    files = [(p, s) for p, s in files if s is not None]
+    return max(files, key=lambda t: t[1])[0] if files else None
+
+
+async def restore_latest(sn: ServiceNowClient, scope: str) -> Optional[dict]:
+    """Restore the most recent snapshot file. None if there is no backup."""
+    path = latest_backup_path()
+    if path is None:
+        return None
+    export = json.loads(path.read_text())
+    result = await import_snapshot(sn, scope, export)
+    return {**result, "from": path.name, "created_at": export.get("created_at")}
