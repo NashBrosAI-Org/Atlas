@@ -53,6 +53,29 @@ def test_extract_contact_endpoint_gated_when_ai_disabled(monkeypatch, tmp_path):
     assert r.status_code == 403
 
 
+def test_draft_endpoint_enabled_unknown_and_gated(monkeypatch, tmp_path):
+    monkeypatch.setenv("ATLAS_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("AI_ENABLED", "true")
+    sn = FakeServiceNow()
+    c = _client(sn)
+    cid = c.post("/api/clients", json={"name": "Acme"}).json()["sys_id"]
+
+    r = c.post(f"/api/ai/draft/client/{cid}")
+    assert r.status_code == 200 and r.json()["draft"] == "S"
+
+    assert c.post("/api/ai/draft/client/nope").status_code == 404
+
+
+def test_draft_endpoint_is_gated_when_ai_disabled(monkeypatch, tmp_path):
+    monkeypatch.setenv("ATLAS_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("AI_ENABLED", "false")
+    sn = FakeServiceNow()
+    c = _client(sn)
+    cid = c.post("/api/clients", json={"name": "Acme"}).json()["sys_id"]
+
+    assert c.post(f"/api/ai/draft/client/{cid}").status_code == 403
+
+
 def test_summary_endpoint_is_gated_when_ai_disabled(monkeypatch, tmp_path):
     monkeypatch.setenv("ATLAS_DATA_DIR", str(tmp_path))
     monkeypatch.setenv("AI_ENABLED", "false")
