@@ -6,10 +6,11 @@ import { SettingsView } from "./SettingsView";
 import { HelpView } from "./HelpView";
 import { AwarenessView } from "./AwarenessView";
 import { SearchView } from "./SearchView";
+import { AssociationsView } from "./AssociationsView";
 import { QuickCapture } from "./QuickCapture";
 import { getStatus } from "./api";
 
-type View = "now" | "clients" | "dossier" | "settings" | "help" | "awareness" | "search";
+type View = "now" | "clients" | "dossier" | "settings" | "help" | "awareness" | "search" | "associations";
 
 export default function App() {
   const [view, setView] = useState<View>("now");
@@ -39,6 +40,7 @@ export default function App() {
         <button onClick={() => setView("clients")}>Clients</button>
         <button onClick={() => setView("awareness")}>Awareness</button>
         <button onClick={() => setView("search")}>Search</button>
+        <button onClick={() => setView("associations")}>Associations</button>
         <button onClick={() => setView("settings")}>Settings</button>
         <button onClick={() => setView("help")}>Help</button>
         <button style={{ marginLeft: "auto" }} onClick={() => setCapturing(true)}>＋ Capture</button>
@@ -55,6 +57,9 @@ export default function App() {
       )}
       {view === "search" && (
         <SearchView onOpenClient={(id) => { setClientSysId(id); setView("dossier"); }} />
+      )}
+      {view === "associations" && (
+        <AssociationsView onOpenClient={(id) => { setClientSysId(id); setView("dossier"); }} />
       )}
       {view === "settings" && (
         <SettingsView onSaved={() => setView("now")} />
