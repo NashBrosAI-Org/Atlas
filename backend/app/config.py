@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     cooling_days: int = 14
     stale_days: int = 30
     backup_max_age_days: int = 7  # a backup older than this is "stale" (Plan 3d)
+    ai_enabled: bool = False                                  # gates the AI UI; additive (rule #6)
+    ai_use_fake: bool = True                                  # personal Mac builds against FakeAI
+    anthropic_model: str = "claude-haiku-4-5-20251001"
 
 
 def get_settings() -> Settings:
