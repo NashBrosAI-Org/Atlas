@@ -3,7 +3,7 @@
 Update this **after each unit of work**, not at session end. (Per the user's standing
 preference for living progress docs.)
 
-Last updated: 2026-06-04 (**Plan 3 COMPLETE** — Links (per-client bookmarks) + generic crud DELETE; D20. All of Plan 3 shipped: 3a awareness, 3b tags D18, 3c key dates D19, 3d export/backup D17, Links D20. Next: P2 — M365, gated on the Entra recon spike R3)
+Last updated: 2026-06-04 (Plan 3 COMPLETE; **P2 (M365) planned** — Entra recon checklist + a GraphClient/FakeGraph plan, live integration gated on recon GO; D22. Plan 3 shipped D16–D20 + XSS fix D21)
 
 ## Current status
 - **Phase:** **P1 COMPLETE; Plan 3 COMPLETE.** Plans 1 & 2 code complete; the 14-table SN scoped app is provisioned on live `nnash`; **Task 15 is verified** — the FastAPI backend reads **and** writes real records over basic auth (D14) with clean field shapes (parity #15). Desktop A/B/C shipped. **All of Plan 3 is now done** — awareness (3a), tags (3b), key dates + reminders (3c), export/backup (3d), and Links (D16–D20). Next milestone: **P2 — M365**, gated on the Entra recon spike (risk R3).
@@ -104,7 +104,9 @@ Significant decisions and their rationale, newest last.
 
 **D21 — User-supplied URLs are http(s)-only (stored-XSS guard).** An automated security review flagged the D20 Links anchor (`<a href={l.url}>`) as a stored-XSS sink — a `javascript:`/`data:` URL would execute on click. Fixed defense-in-depth: a pydantic `field_validator` on `Link.url` rejects any scheme other than http/https (422 at the API), **and** the dossier renders through a `safeHref()` guard (same allowlist) so even a bad URL already stored on the live instance is shown as plain text, never a live link. Convention for any future user-supplied URL: validate the scheme server-side *and* guard at the render site.
 
+**D22 — P2 (M365) planned; live integration gated behind a recon spike and a `GraphClient` fake.** P2 follows the proven ServiceNow seam: a `GraphClient` interface with an in-memory **`FakeGraph`** so email/calendar features are built and TDD'd on the personal Mac with **no corporate data** (hard rule #1), and a live **`HttpGraph`** wired only on the work Mac *after* the Entra recon returns GO. Permission model: **delegated** scopes for the signed-in user's own mailbox/calendar (`Mail.Read`, `Calendars.Read`, `offline_access`, `User.Read`) via **auth-code+PKCE** (device-code fallback) — public-client, no secret on disk, refresh token in the Keychain (like the SN password). **Teams transcripts** (`OnlineMeetingTranscript.Read.All`, application/admin-gated) are explicitly **out of P2** — transcripts stay manual-paste (P1) — and tracked as a separate, harder spike. Email is retained in the existing `x_atlas_sn_email` table, idempotent on `graph_message_id`; the ingest filter is kept narrow to avoid silently broadening retained content (R1/D2). Recon checklist: [`docs/P2-ENTRA-RECON.md`](P2-ENTRA-RECON.md); plan: [`superpowers/plans/2026-06-04-atlas-p2-m365.md`](superpowers/plans/2026-06-04-atlas-p2-m365.md).
+
 ## Next plans (after the instance is live)
 - **Plan 3 — COMPLETE:** ✅ 3a activity timeline + stale-client radar (D16); ✅ 3d export/backup (D17); ✅ 3b tags (D18); ✅ 3c key dates + reminders (D19); ✅ Links (D20).
-- **Plan P2 — M365:** Entra recon → email + calendar, email→task, auto-association, meeting-prep assembler, morning briefing.
+- **Plan P2 — M365 (planned, D22):** ⛔ gated on the **[Entra recon spike](P2-ENTRA-RECON.md)** (R3/R4). Buildable now behind `FakeGraph` (personal Mac): email ingest + email→task + auto-association (Phase 1), calendar + meeting-prep (Phase 2), morning briefing (Phase 3). Live `HttpGraph` + auth = Phase 4, work-Mac only. Plan: [`superpowers/plans/2026-06-04-atlas-p2-m365.md`](superpowers/plans/2026-06-04-atlas-p2-m365.md).
 - **Plan P3 — AI & decks:** Anthropic summaries/drafting/prioritization, RAG search, `.pptx` + web decks on official ServiceNow brand kit.
