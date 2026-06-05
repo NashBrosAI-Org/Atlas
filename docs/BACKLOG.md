@@ -29,10 +29,9 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
   Edit/Save; name, role_title, email, phone, sentiment, reports_to). Shipped (PR #39). Part (b) of
   the role-titles request — **email-signature autofill** — remains queued under P3 extraction below.
 ### Data safety & correctness
-- 🟡 **Restore-from-backup.** `app/backup.py` can *export* every table but there's **no import/restore**
-  — for risk **R2** (instance reclaim) a backup you can't restore is half a mitigation. Add
-  `import_export(file)` + `POST /api/backup/restore` (idempotent upsert by `sys_id`) + a Settings
-  "Restore" affordance. **Building this session.**
+- 🟢 **Restore-from-backup.** `import_snapshot` upserts by `sys_id` (preserving refs); `restore_latest`
+  + `POST /api/backup/restore` + a Settings "Restore latest" button. Shipped (PR #41). Follow-up:
+  sys_id-remap pass for a full-wipe *live* restore (SN may not honor a supplied `sys_id` on insert).
 - 🟡 **SN list pagination.** `HttpServiceNow.list` does a single GET — fine for ~6 clients but
   transcripts/emails will hit SN's default row cap. Add `sysparm_limit`/`sysparm_offset` paging
   (mirrors the `@odata.nextLink` note for Graph). **Building this session.**

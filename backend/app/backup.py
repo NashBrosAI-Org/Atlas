@@ -57,12 +57,8 @@ def _parse_stamp(name: str) -> Optional[datetime]:
 
 def latest_backup_time() -> Optional[datetime]:
     """Timestamp of the newest snapshot in the backups dir, or None if none exist."""
-    dest = user_config.backups_dir()
-    if not dest.is_dir():
-        return None
-    stamps = [_parse_stamp(p.name) for p in dest.glob("atlas-backup-*.json")]
-    stamps = [s for s in stamps if s is not None]
-    return max(stamps) if stamps else None
+    path = latest_backup_path()
+    return _parse_stamp(path.name) if path is not None else None
 
 
 def is_backup_stale(max_age_days: int, now: Optional[datetime] = None) -> bool:
