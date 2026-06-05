@@ -1,4 +1,4 @@
-import type { Client, Task, Contact, Dossier, Note, Transcript, AppSettings, AppStatus, TestResult, ActivityEvent, RadarEntry } from "./types";
+import type { Client, Task, Contact, Dossier, Note, Transcript, AppSettings, AppStatus, TestResult, ActivityEvent, RadarEntry, BackupStatus, ExportResult } from "./types";
 const BASE = "/api";
 
 /** Fetch JSON, throwing on any non-2xx response (with FastAPI's `detail` if present)
@@ -67,4 +67,10 @@ export async function getTimeline(clientId: string): Promise<ActivityEvent[]> {
 }
 export async function getRadar(): Promise<RadarEntry[]> {
   return http<RadarEntry[]>("/awareness/radar");
+}
+export async function getBackupStatus(): Promise<BackupStatus> {
+  return http<BackupStatus>("/backup/status");
+}
+export async function runExport(): Promise<ExportResult> {
+  return http<ExportResult>("/backup/export", { method: "POST" });
 }

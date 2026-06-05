@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     sn_oauth_password: str = ""
     cooling_days: int = 14
     stale_days: int = 30
+    backup_max_age_days: int = 7  # a backup older than this is "stale" (Plan 3d)
 
 
 def get_settings() -> Settings:

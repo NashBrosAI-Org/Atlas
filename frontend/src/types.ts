@@ -77,3 +77,15 @@ export interface TestResult {
   ok: boolean;
   error?: string;
 }
+export interface BackupStatus {
+  last_backup: string | null;
+  count: number;
+  stale: boolean;
+  max_age_days: number;
+  backups_dir: string;
+}
+export interface ExportResult {
+  path: string;
+  created_at: string;
+  counts: Record<string, number>;
+}
