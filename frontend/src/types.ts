@@ -107,6 +107,7 @@ export interface AppSettings {
   password_set: boolean;
   cooling_days: number;
   stale_days: number;
+  m365_mail_filter: string;
 }
 export interface ActivityEvent {
   type: string;

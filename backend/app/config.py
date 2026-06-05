@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     sn_oauth_username: str = ""
     sn_oauth_password: str = ""
     m365_use_fake: bool = True   # personal Mac builds against FakeGraph (hard rule #1)
+    # Which mail the live HttpGraph (Phase 4) ingests — keeps the retained corporate
+    # scope narrow and user-controlled (risks R1/D2). "inbox" | "inbox_sent" | "flagged_only".
+    m365_mail_filter: str = "inbox"
     cooling_days: int = 14
     stale_days: int = 30
     backup_max_age_days: int = 7  # a backup older than this is "stale" (Plan 3d)

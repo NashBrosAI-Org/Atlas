@@ -34,6 +34,7 @@ export function SettingsView({ onSaved }: { onSaved?: () => void }) {
         sn_oauth_username: snap.sn_oauth_username,
         cooling_days: snap.cooling_days,
         stale_days: snap.stale_days,
+        m365_mail_filter: snap.m365_mail_filter,
         ...(password ? { password } : {}),
       });
       setS(saved);
@@ -136,6 +137,22 @@ export function SettingsView({ onSaved }: { onSaved?: () => void }) {
         <label>Stale after
           <input type="number" min={1} value={s.stale_days}
                  onChange={(e) => set({ stale_days: Number(e.target.value) })} />
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Microsoft 365 retention<InfoHint text="Controls which corporate mail is ingested into ServiceNow. Keep it narrow — retaining content past company policy is an accepted, owned risk (R1)." /></legend>
+        <p style={{ fontSize: 13, color: "#666", margin: "0 0 6px" }}>
+          Which mail the live Microsoft 365 sync ingests. Narrower scopes retain less corporate
+          content. (Applied once live M365 is connected.)
+        </p>
+        <label>Ingest scope
+          <select value={s.m365_mail_filter}
+                  onChange={(e) => set({ m365_mail_filter: e.target.value })}>
+            <option value="inbox">Inbox only</option>
+            <option value="inbox_sent">Inbox + Sent</option>
+            <option value="flagged_only">Flagged messages only</option>
+          </select>
         </label>
       </fieldset>
 

@@ -93,3 +93,11 @@ def test_threshold_settings_roundtrip(monkeypatch, tmp_path):
     c.put("/api/settings", json={"cooling_days": 7, "stale_days": 21})
     got = c.get("/api/settings").json()
     assert got["cooling_days"] == 7 and got["stale_days"] == 21
+
+
+def test_put_settings_round_trips_m365_mail_filter(monkeypatch, tmp_path):
+    c = _client(monkeypatch, tmp_path)
+    assert c.get("/api/settings").json()["m365_mail_filter"] == "inbox"   # default
+    r = c.put("/api/settings", json={"m365_mail_filter": "flagged_only"})
+    assert r.status_code == 200
+    assert c.get("/api/settings").json()["m365_mail_filter"] == "flagged_only"
