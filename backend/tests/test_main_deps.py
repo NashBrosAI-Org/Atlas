@@ -30,6 +30,13 @@ def test_get_graph_returns_fake_when_m365_use_fake(monkeypatch, tmp_path):
     assert isinstance(deps.get_graph(), FakeGraph)
 
 
+def test_get_ai_returns_fake_when_ai_use_fake(monkeypatch, tmp_path):
+    monkeypatch.setenv("ATLAS_DATA_DIR", str(tmp_path))
+    import app.main_deps as deps
+    from app.ai import FakeAI
+    assert isinstance(deps.get_ai(), FakeAI)
+
+
 def test_reset_sn_picks_up_new_settings(monkeypatch, tmp_path):
     monkeypatch.setenv("ATLAS_DATA_DIR", str(tmp_path))
     monkeypatch.setattr(uc, "get_password", lambda: None)

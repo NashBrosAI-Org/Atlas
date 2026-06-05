@@ -1,5 +1,6 @@
 import httpx
 
+from app.ai import AIClient, FakeAI
 from app.config import get_settings
 from app.graph import FakeGraph, GraphClient
 from app.servicenow import FakeServiceNow, HttpServiceNow, ServiceNowClient
@@ -8,6 +9,7 @@ from app.auth import TokenManager
 _fake = FakeServiceNow()
 _live: ServiceNowClient | None = None
 _fake_graph = FakeGraph()
+_fake_ai = FakeAI()
 
 
 def reset_sn() -> None:
@@ -46,3 +48,11 @@ def get_graph() -> GraphClient:
     if settings.m365_use_fake:
         return _fake_graph
     raise RuntimeError("live Graph (HttpGraph) not wired yet — see P2 plan Phase 4")
+
+
+def get_ai() -> AIClient:
+    """DI seam for the AI client. Returns the deterministic fake until a later
+    phase wires the live AnthropicAI (and only when an API key is configured)."""
+    if get_settings().ai_use_fake:
+        return _fake_ai
+    raise RuntimeError("live AnthropicAI not wired yet — see P3 plan")
