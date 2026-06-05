@@ -152,3 +152,11 @@ export interface SearchHit {
   client: string;
   client_name: string;
 }
+export interface Association {
+  type: string;
+  sys_id: string;
+  label: string;
+  who: string;
+  client: string;
+  client_name: string;
+}

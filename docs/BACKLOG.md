@@ -50,8 +50,9 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
   "AI focus" panel. Suggestions only; never writes `priority`/reorders (rule #6). Shipped (PR #46).
 
 ### UX / product
-- 🔵 **Association review UI (build now, per user)** — confirm/correct auto-associated emails & meetings
-  so the user can trust/fix domain-alias matching. Built against the fake now; fully exercised once M365 is live.
+- 🟢 **Association review UI** — `GET /api/associations` lists ingested emails & meetings with their
+  auto-assigned client; an Associations tab lets you reassign each via a client select (Email model +
+  emails crud router added). Shipped (PR #53).
 - 🟢 **Quick-capture** — a global "＋ Capture" nav button opens a modal (Task|Note, optional client,
   Escape/click-out to close). Shipped (PR #48).
 - 🟢 **Global search** — `GET /api/search` across clients/tasks/contacts/notes/engagements + a Search
@@ -68,7 +69,7 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
   `backend/`/`frontend/`/`servicenow/`. **Building this session.**
 
 > Removed: ~~CSV import~~ — deemed unnecessary by the user.
-> Association-review UI: **building now as a stub (user's call)**; retention-controls shipped (PR #52).
+> Retention-controls (PR #52) + association-review (PR #53) shipped (your call to build now); fully exercised once live M365 is connected.
 > Gated elsewhere (tracked in [PROGRESS.md](PROGRESS.md), not here): live M365 (`HttpGraph` + auth,
 > work-Mac, Entra recon) and live AI (`AnthropicAI`, needs `ANTHROPIC_API_KEY`).
 >
