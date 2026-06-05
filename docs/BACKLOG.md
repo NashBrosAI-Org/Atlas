@@ -39,7 +39,7 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
 
 ### AI (P3, behind `FakeAI` — buildable now)
 - 🟢 **P3 extraction capability** — `extract_contact_fields` (AI-primary + regex fallback) +
-  `POST /api/ai/extract/contact` + ContactEditor "Autofill from signature". Shipped (PR #43). The
+  `POST /api/ai/extract/contact` + ContactEditor "Autofill from signature". Shipped (PR #44). The
   role-titles autofill (D32 part b) is done; transcript/email action-item extraction can reuse it.
 - 🔵 **P3 drafting** — draft a follow-up email / note from a client or meeting context (Sonnet-class);
   inserts a draft into the composer for the human to edit; never auto-sends.
