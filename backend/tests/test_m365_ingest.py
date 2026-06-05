@@ -1,5 +1,6 @@
 import pytest
 from app import m365
+from app.graph import FakeGraph
 from app.servicenow import FakeServiceNow
 
 SCOPE = "x_atlas_sn"
@@ -34,3 +35,32 @@ def test_match_client_by_sender_domain():
     assert m365.match_client("x@globex.com", clients) == "c2"
     assert m365.match_client("nope@unknown.com", clients) is None
     assert m365.match_client("", clients) is None
+
+
+async def _seed_client(sn):
+    return (await sn.create(f"{SCOPE}_client",
+                            {"name": "Acme", "email_domains": "acme.com"}))["sys_id"]
+
+
+@pytest.mark.asyncio
+async def test_ingest_is_idempotent_and_associates_and_flags():
+    sn = FakeServiceNow()
+    cid = await _seed_client(sn)
+    flagged = {**MSG, "id": "AAMk-999", "subject": "Please action",
+               "flag": {"flagStatus": "flagged"}}
+    graph = FakeGraph(messages=[MSG, flagged])
+
+    first = await m365.ingest_emails(graph, sn, SCOPE)
+    assert first == {"ingested": 2, "skipped": 0, "tasks_created": 1}
+
+    emails = await sn.list(f"{SCOPE}_email")
+    assert {e["graph_message_id"] for e in emails} == {"AAMk-123", "AAMk-999"}
+    assert all(e["client"] == cid for e in emails)
+
+    tasks = await sn.list(f"{SCOPE}_task")
+    assert [t["title"] for t in tasks] == ["Follow up: Please action"]
+    assert tasks[0]["client"] == cid and tasks[0]["source"] == "email"
+
+    again = await m365.ingest_emails(graph, sn, SCOPE)
+    assert again == {"ingested": 0, "skipped": 2, "tasks_created": 0}
+    assert len(await sn.list(f"{SCOPE}_email")) == 2

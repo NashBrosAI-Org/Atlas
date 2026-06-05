@@ -43,3 +43,38 @@ def match_client(from_addr: str, clients: list[dict]) -> Optional[str]:
         if dom in domains:
             return c.get("sys_id")
     return None
+
+
+def _is_flagged(msg: dict) -> bool:
+    return (msg.get("flag") or {}).get("flagStatus") == "flagged"
+
+
+async def ingest_emails(graph: GraphClient, sn: ServiceNowClient, scope: str,
+                        since: Optional[str] = None) -> dict:
+    """Pull messages, retain new ones as Email records (idempotent on
+    graph_message_id), associate by sender domain, and raise a Task from each
+    flagged message. Returns counts."""
+    existing = {e.get("graph_message_id") for e in await sn.list(f"{scope}_email")}
+    clients = await sn.list(f"{scope}_client")
+
+    ingested = skipped = tasks_created = 0
+    for msg in await graph.list_messages(since=since):
+        gid = msg.get("id", "")
+        if not gid or gid in existing:
+            skipped += 1
+            continue
+        row = normalize_message(msg)
+        client_id = match_client(row["from_addr"], clients)
+        if client_id:
+            row["client"] = client_id
+        await sn.create(f"{scope}_email", row)
+        existing.add(gid)
+        ingested += 1
+        if _is_flagged(msg):
+            task = {"title": f"Follow up: {row['subject']}", "source": "email",
+                    "priority": "medium", "status": "open"}
+            if client_id:
+                task["client"] = client_id
+            await sn.create(f"{scope}_task", task)
+            tasks_created += 1
+    return {"ingested": ingested, "skipped": skipped, "tasks_created": tasks_created}
