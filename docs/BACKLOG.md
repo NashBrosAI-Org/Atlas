@@ -36,9 +36,7 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
   (1000/page) until a short page, so large tables come back whole. Shipped (PR #42).
 - 🟢 **Frontend tests.** Vitest + Testing Library + jsdom; smoke tests (OrgChart, ClientsView) + a CI
   `npm run test` step. Config split into `vitest.config.ts` so the build's `tsc` stays clean. Shipped (PR #49).
-- 🔵 **Backend test isolation (hygiene).** A few settings/deps tests read the real `.env`/Keychain, so they
-  fail in the live-configured primary checkout (pass in clean worktrees + CI). Pin `use_fake` / mock
-  `get_password` in `test_settings_api`/`test_config_overlay`/`test_main_deps` so local runs are reliable.
+- 🟢 **Backend test isolation (hygiene).** Tests no longer read the dev `.env`/Keychain (`ATLAS_ENV_FILE` opt-out + autouse `ATLAS_DATA_DIR`/Keychain isolation in conftest), so local runs match CI. Shipped (PR #55).
 
 ### AI (P3, behind `FakeAI` — buildable now)
 - 🟢 **P3 extraction capability** — `extract_contact_fields` (AI-primary + regex fallback) +
