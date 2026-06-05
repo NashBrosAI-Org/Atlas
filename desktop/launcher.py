@@ -36,9 +36,10 @@ def main() -> int:
     settings = get_settings()
     if settings.use_fake:
         import asyncio
-        from app.demo_data import seed_demo
-        from app.main_deps import get_sn
+        from app.demo_data import seed_demo, seed_demo_graph
+        from app.main_deps import get_graph, get_sn
         asyncio.run(seed_demo(get_sn()))
+        seed_demo_graph(get_graph())  # synthetic mail/calendar so M365 sync demonstrates
     else:
         # On-launch backup so a recent off-instance copy of live data always
         # exists (CLAUDE.md rule #3, risks R2/R3). Never block launch on it.

@@ -72,3 +72,23 @@ async def test_seed_produces_due_reminders():
     assert "Acme contract renewal" in titles
     assert "Jane Doe birthday" in titles
     assert "Globex QBR" not in titles
+
+
+@pytest.mark.asyncio
+async def test_seed_demo_graph_populates_mail_and_calendar():
+    from app.graph import FakeGraph
+    from app.demo_data import seed_demo_graph
+
+    g = FakeGraph()
+    seed_demo_graph(g)
+
+    msgs = await g.list_messages()
+    assert len(msgs) >= 2
+    assert any((m.get("flag") or {}).get("flagStatus") == "flagged" for m in msgs)
+    evs = await g.list_events("2000-01-01T00:00:00Z", "2100-01-01T00:00:00Z")
+    assert len(evs) >= 2
+
+
+def test_seed_demo_graph_noop_without_seed_method():
+    from app.demo_data import seed_demo_graph
+    seed_demo_graph(object())  # must not raise on a client lacking .seed()

@@ -19,6 +19,12 @@ class FakeGraph:
         self._messages = list(messages or [])
         self._events = list(events or [])
 
+    def seed(self, messages: Optional[list[dict]] = None,
+             events: Optional[list[dict]] = None) -> None:
+        """Append synthetic data to the in-memory demo client (used at launch)."""
+        self._messages.extend(messages or [])
+        self._events.extend(events or [])
+
     async def list_messages(self, since: Optional[str] = None) -> list[dict]:
         if since is None:
             return list(self._messages)

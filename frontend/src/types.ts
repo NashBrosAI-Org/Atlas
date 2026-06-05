@@ -66,6 +66,18 @@ export interface Link {
   url?: string;
   client?: string;
 }
+export interface Briefing {
+  date: string;
+  now_tasks: Task[];
+  todays_meetings: Meeting[];
+  reminders: Reminder[];
+  radar: RadarEntry[];
+}
+export interface SyncResult {
+  ingested: number;
+  skipped: number;
+  tasks_created?: number;
+}
 export interface Dossier {
   client: Client;
   contacts: Contact[];

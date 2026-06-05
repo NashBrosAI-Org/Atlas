@@ -89,3 +89,41 @@ async def seed_demo(sn: ServiceNowClient) -> None:
                                         "client": stark["sys_id"], "priority": "high", "status": "open"})
         finally:
             sn._clock = original_clock
+
+
+def seed_demo_graph(graph) -> None:
+    """Seed the demo FakeGraph with synthetic mail + calendar so the M365 sync
+    buttons and the morning briefing demonstrate in demo mode. Synthetic only —
+    no corporate data (hard rule #1). Senders/attendees use the demo clients'
+    domains (acme.com / globex.com) so association produces visible results."""
+    if not hasattr(graph, "seed"):
+        return
+    now = datetime.now(timezone.utc)
+
+    def iso(dt: datetime) -> str:
+        return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    graph.seed(
+        messages=[
+            {"id": "demo-msg-1", "subject": "Renewal paperwork",
+             "receivedDateTime": iso(now - timedelta(hours=2)),
+             "from": {"emailAddress": {"address": "jane@acme.com", "name": "Jane Doe"}},
+             "toRecipients": [{"emailAddress": {"address": "me@firm.com"}}],
+             "body": {"contentType": "text", "content": "Can you send the renewal paperwork?"},
+             "flag": {"flagStatus": "flagged"}},
+            {"id": "demo-msg-2", "subject": "SSO ticket update",
+             "receivedDateTime": iso(now - timedelta(days=1)),
+             "from": {"emailAddress": {"address": "ops@globex.com"}},
+             "toRecipients": [{"emailAddress": {"address": "me@firm.com"}}],
+             "body": {"contentType": "text", "content": "Update on the SSO ticket."},
+             "flag": {"flagStatus": "notFlagged"}},
+        ],
+        events=[
+            {"id": "demo-evt-1", "subject": "Acme weekly sync",
+             "start": {"dateTime": iso(now.replace(hour=15, minute=0, second=0, microsecond=0))},
+             "attendees": [{"emailAddress": {"address": "jane@acme.com"}}], "isOnlineMeeting": True},
+            {"id": "demo-evt-2", "subject": "Globex QBR",
+             "start": {"dateTime": iso(now + timedelta(days=3))},
+             "attendees": [{"emailAddress": {"address": "ops@globex.com"}}], "isOnlineMeeting": True},
+        ],
+    )
