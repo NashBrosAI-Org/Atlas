@@ -87,17 +87,32 @@ class HttpServiceNow:
     # labels). Applied to every verb for consistency.
     _PARAMS = {"sysparm_display_value": "false", "sysparm_exclude_reference_link": "true"}
 
+    # SN Table API caps a single response; page through with limit/offset so large
+    # tables (transcripts, emails) come back whole, not silently truncated.
+    _PAGE_SIZE = 1000
+
     @staticmethod
     def _encode_query(query: dict) -> str:
         return "^".join(f"{k}={v}" for k, v in query.items())
 
     async def list(self, table, query=None):
-        params = dict(self._PARAMS)
+        base = dict(self._PARAMS)
         if query:
-            params["sysparm_query"] = self._encode_query(query)
-        r = await self._http.get(f"/api/now/table/{table}", params=params, headers=self._headers())
-        r.raise_for_status()
-        return r.json()["result"]
+            base["sysparm_query"] = self._encode_query(query)
+        base["sysparm_limit"] = str(self._PAGE_SIZE)
+
+        rows: list[dict] = []
+        offset = 0
+        while True:
+            params = {**base, "sysparm_offset": str(offset)}
+            r = await self._http.get(f"/api/now/table/{table}", params=params, headers=self._headers())
+            r.raise_for_status()
+            page = r.json()["result"]
+            rows.extend(page)
+            if len(page) < self._PAGE_SIZE:  # short (or empty) page → done
+                break
+            offset += self._PAGE_SIZE
+        return rows
 
     async def get(self, table, sys_id):
         r = await self._http.get(

@@ -32,9 +32,8 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
 - 🟢 **Restore-from-backup.** `import_snapshot` upserts by `sys_id` (preserving refs); `restore_latest`
   + `POST /api/backup/restore` + a Settings "Restore latest" button. Shipped (PR #41). Follow-up:
   sys_id-remap pass for a full-wipe *live* restore (SN may not honor a supplied `sys_id` on insert).
-- 🟡 **SN list pagination.** `HttpServiceNow.list` does a single GET — fine for ~6 clients but
-  transcripts/emails will hit SN's default row cap. Add `sysparm_limit`/`sysparm_offset` paging
-  (mirrors the `@odata.nextLink` note for Graph). **Building this session.**
+- 🟢 **SN list pagination.** `HttpServiceNow.list` pages through `sysparm_limit`/`sysparm_offset`
+  (1000/page) until a short page, so large tables come back whole. Shipped (PR #42).
 - 🔵 **Frontend tests.** The frontend has no tests; add Vitest smoke tests on the composers/managers
   (the kind of bugs the manual reviews caught).
 
