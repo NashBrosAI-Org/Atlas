@@ -81,6 +81,17 @@ class Meeting(BaseModel):
     graph_event_id: Optional[str] = None   # set by calendar ingest; idempotency key
 
 
+class Email(BaseModel):
+    sys_id: Optional[str] = None
+    subject: str
+    client: Optional[str] = None
+    from_addr: Optional[str] = None
+    to_addr: Optional[str] = None
+    received_date: Optional[str] = None
+    body: Optional[str] = None
+    graph_message_id: Optional[str] = None
+
+
 class Transcript(BaseModel):
     sys_id: Optional[str] = None
     meeting: Optional[str] = None
