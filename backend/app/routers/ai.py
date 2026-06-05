@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from app import drafting, extraction, summaries
+from app import drafting, extraction, prioritization, summaries
 from app.ai import AIClient
 from app.config import get_settings
 from app.main_deps import get_ai, get_sn
@@ -48,6 +48,13 @@ async def extract_contact(body: dict, ai: AIClient = Depends(get_ai)) -> dict:
     """Extract {name, role_title, email, phone} from an email signature (AI + regex)."""
     _require_ai_enabled()
     return await extraction.extract_contact_fields(ai, body.get("signature", ""))
+
+
+@router.post("/prioritize")
+async def prioritize(sn: ServiceNowClient = Depends(get_sn),
+                     ai: AIClient = Depends(get_ai)) -> dict:
+    _require_ai_enabled()
+    return {"suggestion": await prioritization.suggest_focus(sn, ai, get_settings().sn_scope)}
 
 
 @router.post("/summary/transcript/{transcript_id}")
