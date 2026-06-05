@@ -64,3 +64,19 @@ async def test_ingest_is_idempotent_and_associates_and_flags():
     again = await m365.ingest_emails(graph, sn, SCOPE)
     assert again == {"ingested": 0, "skipped": 2, "tasks_created": 0}
     assert len(await sn.list(f"{SCOPE}_email")) == 2
+
+
+@pytest.mark.asyncio
+async def test_ingest_unmatched_sender_is_still_retained_without_client():
+    sn = FakeServiceNow()
+    await _seed_client(sn)  # Acme / acme.com
+    stranger = {**MSG, "id": "AAMk-777", "from": {"emailAddress": {"address": "x@unknown.com"}}}
+    graph = FakeGraph(messages=[stranger])
+
+    result = await m365.ingest_emails(graph, sn, SCOPE)
+
+    assert result == {"ingested": 1, "skipped": 0, "tasks_created": 0}
+    emails = await sn.list(f"{SCOPE}_email")
+    assert len(emails) == 1
+    # Retained even with no client match — the email row simply omits `client`.
+    assert "client" not in emails[0]

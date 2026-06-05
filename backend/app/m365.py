@@ -6,11 +6,12 @@ risk R1/D2; keep the ingest filter narrow."""
 from typing import Optional
 
 from app.graph import GraphClient
+from app.models import Task
 from app.servicenow import ServiceNowClient
 
 
 def _addr(holder: Optional[dict]) -> str:
-    return (holder or {}).get("emailAddress", {}).get("address", "") if holder else ""
+    return (holder or {}).get("emailAddress", {}).get("address", "")
 
 
 def normalize_message(msg: dict) -> dict:
@@ -71,10 +72,7 @@ async def ingest_emails(graph: GraphClient, sn: ServiceNowClient, scope: str,
         existing.add(gid)
         ingested += 1
         if _is_flagged(msg):
-            task = {"title": f"Follow up: {row['subject']}", "source": "email",
-                    "priority": "medium", "status": "open"}
-            if client_id:
-                task["client"] = client_id
-            await sn.create(f"{scope}_task", task)
+            task = Task(title=f"Follow up: {row['subject']}", source="email", client=client_id)
+            await sn.create(f"{scope}_task", task.model_dump(exclude_none=True, exclude={"sys_id"}))
             tasks_created += 1
     return {"ingested": ingested, "skipped": skipped, "tasks_created": tasks_created}
