@@ -22,3 +22,15 @@ def test_normalize_message_maps_to_email_row():
     assert row["to_addr"] == "me@firm.com"
     assert row["received_date"] == "2026-06-04T09:00:00Z"
     assert row["body"] == "Can we discuss the renewal?"
+
+
+def test_match_client_by_sender_domain():
+    clients = [
+        {"sys_id": "c1", "name": "Acme", "email_domains": "acme.com, acme.io"},
+        {"sys_id": "c2", "name": "Globex", "email_domains": "globex.com"},
+    ]
+    assert m365.match_client("jane@acme.com", clients) == "c1"
+    assert m365.match_client("bob@ACME.IO", clients) == "c1"
+    assert m365.match_client("x@globex.com", clients) == "c2"
+    assert m365.match_client("nope@unknown.com", clients) is None
+    assert m365.match_client("", clients) is None

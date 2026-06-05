@@ -26,3 +26,20 @@ def normalize_message(msg: dict) -> dict:
         "received_date": msg.get("receivedDateTime", ""),
         "body": body,
     }
+
+
+def _domain(addr: str) -> str:
+    return addr.split("@", 1)[1].lower() if "@" in addr else ""
+
+
+def match_client(from_addr: str, clients: list[dict]) -> Optional[str]:
+    """Return the sys_id of the client whose email_domains contains the sender's
+    domain, else None. email_domains is a comma/space-separated list."""
+    dom = _domain(from_addr)
+    if not dom:
+        return None
+    for c in clients:
+        domains = {d.strip().lower() for d in (c.get("email_domains") or "").replace(",", " ").split()}
+        if dom in domains:
+            return c.get("sys_id")
+    return None
