@@ -37,3 +37,12 @@ def test_search_empty_query_returns_empty(monkeypatch, tmp_path):
     r = c.get("/api/search?q=")
     assert r.status_code == 200
     assert r.json() == []
+
+
+def test_search_types_param_filters(monkeypatch, tmp_path):
+    c = _client(monkeypatch, tmp_path)
+    cid = c.post("/api/clients", json={"name": "Acme", "status": "active"}).json()["sys_id"]
+    c.post("/api/tasks", json={"title": "Acme task", "client": cid})
+    r = c.get("/api/search?q=acme&types=task")
+    assert r.status_code == 200
+    assert {h["type"] for h in r.json()} == {"task"}
