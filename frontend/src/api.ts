@@ -47,6 +47,9 @@ export async function getDossier(clientSysId: string): Promise<Dossier> {
 export async function createContact(c: Partial<Contact>): Promise<Contact> {
   return http<Contact>("/contacts", jsonBody("POST", c));
 }
+export async function updateContact(sysId: string, patch: Partial<Contact>): Promise<Contact> {
+  return http<Contact>(`/contacts/${sysId}`, jsonBody("PATCH", patch));
+}
 export async function createNote(n: Partial<Note>): Promise<Note> {
   return http<Note>("/notes", jsonBody("POST", n));
 }
