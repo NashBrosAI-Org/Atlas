@@ -46,6 +46,8 @@ from app.routers import tags as tags_router  # noqa: E402
 app.include_router(tags_router.router)
 from app.routers import reminders as reminders_router  # noqa: E402
 app.include_router(reminders_router.router)
+from app.routers import m365 as m365_router  # noqa: E402
+app.include_router(m365_router.router)
 
 _default_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 _dist = Path(os.environ["ATLAS_FRONTEND_DIST"]) if os.environ.get("ATLAS_FRONTEND_DIST") else _default_dist

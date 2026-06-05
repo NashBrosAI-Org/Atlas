@@ -1,11 +1,13 @@
 import httpx
 
 from app.config import get_settings
+from app.graph import FakeGraph, GraphClient
 from app.servicenow import FakeServiceNow, HttpServiceNow, ServiceNowClient
 from app.auth import TokenManager
 
 _fake = FakeServiceNow()
 _live: ServiceNowClient | None = None
+_fake_graph = FakeGraph()
 
 
 def reset_sn() -> None:
@@ -35,3 +37,12 @@ def get_sn() -> ServiceNowClient:
             )
             _live = HttpServiceNow(http, token_provider=None)
     return _live
+
+
+def get_graph() -> GraphClient:
+    """DI seam for Microsoft Graph. Returns the in-memory fake until Phase 4
+    wires the live HttpGraph (work-Mac only, after the Entra recon GO)."""
+    settings = get_settings()
+    if settings.m365_use_fake:
+        return _fake_graph
+    raise RuntimeError("live Graph (HttpGraph) not wired yet — see P2 plan Phase 4")

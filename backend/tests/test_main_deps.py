@@ -23,6 +23,13 @@ def test_returns_basic_auth_http_when_configured(monkeypatch, tmp_path):
     assert isinstance(client, HttpServiceNow)
 
 
+def test_get_graph_returns_fake_when_m365_use_fake(monkeypatch, tmp_path):
+    monkeypatch.setenv("ATLAS_DATA_DIR", str(tmp_path))
+    import app.main_deps as deps
+    from app.graph import FakeGraph
+    assert isinstance(deps.get_graph(), FakeGraph)
+
+
 def test_reset_sn_picks_up_new_settings(monkeypatch, tmp_path):
     monkeypatch.setenv("ATLAS_DATA_DIR", str(tmp_path))
     monkeypatch.setattr(uc, "get_password", lambda: None)
