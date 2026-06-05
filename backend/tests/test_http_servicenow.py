@@ -26,6 +26,39 @@ async def test_list_builds_sysparm_query():
 
 
 @pytest.mark.asyncio
+async def test_list_pages_through_limit_offset(monkeypatch):
+    monkeypatch.setattr(HttpServiceNow, "_PAGE_SIZE", 2)
+    calls, urls = [], []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        offset = int(request.url.params.get("sysparm_offset", "0"))
+        calls.append(offset)
+        urls.append(str(request.url))
+        # 3 rows total across pages of 2: [r0,r1], [r2], then stop on the short page.
+        rows = [{"sys_id": str(i)} for i in (0, 1)] if offset == 0 else [{"sys_id": "2"}]
+        return httpx.Response(200, json={"result": rows})
+
+    sn = _client(handler)
+    rows = await sn.list("transcript")
+    assert [r["sys_id"] for r in rows] == ["0", "1", "2"]
+    assert calls == [0, 2]                       # second page fetched at offset 2, then stopped
+    assert "sysparm_limit=2" in urls[0]          # limit sent
+
+@pytest.mark.asyncio
+async def test_list_single_full_page_fetches_next_until_short(monkeypatch):
+    monkeypatch.setattr(HttpServiceNow, "_PAGE_SIZE", 2)
+    pages = {0: [{"sys_id": "0"}, {"sys_id": "1"}], 2: [{"sys_id": "2"}, {"sys_id": "3"}], 4: []}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        offset = int(request.url.params.get("sysparm_offset", "0"))
+        return httpx.Response(200, json={"result": pages[offset]})
+
+    sn = _client(handler)
+    rows = await sn.list("email")
+    assert [r["sys_id"] for r in rows] == ["0", "1", "2", "3"]  # full page → fetch again → empty stops
+
+
+@pytest.mark.asyncio
 async def test_create_posts_payload():
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.method == "POST"
