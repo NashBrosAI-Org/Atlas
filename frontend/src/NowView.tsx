@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Client, Task, Briefing } from "./types";
 import { getClients, getNow, completeTask, getBriefing, syncMail, syncCalendar } from "./api";
+import { MeetingPrepPanel } from "./MeetingPrepPanel";
 
 function whenLabel(days: number): string {
   if (days <= 0) return "today";
@@ -12,6 +13,7 @@ function TodayCard({ onSynced }: { onSynced: () => void }) {
   const [b, setB] = useState<Briefing | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  const [prepId, setPrepId] = useState<string | null>(null);
 
   const refresh = () => getBriefing().then(setB).catch((e) => setMsg(String(e)));
   useEffect(() => { refresh(); }, []);
@@ -51,7 +53,8 @@ function TodayCard({ onSynced }: { onSynced: () => void }) {
           <ul style={{ margin: "4px 0", paddingLeft: 18 }}>
             {b.todays_meetings.map((m, i) => (
               <li key={m.sys_id ?? i}>{m.title}{" "}
-                <span style={{ color: "#888" }}>{(m.datetime ?? "").slice(11, 16)}</span></li>
+                <span style={{ color: "#888" }}>{(m.datetime ?? "").slice(11, 16)}</span>{" "}
+                {m.sys_id && <button onClick={() => setPrepId(m.sys_id!)}>Prep</button>}</li>
             ))}
           </ul>
         )}
@@ -77,6 +80,8 @@ function TodayCard({ onSynced }: { onSynced: () => void }) {
           ⚠ {b.radar.length} client{b.radar.length > 1 ? "s" : ""} need attention — see the Awareness tab.
         </p>
       )}
+
+      {prepId && <MeetingPrepPanel meetingId={prepId} onClose={() => setPrepId(null)} />}
     </div>
   );
 }

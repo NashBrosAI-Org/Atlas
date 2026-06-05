@@ -7,6 +7,7 @@ import { TranscriptPaste } from "./TranscriptPaste";
 import { TagEditor } from "./TagEditor";
 import { KeyDateComposer } from "./KeyDateComposer";
 import { LinkComposer } from "./LinkComposer";
+import { MeetingPrepPanel } from "./MeetingPrepPanel";
 
 /** Only http(s) URLs are safe as an anchor href; anything else (javascript:,
  *  data:) would be an XSS sink. Returns the URL if safe, else undefined. */
@@ -26,6 +27,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export function DossierView({ clientSysId, onBack }: { clientSysId: string; onBack: () => void }) {
   const [d, setD] = useState<Dossier | null>(null);
   const [timeline, setTimeline] = useState<ActivityEvent[] | null>(null);
+  const [prepId, setPrepId] = useState<string | null>(null);
   const refresh = () => getDossier(clientSysId).then(setD);
   useEffect(() => { refresh(); }, [clientSysId]);
   useEffect(() => {
@@ -81,7 +83,12 @@ export function DossierView({ clientSysId, onBack }: { clientSysId: string; onBa
       </Section>
 
       <Section title={`Meetings (${d.meetings.length})`}>
-        <ul>{d.meetings.map((m) => <li key={m.sys_id}>{m.title} <em style={{ color: "#888" }}>{m.type}</em></li>)}</ul>
+        <ul>{d.meetings.map((m) => (
+          <li key={m.sys_id}>
+            {m.title} <em style={{ color: "#888" }}>{m.type}</em>{" "}
+            <button onClick={() => setPrepId(m.sys_id!)}>Prep</button>
+          </li>
+        ))}</ul>
         <TranscriptPaste clientSysId={clientSysId} onSaved={refresh} />
       </Section>
 
@@ -105,6 +112,8 @@ export function DossierView({ clientSysId, onBack }: { clientSysId: string; onBa
             </ul>
           )}
       </section>
+
+      {prepId && <MeetingPrepPanel meetingId={prepId} onClose={() => setPrepId(null)} />}
     </div>
   );
 }
