@@ -36,6 +36,29 @@ export interface Note {
   target_table?: string; target_id?: string; pinned?: boolean;
 }
 export interface TagOnRecord { sys_id: string; name: string; link_id: string; }
+export type KeyDateType = "renewal" | "qbr" | "contract_end" | "birthday" | "milestone";
+export interface KeyDate {
+  sys_id?: string;
+  title: string;
+  type?: KeyDateType;
+  date?: string;
+  recurring?: boolean;
+  reminder_lead_days?: number;
+  client?: string;
+  contact?: string;
+}
+export interface Reminder {
+  sys_id: string;
+  title: string;
+  type: string;
+  date: string;
+  days_until: number;
+  recurring: boolean;
+  reminder_lead_days: number;
+  client: string;
+  client_name: string;
+  contact: string;
+}
 export interface Dossier {
   client: Client;
   contacts: Contact[];
@@ -43,6 +66,7 @@ export interface Dossier {
   themes: Theme[];
   open_tasks: Task[];
   meetings: Meeting[];
+  key_dates: KeyDate[];
   notes: Note[];
   tags: TagOnRecord[];
 }

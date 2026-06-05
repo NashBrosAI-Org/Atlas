@@ -51,6 +51,20 @@ async def seed_demo(sn: ServiceNowClient) -> None:
     await sn.create(t("note"), {"title": "Acme renewal at risk if SSO slips", "note_type": "risk",
                                 "target_table": "client", "target_id": acme["sys_id"], "pinned": True})
 
+    # Key dates — two land inside the reminder window (computed relative to today so
+    # the Awareness "Upcoming" panel always demonstrates), one is far off.
+    today = datetime.now(timezone.utc).date()
+    await sn.create(t("key_date"), {"title": "Acme contract renewal", "type": "renewal",
+                                    "date": (today + timedelta(days=5)).isoformat(),
+                                    "reminder_lead_days": "7", "client": acme["sys_id"]})
+    await sn.create(t("key_date"), {"title": "Jane Doe birthday", "type": "birthday",
+                                    "date": (today + timedelta(days=3)).isoformat(),
+                                    "recurring": "true", "reminder_lead_days": "7",
+                                    "client": acme["sys_id"], "contact": jane["sys_id"]})
+    await sn.create(t("key_date"), {"title": "Globex QBR", "type": "qbr",
+                                    "date": (today + timedelta(days=90)).isoformat(),
+                                    "reminder_lead_days": "7", "client": globex["sys_id"]})
+
     # Backdate two active clients so the stale-client radar visibly demonstrates in demo
     # mode (FakeServiceNow stamps sys_created_on from its clock). Demo-only; relies on the
     # fake's _clock, so guard for it.
