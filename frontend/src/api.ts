@@ -132,8 +132,10 @@ export async function extractContactFromSignature(signature: string): Promise<{ 
 export async function suggestFocus(): Promise<{ suggestion: string }> {
   return http("/ai/prioritize", { method: "POST" });
 }
-export async function search(q: string): Promise<SearchHit[]> {
-  return http<SearchHit[]>(`/search?q=${encodeURIComponent(q)}`);
+export async function search(q: string, types?: string[]): Promise<SearchHit[]> {
+  const params = new URLSearchParams({ q });
+  if (types && types.length) params.set("types", types.join(","));
+  return http<SearchHit[]>(`/search?${params.toString()}`);
 }
 export async function getAssociations(): Promise<{ emails: Association[]; meetings: Association[] }> {
   return http("/associations");

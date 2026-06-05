@@ -151,6 +151,8 @@ export interface SearchHit {
   label: string;
   client: string;
   client_name: string;
+  score: number;
+  snippet: string | null;
 }
 export interface Association {
   type: string;

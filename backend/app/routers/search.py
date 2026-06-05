@@ -8,5 +8,8 @@ router = APIRouter(prefix="/api/search", tags=["search"])
 
 
 @router.get("")
-async def do_search(q: str = "", limit: int = 50, sn: ServiceNowClient = Depends(get_sn)) -> list[dict]:
-    return await search.search(sn, get_settings().sn_scope, q, limit=limit)
+async def do_search(q: str = "", limit: int = 50, types: str | None = None,
+                    sn: ServiceNowClient = Depends(get_sn)) -> list[dict]:
+    # An empty/blank types= is treated as "all defaults", same as omitting it.
+    type_list = [t for t in types.split(",") if t] if types else None
+    return await search.search(sn, get_settings().sn_scope, q, limit=limit, types=type_list)
