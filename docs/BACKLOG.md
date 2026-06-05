@@ -49,7 +49,8 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
 ### UX / product
 - 🔵 **Association review UI (build now, per user)** — confirm/correct auto-associated emails & meetings
   so the user can trust/fix domain-alias matching. Built against the fake now; fully exercised once M365 is live.
-- 🔵 **Quick-capture** — a global "new note / new task" affordance for fast daily entry.
+- 🟢 **Quick-capture** — a global "＋ Capture" nav button opens a modal (Task|Note, optional client,
+  Escape/click-out to close). Shipped (PR #48).
 - 🟢 **Global search** — `GET /api/search` across clients/tasks/contacts/notes/engagements + a Search
   tab. Shipped (PR #47).
 - 🔵 **Self-documenting UI (user request)** — info icons / inline explainer text next to fields across the app (what each field does, how domains/aliases drive matching, etc.), so the tool teaches its own use.

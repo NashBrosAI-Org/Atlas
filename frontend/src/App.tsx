@@ -6,6 +6,7 @@ import { SettingsView } from "./SettingsView";
 import { HelpView } from "./HelpView";
 import { AwarenessView } from "./AwarenessView";
 import { SearchView } from "./SearchView";
+import { QuickCapture } from "./QuickCapture";
 import { getStatus } from "./api";
 
 type View = "now" | "clients" | "dossier" | "settings" | "help" | "awareness" | "search";
@@ -14,6 +15,7 @@ export default function App() {
   const [view, setView] = useState<View>("now");
   const [clientSysId, setClientSysId] = useState<string | null>(null);
   const [statusChecked, setStatusChecked] = useState(false);
+  const [capturing, setCapturing] = useState(false);
 
   // First-run: if not configured and not in demo mode, open Settings immediately.
   useEffect(() => {
@@ -39,6 +41,7 @@ export default function App() {
         <button onClick={() => setView("search")}>Search</button>
         <button onClick={() => setView("settings")}>Settings</button>
         <button onClick={() => setView("help")}>Help</button>
+        <button style={{ marginLeft: "auto" }} onClick={() => setCapturing(true)}>＋ Capture</button>
       </nav>
       {view === "now" && <NowView />}
       {view === "clients" && (
@@ -57,6 +60,7 @@ export default function App() {
         <SettingsView onSaved={() => setView("now")} />
       )}
       {view === "help" && <HelpView />}
+      {capturing && <QuickCapture onClose={() => setCapturing(false)} />}
     </div>
   );
 }
