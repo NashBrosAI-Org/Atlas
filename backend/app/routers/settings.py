@@ -9,7 +9,7 @@ router = APIRouter(prefix="/api")
 
 # Non-secret settings the UI may read/write.
 _NON_SECRET = ("use_fake", "sn_instance_url", "sn_scope", "sn_auth", "sn_oauth_username",
-               "cooling_days", "stale_days")
+               "cooling_days", "stale_days", "m365_mail_filter")
 
 
 class SettingsIn(BaseModel):
@@ -20,6 +20,7 @@ class SettingsIn(BaseModel):
     sn_oauth_username: str | None = None
     cooling_days: int | None = None
     stale_days: int | None = None
+    m365_mail_filter: str | None = None
     password: str | None = None  # write-only; never returned
 
 

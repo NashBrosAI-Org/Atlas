@@ -68,8 +68,7 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
   `backend/`/`frontend/`/`servicenow/`. **Building this session.**
 
 > Removed: ~~CSV import~~ — deemed unnecessary by the user.
-> Retention-controls UI + association-review UI: **building now as stubs (user's call)**, even though
-> they're most useful once live M365 is connected.
+> Association-review UI: **building now as a stub (user's call)**; retention-controls shipped (PR #52).
 > Gated elsewhere (tracked in [PROGRESS.md](PROGRESS.md), not here): live M365 (`HttpGraph` + auth,
 > work-Mac, Entra recon) and live AI (`AnthropicAI`, needs `ANTHROPIC_API_KEY`).
 >
