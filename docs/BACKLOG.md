@@ -41,8 +41,8 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
 - 🟢 **P3 extraction capability** — `extract_contact_fields` (AI-primary + regex fallback) +
   `POST /api/ai/extract/contact` + ContactEditor "Autofill from signature". Shipped (PR #44). The
   role-titles autofill (D32 part b) is done; transcript/email action-item extraction can reuse it.
-- 🔵 **P3 drafting** — draft a follow-up email / note from a client or meeting context (Sonnet-class);
-  inserts a draft into the composer for the human to edit; never auto-sends.
+- 🟢 **P3 drafting** — `draft_client_followup` + `POST /api/ai/draft/client/{id}` + a dossier
+  "Draft follow-up" button (copy-only, never auto-sends). Shipped (PR #45).
 - 🔵 **P3 prioritization-assist** — AI *suggests* an ordering/flags for open tasks in a separate panel;
   **must not** write `priority` or reorder the deterministic Now list (rule #6) — it annotates.
 
