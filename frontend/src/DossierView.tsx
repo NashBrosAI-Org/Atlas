@@ -4,6 +4,7 @@ import { getDossier, getTimeline } from "./api";
 import { OrgChart } from "./OrgChart";
 import { NoteComposer } from "./NoteComposer";
 import { TranscriptPaste } from "./TranscriptPaste";
+import { TagEditor } from "./TagEditor";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -28,6 +29,10 @@ export function DossierView({ clientSysId, onBack }: { clientSysId: string; onBa
     <div style={{ maxWidth: 820, margin: "2rem auto", fontFamily: "system-ui" }}>
       <button onClick={onBack}>← Clients</button>
       <h1>{d.client.name}</h1>
+
+      <Section title={`Tags (${d.tags.length})`}>
+        <TagEditor targetTable="client" targetId={clientSysId} tags={d.tags} onChanged={refresh} />
+      </Section>
 
       <Section title={`Open tasks (${d.open_tasks.length})`}>
         <ul>{d.open_tasks.map((t) => <li key={t.sys_id}>{t.is_commitment ? "🤝 " : ""}{t.title} <em style={{ color: "#888" }}>{t.priority}</em></li>)}</ul>

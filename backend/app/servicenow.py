@@ -9,6 +9,7 @@ class ServiceNowClient(Protocol):
     async def get(self, table: str, sys_id: str) -> Optional[dict]: ...
     async def create(self, table: str, payload: dict) -> dict: ...
     async def update(self, table: str, sys_id: str, payload: dict) -> dict: ...
+    async def delete(self, table: str, sys_id: str) -> bool: ...
 
 
 class FakeServiceNow:
@@ -47,6 +48,9 @@ class FakeServiceNow:
         record.update(payload)
         record["sys_updated_on"] = self._now_iso()
         return record
+
+    async def delete(self, table: str, sys_id: str) -> bool:
+        return self._table(table).pop(sys_id, None) is not None
 
 
 class HttpServiceNow:
@@ -101,3 +105,12 @@ class HttpServiceNow:
         )
         r.raise_for_status()
         return r.json()["result"]
+
+    async def delete(self, table, sys_id):
+        r = await self._http.delete(
+            f"/api/now/table/{table}/{sys_id}", headers=self._headers()
+        )
+        if r.status_code == 404:
+            return False
+        r.raise_for_status()
+        return True

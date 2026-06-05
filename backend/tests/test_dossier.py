@@ -11,6 +11,8 @@ def test_dossier_aggregates_client_relations(client):
     client.post("/api/meetings", json={"title": "QBR", "client": cid})
     client.post("/api/notes", json={"title": "pinned", "target_table": "client", "target_id": cid})
     client.post("/api/notes", json={"title": "elsewhere", "target_table": "client", "target_id": other})
+    client.post(f"/api/tags/on/client/{cid}", json={"name": "VIP"})
+    client.post(f"/api/tags/on/client/{other}", json={"name": "elsewhere"})
 
     d = client.get(f"/api/clients/{cid}/dossier").json()
     assert d["client"]["name"] == "Acme"
@@ -20,6 +22,7 @@ def test_dossier_aggregates_client_relations(client):
     assert [t["title"] for t in d["open_tasks"]] == ["open one"]   # done excluded
     assert [m["title"] for m in d["meetings"]] == ["QBR"]
     assert [n["title"] for n in d["notes"]] == ["pinned"]          # other client's note excluded
+    assert [t["name"] for t in d["tags"]] == ["VIP"]              # other client's tag excluded
 
 
 def test_dossier_unknown_client_404(client):

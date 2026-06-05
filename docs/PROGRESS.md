@@ -3,7 +3,7 @@
 Update this **after each unit of work**, not at session end. (Per the user's standing
 preference for living progress docs.)
 
-Last updated: 2026-06-04 (Plan 3d export/backup — JSON snapshot of all 14 tables + on-launch auto-backup-if-stale + Settings UI; D17. P1 COMPLETE earlier — Task 15 verified live; Plan 3a Awareness #20)
+Last updated: 2026-06-04 (Plan 3b tags — tag vocabulary + polymorphic m2m + dossier chips, new `delete` SN verb; D18. Earlier: 3d export/backup D17, 3a Awareness #20; P1 complete)
 
 ## Current status
 - **Phase:** **P1 COMPLETE.** Plans 1 & 2 code complete; the 14-table SN scoped app is provisioned on live `nnash`; and **Task 15 is verified** — the FastAPI backend reads **and** writes real records over basic auth (D14) with clean field shapes (parity #15). Desktop A/B/C and Plan 3a Awareness also shipped. Now into the rest of Plan 3 / P2.
@@ -96,7 +96,9 @@ Significant decisions and their rationale, newest last.
 
 **D17 — Export/backup (Plan 3d).** A full data snapshot — every one of the 14 tables dumped to a single timestamped JSON file (`atlas-backup-YYYYMMDD-HHMMSS.json`) under `~/Library/Application Support/Atlas/backups/` — so the SN instance is never the only copy (CLAUDE.md rule #3, risks R2/R3). Backend `app/backup.py` is pure logic over the `ServiceNowClient` interface (`build_export`/`write_export`/`latest_backup_time`/`is_backup_stale`/`autobackup_if_stale`), unit-tested against `FakeServiceNow` with an injected clock. Endpoints `POST /api/backup/export` (export now) + `GET /api/backup/status` (last backup, count, staleness vs the new `backup_max_age_days` setting, default 7). The **"scheduled"** trigger is on-launch-if-stale, wired in `desktop/launcher.py` (only when `not use_fake`, wrapped so a backup failure never blocks app launch) — deliberately *not* a FastAPI startup event, since the test client triggers startup without isolating `ATLAS_DATA_DIR` and would back up the dev's real config against `nnash`. Settings UI adds a Backup section (last-backup line + "Export now"). **Plan 3 remaining after this: Links, Tags (3b), KeyDates + reminders (3c).**
 
+**D18 — Tags (Plan 3b).** Cross-cutting labels: a `tag` vocabulary (unique, case-insensitive name) plus a polymorphic many-to-many join `tag_m2m` that pins a tag to any record via `target_table`+`target_id` — mirroring Note's pinning convention (D7), not the fluent table's `DocumentId target` (the same backend-vs-fluent gap that already exists for Note). Backend `app/tagging.py` is pure logic over the `ServiceNowClient` interface (`get_or_create_tag` / `attach_tag` (idempotent) / `tags_for` (name-resolved, carries `link_id` for removal) / `detach_tag`), unit-tested against `FakeServiceNow`. **Required a new `delete(table, sys_id)` verb on the `ServiceNowClient` interface** (Protocol + `FakeServiceNow` + `HttpServiceNow` → SN Table API `DELETE`, 404→False) — the first delete in the backend; detach needs it, and it's broadly useful. Endpoints `GET /api/tags` (vocabulary), `GET|POST /api/tags/on/{table}/{id}` (list / attach-by-name), `DELETE /api/tags/on/{table}/{id}/{tag_id}` (detach). The dossier now returns `tags`, and the dossier UI shows tag chips with inline add (Enter) + per-chip remove (`TagEditor.tsx`). **Plan 3 remaining: Links, KeyDates + reminders (3c).**
+
 ## Next plans (after the instance is live)
-- **Plan 3 — Awareness (remaining):** ✅ 3a activity timeline + stale-client radar (D16); ✅ 3d export/backup (D17); still to do — Links, Tags, KeyDates + reminders.
+- **Plan 3 — Awareness (remaining):** ✅ 3a activity timeline + stale-client radar (D16); ✅ 3d export/backup (D17); ✅ 3b tags (D18); still to do — Links, KeyDates + reminders.
 - **Plan P2 — M365:** Entra recon → email + calendar, email→task, auto-association, meeting-prep assembler, morning briefing.
 - **Plan P3 — AI & decks:** Anthropic summaries/drafting/prioritization, RAG search, `.pptx` + web decks on official ServiceNow brand kit.

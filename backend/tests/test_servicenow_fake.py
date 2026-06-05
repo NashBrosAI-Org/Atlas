@@ -27,3 +27,13 @@ async def test_update_merges_fields():
     updated = await sn.update("task", c["sys_id"], {"status": "done"})
     assert updated["status"] == "done"
     assert updated["title"] == "A"
+
+
+@pytest.mark.asyncio
+async def test_delete_removes_record():
+    sn = FakeServiceNow()
+    c = await sn.create("task", {"title": "A"})
+    assert await sn.delete("task", c["sys_id"]) is True
+    assert await sn.get("task", c["sys_id"]) is None
+    # Deleting a missing record is a no-op, not an error.
+    assert await sn.delete("task", "nope") is False
