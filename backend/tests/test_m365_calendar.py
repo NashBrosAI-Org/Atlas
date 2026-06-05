@@ -68,3 +68,36 @@ async def test_ingest_events_unmatched_attendees_still_retained_without_client()
                                    "2026-06-01T00:00:00Z", "2026-06-30T00:00:00Z")
     assert res == {"ingested": 1, "skipped": 0}
     assert "client" not in (await sn.list(f"{SCOPE}_meeting"))[0]
+
+
+@pytest.mark.asyncio
+async def test_build_meeting_prep_assembles_client_context():
+    sn = FakeServiceNow()
+    cid = await _seed_client(sn)
+    await sn.create(f"{SCOPE}_task", {"title": "Prep renewal", "client": cid, "status": "open"})
+    await sn.create(f"{SCOPE}_key_date", {"title": "Renewal", "date": "2026-12-01", "client": cid})
+    mtg = await sn.create(f"{SCOPE}_meeting",
+                          {"title": "QBR", "client": cid, "datetime": "2026-06-05T15:00:00Z"})
+
+    prep = await m365.build_meeting_prep(sn, SCOPE, mtg["sys_id"])
+    assert prep["meeting"]["title"] == "QBR"
+    assert prep["client"]["name"] == "Acme"
+    assert [t["title"] for t in prep["open_tasks"]] == ["Prep renewal"]
+    assert [k["title"] for k in prep["key_dates"]] == ["Renewal"]
+    assert "recent_activity" in prep
+
+
+@pytest.mark.asyncio
+async def test_build_meeting_prep_unknown_meeting_returns_none():
+    sn = FakeServiceNow()
+    assert await m365.build_meeting_prep(sn, SCOPE, "nope") is None
+
+
+@pytest.mark.asyncio
+async def test_build_meeting_prep_meeting_without_client():
+    sn = FakeServiceNow()
+    mtg = await sn.create(f"{SCOPE}_meeting", {"title": "Internal sync"})
+    prep = await m365.build_meeting_prep(sn, SCOPE, mtg["sys_id"])
+    assert prep["meeting"]["title"] == "Internal sync"
+    assert prep["client"] is None
+    assert prep["open_tasks"] == [] and prep["key_dates"] == [] and prep["recent_activity"] == []

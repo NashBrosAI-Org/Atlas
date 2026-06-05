@@ -5,6 +5,7 @@ FakeServiceNow. Retention of mail content in ServiceNow is the consciously-owned
 risk R1/D2; keep the ingest filter narrow."""
 from typing import Optional
 
+from app import awareness, dossier
 from app.graph import GraphClient
 from app.models import Task
 from app.servicenow import ServiceNowClient
@@ -60,6 +61,29 @@ def match_client(from_addr: str, clients: list[dict]) -> Optional[str]:
 
 def _is_flagged(msg: dict) -> bool:
     return (msg.get("flag") or {}).get("flagStatus") == "flagged"
+
+
+async def build_meeting_prep(sn: ServiceNowClient, scope: str, meeting_id: str) -> Optional[dict]:
+    """Assemble a prep brief for a meeting: the meeting plus a focused slice of its
+    client's dossier (open tasks, key dates, notes) and recent activity. Returns
+    None if the meeting doesn't exist; client context is empty if it has no client."""
+    meeting = await sn.get(f"{scope}_meeting", meeting_id)
+    if meeting is None:
+        return None
+    client_id = meeting.get("client")
+    if not client_id:
+        return {"meeting": meeting, "client": None, "open_tasks": [],
+                "key_dates": [], "notes": [], "recent_activity": []}
+    doss = await dossier.build_dossier(sn, client_id)
+    timeline = await awareness.build_timeline(sn, scope, client_id) or []
+    return {
+        "meeting": meeting,
+        "client": doss["client"],
+        "open_tasks": doss["open_tasks"],
+        "key_dates": doss["key_dates"],
+        "notes": doss["notes"],
+        "recent_activity": timeline[:10],
+    }
 
 
 def _match_client_for_attendees(attendees_csv: str, clients: list[dict]) -> Optional[str]:
