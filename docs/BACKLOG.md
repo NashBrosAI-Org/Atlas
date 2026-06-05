@@ -43,8 +43,8 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
   role-titles autofill (D32 part b) is done; transcript/email action-item extraction can reuse it.
 - 🟢 **P3 drafting** — `draft_client_followup` + `POST /api/ai/draft/client/{id}` + a dossier
   "Draft follow-up" button (copy-only, never auto-sends). Shipped (PR #45).
-- 🔵 **P3 prioritization-assist** — AI *suggests* an ordering/flags for open tasks in a separate panel;
-  **must not** write `priority` or reorder the deterministic Now list (rule #6) — it annotates.
+- 🟢 **P3 prioritization-assist** — `suggest_focus` (advisory) + `POST /api/ai/prioritize` + a Now
+  "AI focus" panel. Suggestions only; never writes `priority`/reorders (rule #6). Shipped (PR #46).
 
 ### UX / product
 - 🔵 **Association review UI** — confirm/correct auto-associated emails & meetings, so the user can
