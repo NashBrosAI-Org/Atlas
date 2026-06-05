@@ -144,3 +144,10 @@ export interface ExportResult {
   counts: Record<string, number>;
 }
 export interface AIStatus { enabled: boolean; model: string; }
+export interface SearchHit {
+  type: string;
+  sys_id: string;
+  label: string;
+  client: string;
+  client_name: string;
+}

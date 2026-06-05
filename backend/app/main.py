@@ -52,6 +52,8 @@ from app.routers import briefing as briefing_router  # noqa: E402
 app.include_router(briefing_router.router)
 from app.routers import ai as ai_router  # noqa: E402
 app.include_router(ai_router.router)
+from app.routers import search as search_router  # noqa: E402
+app.include_router(search_router.router)
 
 _default_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 _dist = Path(os.environ["ATLAS_FRONTEND_DIST"]) if os.environ.get("ATLAS_FRONTEND_DIST") else _default_dist

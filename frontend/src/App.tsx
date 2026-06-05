@@ -5,9 +5,10 @@ import { DossierView } from "./DossierView";
 import { SettingsView } from "./SettingsView";
 import { HelpView } from "./HelpView";
 import { AwarenessView } from "./AwarenessView";
+import { SearchView } from "./SearchView";
 import { getStatus } from "./api";
 
-type View = "now" | "clients" | "dossier" | "settings" | "help" | "awareness";
+type View = "now" | "clients" | "dossier" | "settings" | "help" | "awareness" | "search";
 
 export default function App() {
   const [view, setView] = useState<View>("now");
@@ -35,6 +36,7 @@ export default function App() {
         <button onClick={() => setView("now")}>Now</button>
         <button onClick={() => setView("clients")}>Clients</button>
         <button onClick={() => setView("awareness")}>Awareness</button>
+        <button onClick={() => setView("search")}>Search</button>
         <button onClick={() => setView("settings")}>Settings</button>
         <button onClick={() => setView("help")}>Help</button>
       </nav>
@@ -47,6 +49,9 @@ export default function App() {
       )}
       {view === "awareness" && (
         <AwarenessView onOpenClient={(id) => { setClientSysId(id); setView("dossier"); }} />
+      )}
+      {view === "search" && (
+        <SearchView onOpenClient={(id) => { setClientSysId(id); setView("dossier"); }} />
       )}
       {view === "settings" && (
         <SettingsView onSaved={() => setView("now")} />

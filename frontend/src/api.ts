@@ -1,4 +1,4 @@
-import type { Client, Task, Contact, Dossier, Note, Transcript, AppSettings, AppStatus, TestResult, ActivityEvent, RadarEntry, BackupStatus, ExportResult, TagOnRecord, KeyDate, Reminder, Link, Briefing, SyncResult, MeetingPrep, AIStatus } from "./types";
+import type { Client, Task, Contact, Dossier, Note, Transcript, AppSettings, AppStatus, TestResult, ActivityEvent, RadarEntry, BackupStatus, ExportResult, TagOnRecord, KeyDate, Reminder, Link, Briefing, SyncResult, MeetingPrep, AIStatus, SearchHit } from "./types";
 const BASE = "/api";
 
 /** Fetch JSON, throwing on any non-2xx response (with FastAPI's `detail` if present)
@@ -131,4 +131,7 @@ export async function extractContactFromSignature(signature: string): Promise<{ 
 }
 export async function suggestFocus(): Promise<{ suggestion: string }> {
   return http("/ai/prioritize", { method: "POST" });
+}
+export async function search(q: string): Promise<SearchHit[]> {
+  return http<SearchHit[]>(`/search?q=${encodeURIComponent(q)}`);
 }

@@ -47,11 +47,12 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
   "AI focus" panel. Suggestions only; never writes `priority`/reorders (rule #6). Shipped (PR #46).
 
 ### UX / product
-- 🔵 **Association review UI** — confirm/correct auto-associated emails & meetings, so the user can
-  trust (and fix) the domain/alias matching once M365 is live.
+- 🔵 **Association review UI (build now, per user)** — confirm/correct auto-associated emails & meetings
+  so the user can trust/fix domain-alias matching. Built against the fake now; fully exercised once M365 is live.
 - 🔵 **Quick-capture** — a global "new note / new task" affordance for fast daily entry.
-- 🔵 **Global search** — deterministic keyword search across clients/tasks/notes (cheap interim before
-  P3 semantic search).
+- 🟢 **Global search** — `GET /api/search` across clients/tasks/contacts/notes/engagements + a Search
+  tab. Shipped (PR #47).
+- 🔵 **Self-documenting UI (user request)** — info icons / inline explainer text next to fields across the app (what each field does, how domains/aliases drive matching, etc.), so the tool teaches its own use.
 - 🔵 **Modal a11y** — `MeetingPrepPanel` (and future modals) need Escape-to-close + focus handling.
 - 🔵 **Retention controls UI** — surface/choose which mail folders get ingested (keeps the R1/D2
   retained-scope visible and user-controlled).
@@ -64,6 +65,8 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
   `backend/`/`frontend/`/`servicenow/`. **Building this session.**
 
 > Removed: ~~CSV import~~ — deemed unnecessary by the user.
+> Retention-controls UI + association-review UI: **building now as stubs (user's call)**, even though
+> they're most useful once live M365 is connected.
 > Gated elsewhere (tracked in [PROGRESS.md](PROGRESS.md), not here): live M365 (`HttpGraph` + auth,
 > work-Mac, Entra recon) and live AI (`AnthropicAI`, needs `ANTHROPIC_API_KEY`).
 >
