@@ -15,7 +15,7 @@ def _table() -> str:
     return f"{_settings.sn_scope}_task"
 
 
-def _now_sort_key(t: dict):
+def now_sort_key(t: dict):
     rank = _PRIORITY_RANK.get(t.get("priority", "medium"), 2)
     due = t.get("due_date") or "9999-12-31"
     commit = 0 if str(t.get("is_commitment")) in ("True", "true", "1") else 1
@@ -43,4 +43,4 @@ async def now_view(client: Optional[str] = None, sn: ServiceNowClient = Depends(
     query = {"client": client} if client else None
     rows = await sn.list(_table(), query=query)
     rows = [t for t in rows if t.get("status") != "done"]
-    return sorted(rows, key=_now_sort_key)
+    return sorted(rows, key=now_sort_key)
