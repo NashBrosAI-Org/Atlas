@@ -1,7 +1,60 @@
 import { useEffect, useState } from "react";
 import type { Client, Task, Briefing } from "./types";
-import { getClients, getNow, completeTask, getBriefing, syncMail, syncCalendar } from "./api";
+import { getClients, getNow, completeTask, getBriefing, syncMail, syncCalendar, createTask } from "./api";
 import { MeetingPrepPanel } from "./MeetingPrepPanel";
+
+const PRIORITIES = ["critical", "high", "medium", "low"] as const;
+
+function TaskComposer({ clients, defaultClient, onAdded }:
+  { clients: Client[]; defaultClient: string; onAdded: () => void }) {
+  const [title, setTitle] = useState("");
+  const [priority, setPriority] = useState<(typeof PRIORITIES)[number]>("medium");
+  const [client, setClient] = useState(defaultClient);
+  const [dueDate, setDueDate] = useState("");
+  const [commitment, setCommitment] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  useEffect(() => { setClient(defaultClient); }, [defaultClient]);
+
+  async function add() {
+    if (!title.trim() || busy) return;
+    setBusy(true);
+    setErr("");
+    try {
+      await createTask({
+        title: title.trim(), priority, client: client || undefined,
+        due_date: dueDate || undefined, is_commitment: commitment, status: "open",
+      });
+      setTitle(""); setDueDate(""); setCommitment(false);
+      onAdded();
+    } catch (e) {
+      setErr(String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center", margin: "10px 0" }}>
+      <input style={{ flex: 1, minWidth: 180 }} placeholder="Add a task…" value={title}
+        onChange={(e) => setTitle(e.target.value)} onKeyDown={(e) => e.key === "Enter" && add()} />
+      <select value={priority} onChange={(e) => setPriority(e.target.value as typeof priority)}>
+        {PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
+      </select>
+      <select value={client} onChange={(e) => setClient(e.target.value)}>
+        <option value="">No client</option>
+        {clients.map((c) => <option key={c.sys_id} value={c.sys_id}>{c.name}</option>)}
+      </select>
+      <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+      <label style={{ fontSize: 13 }}>
+        <input type="checkbox" checked={commitment} onChange={(e) => setCommitment(e.target.checked)} /> 🤝
+      </label>
+      <button disabled={busy || !title.trim()} onClick={add}>Add</button>
+      {err && <span style={{ color: "#b00020", fontSize: 13 }}>{err}</span>}
+    </div>
+  );
+}
 
 function whenLabel(days: number): string {
   if (days <= 0) return "today";
@@ -103,6 +156,7 @@ export function NowView() {
         <option value="">All clients</option>
         {clients.map((c) => <option key={c.sys_id} value={c.sys_id}>{c.name}</option>)}
       </select>
+      <TaskComposer clients={clients} defaultClient={filter} onAdded={refresh} />
       <ul style={{ listStyle: "none", padding: 0 }}>
         {tasks.map((t) => (
           <li key={t.sys_id} style={{ display: "flex", gap: 8, padding: "8px 0", borderBottom: "1px solid #eee" }}>
