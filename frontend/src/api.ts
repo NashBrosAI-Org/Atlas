@@ -25,6 +25,12 @@ function jsonBody(method: string, body: unknown): RequestInit {
 export async function getClients(): Promise<Client[]> {
   return http<Client[]>("/clients");
 }
+export async function createClient(c: Partial<Client>): Promise<Client> {
+  return http<Client>("/clients", jsonBody("POST", c));
+}
+export async function updateClient(sysId: string, patch: Partial<Client>): Promise<Client> {
+  return http<Client>(`/clients/${sysId}`, jsonBody("PATCH", patch));
+}
 export async function getNow(client?: string): Promise<Task[]> {
   const q = client ? `?client=${encodeURIComponent(client)}` : "";
   return http<Task[]>(`/now${q}`);
