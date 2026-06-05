@@ -102,6 +102,8 @@ Significant decisions and their rationale, newest last.
 
 **D20 — Links (Plan 3c/Links) — completes Plan 3.** A `Link` (title + url + client) is a per-client bookmark to an external resource (SharePoint, Jira, docs), wired through the generic `crud_router` (`/api/links`). To make bookmarks removable, **`crud_router` gained a generic `DELETE /{sys_id}`** (404 when absent) — building on the `delete` verb added in D18, so every CRUD entity is now deletable, not just tags. The dossier returns `links`; the dossier UI lists them as clickable anchors with a per-row remove (×) and an add form (`LinkComposer.tsx`). Demo seed adds two links. **Plan 3 (Awareness + the rest) is now COMPLETE** — 3a awareness, 3b tags, 3c key dates + reminders, 3d export/backup, and Links all shipped.
 
+**D21 — User-supplied URLs are http(s)-only (stored-XSS guard).** An automated security review flagged the D20 Links anchor (`<a href={l.url}>`) as a stored-XSS sink — a `javascript:`/`data:` URL would execute on click. Fixed defense-in-depth: a pydantic `field_validator` on `Link.url` rejects any scheme other than http/https (422 at the API), **and** the dossier renders through a `safeHref()` guard (same allowlist) so even a bad URL already stored on the live instance is shown as plain text, never a live link. Convention for any future user-supplied URL: validate the scheme server-side *and* guard at the render site.
+
 ## Next plans (after the instance is live)
 - **Plan 3 — COMPLETE:** ✅ 3a activity timeline + stale-client radar (D16); ✅ 3d export/backup (D17); ✅ 3b tags (D18); ✅ 3c key dates + reminders (D19); ✅ Links (D20).
 - **Plan P2 — M365:** Entra recon → email + calendar, email→task, auto-association, meeting-prep assembler, morning briefing.

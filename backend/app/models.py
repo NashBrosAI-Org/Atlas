@@ -1,5 +1,5 @@
 from typing import Literal, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 Sentiment = Literal["champion", "neutral", "detractor"]
 EngagementStatus = Literal["on_track", "at_risk", "blocked", "done"]
@@ -123,3 +123,12 @@ class Link(BaseModel):
     title: str
     url: Optional[str] = None             # external resource (SharePoint, Jira, docs…)
     client: Optional[str] = None          # sys_id of a Client
+
+    @field_validator("url")
+    @classmethod
+    def _http_scheme_only(cls, v: Optional[str]) -> Optional[str]:
+        """Reject non-http(s) URLs (e.g. javascript:/data:) — they would become a
+        stored-XSS sink when rendered as an anchor href in the dossier."""
+        if v and not v.strip().lower().startswith(("http://", "https://")):
+            raise ValueError("url must start with http:// or https://")
+        return v
