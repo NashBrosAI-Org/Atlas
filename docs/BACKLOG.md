@@ -6,13 +6,10 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
 
 ## Requested
 
-- 🟡 **Client + email-domains/aliases manager.** A surface where the user lists their ~6 clients and,
-  per client, the **email suffixes** (domains, e.g. `acme.com`) **and aliases** (specific addresses a
-  client also writes from, e.g. a personal gmail). Control surface for `Client.email_domains`/
-  `email_aliases` — which drive M365 auto-association ([`m365.match_client`](../backend/app/m365.py)).
-  *Why it matters:* accurate domain/alias mapping makes email→client and calendar→client association
-  correct when P2 goes live. **Building this session** as an editable **Clients** tab (the natural
-  home; better UX than burying it in Settings). Includes the backend `email_aliases` field + matching.
+- 🟢 **Client + email-domains/aliases manager.** Editable **Clients** tab listing the user's clients
+  with per-client **email domains** and **aliases** (off-domain addresses). Drives M365
+  auto-association ([`m365.match_client`](../backend/app/m365.py) matches domain OR alias). Backend
+  `Client.email_aliases` + `PATCH /api/clients/{id}`. Shipped (PR #37).
 
 - 🟡 **Contact role-titles manager, autofilled from email signature (editable).** Add/edit contacts'
   `role_title` (and email, reports-to, sentiment). *Today:* `role_title` is display-only in the
@@ -24,10 +21,10 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
 
 ## Recommended
 
-- 🟡 **Add-task form on Now** — the Now view only *completes* tasks; new ones come only from demo
-  seed / mail-sync / API. **Building this session.** The most basic daily action, currently missing.
-- 🟡 **Client CRUD UI** — create / edit / archive clients (name, short_code, status, email_domains,
-  aliases, notes). **Building this session** (the Clients manager above).
+- 🟢 **Add-task form on Now** — a `TaskComposer` (title, priority, client, due date, commitment) at
+  the top of the Now list; defaults the client to the active filter. Shipped (PR #38).
+- 🟢 **Client CRUD UI** — create / edit clients (name, short_code, status, email_domains, aliases,
+  notes) on the Clients tab. Shipped (PR #37).
 - 🟡 **Contact CRUD UI** — add/edit contacts inline on the dossier (name, role_title, email, phone,
   reports_to, sentiment). **Building this session.**
 - 🔵 **P3 extraction capability** — generalize "parse an email signature" into an `AIClient`-backed
