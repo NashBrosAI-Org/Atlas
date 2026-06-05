@@ -15,6 +15,8 @@ export const x_atlas_sn_client = Table({
             default: 'active',
         }),
         email_domains: StringColumn({ label: 'Email Domains', maxLength: 500 }),
+        // explicit full addresses a client also writes from (off-domain), for email/meeting matching
+        email_aliases: StringColumn({ label: 'Email Aliases', maxLength: 500 }),
         notes: StringColumn({ label: 'Notes', maxLength: 4000 }),
     },
 })

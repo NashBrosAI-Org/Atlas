@@ -21,6 +21,7 @@ class Client(BaseModel):
     short_code: Optional[str] = None
     status: ClientStatus = "active"
     email_domains: Optional[str] = None
+    email_aliases: Optional[str] = None   # explicit addresses a client also writes from (comma/space list)
     notes: Optional[str] = None
 
 
