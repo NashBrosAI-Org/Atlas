@@ -129,3 +129,6 @@ export async function draftClientFollowup(id: string): Promise<{ draft: string }
 export async function extractContactFromSignature(signature: string): Promise<{ name: string; role_title: string; email: string; phone: string }> {
   return http("/ai/extract/contact", jsonBody("POST", { signature }));
 }
+export async function suggestFocus(): Promise<{ suggestion: string }> {
+  return http("/ai/prioritize", { method: "POST" });
+}
