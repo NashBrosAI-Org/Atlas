@@ -34,8 +34,11 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
   sys_id-remap pass for a full-wipe *live* restore (SN may not honor a supplied `sys_id` on insert).
 - 🟢 **SN list pagination.** `HttpServiceNow.list` pages through `sysparm_limit`/`sysparm_offset`
   (1000/page) until a short page, so large tables come back whole. Shipped (PR #42).
-- 🔵 **Frontend tests.** The frontend has no tests; add Vitest smoke tests on the composers/managers
-  (the kind of bugs the manual reviews caught).
+- 🟢 **Frontend tests.** Vitest + Testing Library + jsdom; smoke tests (OrgChart, ClientsView) + a CI
+  `npm run test` step. Config split into `vitest.config.ts` so the build's `tsc` stays clean. Shipped (PR #49).
+- 🔵 **Backend test isolation (hygiene).** A few settings/deps tests read the real `.env`/Keychain, so they
+  fail in the live-configured primary checkout (pass in clean worktrees + CI). Pin `use_fake` / mock
+  `get_password` in `test_settings_api`/`test_config_overlay`/`test_main_deps` so local runs are reliable.
 
 ### AI (P3, behind `FakeAI` — buildable now)
 - 🟢 **P3 extraction capability** — `extract_contact_fields` (AI-primary + regex fallback) +
