@@ -1,4 +1,4 @@
-import type { Client, Task, Contact, Dossier, Note, Transcript, AppSettings, AppStatus, TestResult, ActivityEvent, RadarEntry, BackupStatus, ExportResult, TagOnRecord, KeyDate, Reminder } from "./types";
+import type { Client, Task, Contact, Dossier, Note, Transcript, AppSettings, AppStatus, TestResult, ActivityEvent, RadarEntry, BackupStatus, ExportResult, TagOnRecord, KeyDate, Reminder, Link } from "./types";
 const BASE = "/api";
 
 /** Fetch JSON, throwing on any non-2xx response (with FastAPI's `detail` if present)
@@ -88,4 +88,10 @@ export async function getReminders(): Promise<Reminder[]> {
 }
 export async function createKeyDate(k: Partial<KeyDate>): Promise<KeyDate> {
   return http<KeyDate>("/key-dates", jsonBody("POST", k));
+}
+export async function createLink(l: Partial<Link>): Promise<Link> {
+  return http<Link>("/links", jsonBody("POST", l));
+}
+export async function deleteLink(sys_id: string): Promise<unknown> {
+  return http(`/links/${sys_id}`, { method: "DELETE" });
 }

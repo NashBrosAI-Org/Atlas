@@ -116,3 +116,10 @@ class KeyDate(BaseModel):
     reminder_lead_days: int = 7
     client: Optional[str] = None          # sys_id of a Client
     contact: Optional[str] = None         # sys_id of a Contact
+
+
+class Link(BaseModel):
+    sys_id: Optional[str] = None
+    title: str
+    url: Optional[str] = None             # external resource (SharePoint, Jira, docs…)
+    client: Optional[str] = None          # sys_id of a Client

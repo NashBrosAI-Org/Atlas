@@ -24,7 +24,7 @@ from app.routers import clients, tasks  # noqa: E402
 from app.routers import dossier  # noqa: E402
 from app.routers import settings as settings_router  # noqa: E402
 from app.crud import crud_router  # noqa: E402
-from app.models import Contact, Engagement, Theme, Meeting, Transcript, Note, KeyDate  # noqa: E402
+from app.models import Contact, Engagement, Theme, Meeting, Transcript, Note, KeyDate, Link  # noqa: E402
 
 app.include_router(clients.router)
 app.include_router(tasks.router)
@@ -35,6 +35,7 @@ app.include_router(crud_router("meetings", "meeting", Meeting))
 app.include_router(crud_router("transcripts", "transcript", Transcript))
 app.include_router(crud_router("notes", "note", Note))
 app.include_router(crud_router("key-dates", "key_date", KeyDate))
+app.include_router(crud_router("links", "link", Link))
 app.include_router(dossier.router)
 app.include_router(settings_router.router)
 from app.routers import awareness as awareness_router  # noqa: E402

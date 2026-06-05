@@ -44,3 +44,14 @@ def test_get_unknown_returns_404():
     sn = FakeServiceNow()
     c = _app(sn)
     assert c.get("/api/contacts/nope").status_code == 404
+
+
+def test_delete_removes_record_then_404s():
+    sn = FakeServiceNow()
+    c = _app(sn)
+    sid = c.post("/api/contacts", json={"name": "Jane"}).json()["sys_id"]
+
+    assert c.delete(f"/api/contacts/{sid}").status_code == 200
+    assert c.get(f"/api/contacts/{sid}").status_code == 404
+    # Deleting a record that isn't there → 404.
+    assert c.delete(f"/api/contacts/{sid}").status_code == 404
