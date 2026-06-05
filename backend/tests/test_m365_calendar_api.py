@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from fastapi.testclient import TestClient
 
 import app.main_deps as deps
@@ -32,3 +34,20 @@ def test_calendar_sync_then_prep():
     assert prep.json()["client"]["name"] == "Acme"
 
     assert c.get("/api/m365/prep/nope").status_code == 404
+
+
+def test_calendar_sync_default_window_includes_last_day():
+    """The default window (today..+30d) must include events on the final day —
+    a date-only end bound would sort before that day's timestamped events."""
+    sn = FakeServiceNow()
+    last_day = (date.today() + timedelta(days=30)).isoformat()
+    evt = {"id": "edge", "subject": "Edge meeting",
+           "start": {"dateTime": f"{last_day}T15:00:00Z"},
+           "attendees": [{"emailAddress": {"address": "jane@acme.com"}}],
+           "isOnlineMeeting": True}
+    app.dependency_overrides[deps.get_sn] = lambda: sn
+    app.dependency_overrides[deps.get_graph] = lambda: FakeGraph(events=[evt])
+    c = TestClient(app)
+
+    synced = c.post("/api/m365/calendar/sync")  # no params → default window
+    assert synced.status_code == 200 and synced.json()["ingested"] == 1

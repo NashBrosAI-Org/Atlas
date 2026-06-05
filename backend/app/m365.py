@@ -74,6 +74,9 @@ async def build_meeting_prep(sn: ServiceNowClient, scope: str, meeting_id: str) 
     if not client_id:
         return {"meeting": meeting, "client": None, "open_tasks": [],
                 "key_dates": [], "notes": [], "recent_activity": []}
+    # NB: dossier.build_dossier resolves the scope from config internally (it has no
+    # scope arg), while build_timeline takes one — safe as long as callers pass the
+    # configured scope (which they do). Revisit if multi-scope is ever introduced.
     doss = await dossier.build_dossier(sn, client_id)
     timeline = await awareness.build_timeline(sn, scope, client_id) or []
     return {

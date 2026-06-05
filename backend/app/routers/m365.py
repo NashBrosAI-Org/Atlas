@@ -22,9 +22,11 @@ async def sync(sn: ServiceNowClient = Depends(get_sn),
 async def calendar_sync(start: str | None = None, end: str | None = None,
                         sn: ServiceNowClient = Depends(get_sn),
                         graph: GraphClient = Depends(get_graph)) -> dict:
-    """Ingest calendar events in [start, end] (default: today .. +30d) as Meetings."""
-    start = start or date.today().isoformat()
-    end = end or (date.today() + timedelta(days=30)).isoformat()
+    """Ingest calendar events in [start, end] (default: today .. +30d) as Meetings.
+    Defaults are full-day UTC bounds — a date-only end (e.g. "2026-07-04") would sort
+    before that day's timestamped events and silently drop them."""
+    start = start or date.today().isoformat() + "T00:00:00Z"
+    end = end or (date.today() + timedelta(days=30)).isoformat() + "T23:59:59Z"
     return await m365.ingest_events(graph, sn, get_settings().sn_scope, start, end)
 
 
