@@ -1,4 +1,4 @@
-import type { Client, Task, Contact, Dossier, Note, Transcript, AppSettings, AppStatus, TestResult, ActivityEvent, RadarEntry, BackupStatus, ExportResult } from "./types";
+import type { Client, Task, Contact, Dossier, Note, Transcript, AppSettings, AppStatus, TestResult, ActivityEvent, RadarEntry, BackupStatus, ExportResult, TagOnRecord } from "./types";
 const BASE = "/api";
 
 /** Fetch JSON, throwing on any non-2xx response (with FastAPI's `detail` if present)
@@ -73,4 +73,13 @@ export async function getBackupStatus(): Promise<BackupStatus> {
 }
 export async function runExport(): Promise<ExportResult> {
   return http<ExportResult>("/backup/export", { method: "POST" });
+}
+export async function getTagsOn(table: string, id: string): Promise<TagOnRecord[]> {
+  return http<TagOnRecord[]>(`/tags/on/${table}/${encodeURIComponent(id)}`);
+}
+export async function attachTag(table: string, id: string, name: string): Promise<unknown> {
+  return http(`/tags/on/${table}/${encodeURIComponent(id)}`, jsonBody("POST", { name }));
+}
+export async function detachTag(table: string, id: string, tagId: string): Promise<unknown> {
+  return http(`/tags/on/${table}/${encodeURIComponent(id)}/${tagId}`, { method: "DELETE" });
 }

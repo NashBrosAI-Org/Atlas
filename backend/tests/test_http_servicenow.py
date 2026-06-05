@@ -67,6 +67,27 @@ async def test_update_patches_payload():
 
 
 @pytest.mark.asyncio
+async def test_delete_sends_delete_request():
+    seen = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["method"] = request.method
+        seen["path"] = request.url.path
+        return httpx.Response(204)
+
+    sn = _client(handler)
+    assert await sn.delete("task", "9") is True
+    assert seen["method"] == "DELETE"
+    assert seen["path"] == "/api/now/table/task/9"
+
+
+@pytest.mark.asyncio
+async def test_delete_returns_false_on_404():
+    sn = _client(lambda request: httpx.Response(404, json={"error": {"message": "gone"}}))
+    assert await sn.delete("task", "missing") is False
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("verb", ["get", "create", "update"])
 async def test_reference_links_excluded_on_all_verbs(verb):
     """Real SN returns reference fields as {link,value} objects and choices/

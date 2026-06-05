@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from app import tagging
 from app.config import get_settings
 from app.servicenow import ServiceNowClient
 
@@ -25,6 +26,7 @@ async def build_dossier(sn: ServiceNowClient, client_sys_id: str) -> dict:
     open_tasks = [t for t in tasks if t.get("status") != "done"]
     notes = [n for n in all_notes
              if n.get("target_table") == "client" and n.get("target_id") == client_sys_id]
+    tags = await tagging.tags_for(sn, _settings.sn_scope, "client", client_sys_id)
 
     return {
         "client": client,
@@ -34,4 +36,5 @@ async def build_dossier(sn: ServiceNowClient, client_sys_id: str) -> dict:
         "open_tasks": open_tasks,
         "meetings": meetings,
         "notes": notes,
+        "tags": tags,
     }

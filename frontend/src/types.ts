@@ -35,6 +35,7 @@ export interface Note {
   note_type?: "general" | "risk" | "issue" | "decision";
   target_table?: string; target_id?: string; pinned?: boolean;
 }
+export interface TagOnRecord { sys_id: string; name: string; link_id: string; }
 export interface Dossier {
   client: Client;
   contacts: Contact[];
@@ -43,6 +44,7 @@ export interface Dossier {
   open_tasks: Task[];
   meetings: Meeting[];
   notes: Note[];
+  tags: TagOnRecord[];
 }
 export interface AppSettings {
   use_fake: boolean;

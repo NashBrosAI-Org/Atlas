@@ -95,3 +95,12 @@ class Note(BaseModel):
     target_table: Optional[str] = None    # e.g. "client", "engagement", "theme", "meeting"
     target_id: Optional[str] = None       # sys_id of the pinned record
     pinned: bool = False
+
+
+class Tag(BaseModel):
+    sys_id: Optional[str] = None
+    name: str                             # unique, case-insensitive
+
+
+class TagAttach(BaseModel):
+    name: str                             # tag name; created on the fly if new
