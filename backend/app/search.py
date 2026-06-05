@@ -82,6 +82,8 @@ async def search(sn: ServiceNowClient, scope: str, q: str, limit: int = 50,
     Returns hits ``{type, sys_id, label, client, client_name, score, snippet}``
     sorted by (type order, score desc, shorter label). ``types`` selects which
     record types to search; ``None`` means all types except transcripts.
+    ``limit`` is applied **per type** so a broad query matching many types can
+    never silently drop a whole type behind a global cutoff.
     ``client``/``client_name`` enable navigating to the owning client's dossier.
     """
     needle = (q or "").strip().lower()
@@ -94,10 +96,11 @@ async def search(sn: ServiceNowClient, scope: str, q: str, limit: int = 50,
     clients = await sn.list(f"{scope}_client")
     name_by_id = {c["sys_id"]: c.get("name", "") for c in clients}
 
-    hits: list[dict] = []
+    result: list[dict] = []
     for type_ in wanted:
         suffix, label_field, secondary_fields, body_fields = _SPECS[type_]
         rows = clients if type_ == "client" else await sn.list(f"{scope}_{suffix}")
+        group: list[dict] = []
         for rec in rows:
             label = str(rec.get(label_field, "") or "") if label_field else _TRANSCRIPT_LABEL
             secondary = [str(rec.get(f, "") or "") for f in secondary_fields]
@@ -106,7 +109,7 @@ async def search(sn: ServiceNowClient, scope: str, q: str, limit: int = 50,
             if score == 0:
                 continue
             cid = _client_id(type_, rec)
-            hits.append({
+            group.append({
                 "type": type_,
                 "sys_id": rec.get("sys_id"),
                 "label": label or "(untitled)",
@@ -115,7 +118,8 @@ async def search(sn: ServiceNowClient, scope: str, q: str, limit: int = 50,
                 "score": score,
                 "snippet": snippet,
             })
-
-    rank = {t: i for i, t in enumerate(TYPE_ORDER)}
-    hits.sort(key=lambda h: (rank[h["type"]], -h["score"], len(h["label"]), h["label"].lower()))
-    return hits[:limit]
+        # Rank within the type, then cap this type — so types later in the order
+        # are never dropped by a single global cutoff.
+        group.sort(key=lambda h: (-h["score"], len(h["label"]), h["label"].lower()))
+        result.extend(group[:limit])
+    return result

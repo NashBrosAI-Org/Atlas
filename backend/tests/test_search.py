@@ -41,6 +41,22 @@ async def test_search_respects_limit():
 
 
 @pytest.mark.asyncio
+async def test_limit_is_per_type_not_global():
+    # A broad query that matches many types must not let one type's overflow
+    # crowd out later types behind a single global cutoff.
+    sn = FakeServiceNow()
+    for i in range(8):
+        await sn.create(f"{SCOPE}_task", {"title": f"Acme task {i}"})
+        await sn.create(f"{SCOPE}_link", {"title": f"Acme link {i}", "url": "http://x"})
+    hits = await search.search(sn, SCOPE, "acme", limit=5)
+    counts: dict[str, int] = {}
+    for h in hits:
+        counts[h["type"]] = counts.get(h["type"], 0) + 1
+    assert counts["task"] == 5  # capped per type
+    assert counts["link"] == 5  # still present despite task overflow
+
+
+@pytest.mark.asyncio
 async def test_ranking_orders_exact_prefix_contains():
     sn = FakeServiceNow()
     await sn.create(f"{SCOPE}_client", {"name": "The Acme Holdings"})  # contains
