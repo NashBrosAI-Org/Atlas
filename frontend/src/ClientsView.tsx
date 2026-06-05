@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Client } from "./types";
 import { getClients, createClient, updateClient } from "./api";
+import { InfoHint } from "./InfoHint";
 
 const STATUSES = ["active", "prospect", "dormant"];
 
@@ -126,9 +127,11 @@ function ClientRow({ client, onOpen, onSaved }: {
             </select>
           </label>
           <label style={labelStyle}>Email domains
+            <InfoHint text="Domains (e.g. acme.com) auto-match incoming mail/meetings to this client." />
             <input style={inputStyle} value={draft.email_domains ?? ""} onChange={(e) => set({ email_domains: e.target.value })} placeholder="acme.com, acme.io" />
           </label>
           <label style={labelStyle}>Email aliases
+            <InfoHint text="Specific addresses a client also writes from, e.g. a personal gmail." />
             <input style={inputStyle} value={draft.email_aliases ?? ""} onChange={(e) => set({ email_aliases: e.target.value })} placeholder="someone@gmail.com" />
           </label>
           <p style={helpStyle}>Domains and aliases drive automatic email/meeting → client matching.</p>
