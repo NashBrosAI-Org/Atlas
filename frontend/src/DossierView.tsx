@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Dossier, ActivityEvent } from "./types";
-import { getDossier, getTimeline, deleteLink, getAIStatus, summarizeClient } from "./api";
+import { getDossier, getTimeline, deleteLink, getAIStatus, summarizeClient, draftClientFollowup } from "./api";
 import { OrgChart } from "./OrgChart";
 import { ContactEditor } from "./ContactEditor";
 import { NoteComposer } from "./NoteComposer";
@@ -32,6 +32,9 @@ export function DossierView({ clientSysId, onBack }: { clientSysId: string; onBa
   const [aiEnabled, setAiEnabled] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [draft, setDraft] = useState<string | null>(null);
+  const [draftBusy, setDraftBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
   const refresh = () => getDossier(clientSysId).then(setD);
   useEffect(() => { refresh(); }, [clientSysId]);
   useEffect(() => {
@@ -62,6 +65,37 @@ export function DossierView({ clientSysId, onBack }: { clientSysId: string; onBa
             {busy ? "Summarizing…" : "Summarize"}
           </button>
           {summary !== null && <p style={{ whiteSpace: "pre-wrap" }}>{summary}</p>}
+        </Section>
+      )}
+
+      {aiEnabled && (
+        <Section title="Draft follow-up">
+          <button
+            disabled={draftBusy}
+            onClick={() => {
+              setDraftBusy(true);
+              setCopied(false);
+              draftClientFollowup(clientSysId)
+                .then((r) => setDraft(r.draft))
+                .catch((e) => setDraft(`Error: ${e.message}`))
+                .finally(() => setDraftBusy(false));
+            }}
+          >
+            {draftBusy ? "Drafting…" : "Draft follow-up"}
+          </button>
+          {draft !== null && (
+            <>
+              <button
+                style={{ marginLeft: 8 }}
+                onClick={() => {
+                  navigator.clipboard.writeText(draft).then(() => setCopied(true)).catch(() => {});
+                }}
+              >
+                {copied ? "Copied" : "Copy"}
+              </button>
+              <p style={{ whiteSpace: "pre-wrap" }}>{draft}</p>
+            </>
+          )}
         </Section>
       )}
 

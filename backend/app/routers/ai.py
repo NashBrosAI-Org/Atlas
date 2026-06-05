@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from app import extraction, summaries
+from app import drafting, extraction, summaries
 from app.ai import AIClient
 from app.config import get_settings
 from app.main_deps import get_ai, get_sn
@@ -31,6 +31,16 @@ async def summary_client(client_id: str, sn: ServiceNowClient = Depends(get_sn),
     if out is None:
         raise HTTPException(status_code=404, detail=f"client {client_id} not found")
     return {"summary": out}
+
+
+@router.post("/draft/client/{client_id}")
+async def draft_client(client_id: str, sn: ServiceNowClient = Depends(get_sn),
+                       ai: AIClient = Depends(get_ai)) -> dict:
+    _require_ai_enabled()
+    out = await drafting.draft_client_followup(sn, ai, get_settings().sn_scope, client_id)
+    if out is None:
+        raise HTTPException(status_code=404, detail=f"client {client_id} not found")
+    return {"draft": out}
 
 
 @router.post("/extract/contact")
