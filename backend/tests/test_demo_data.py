@@ -58,3 +58,17 @@ async def test_seed_produces_radar_flaggable_clients():
     tiers = {r["client_name"]: r["tier"] for r in radar}
     assert tiers.get("Stark Solutions") == "stale"
     assert tiers.get("Wonka Industries") == "cooling"
+
+
+@pytest.mark.asyncio
+async def test_seed_produces_due_reminders():
+    from app.reminders import due_reminders
+
+    fake = FakeServiceNow()
+    await seed_demo(fake)
+    rems = await due_reminders(fake, get_settings().sn_scope)
+    titles = {r["title"] for r in rems}
+    # The renewal (5d) and birthday (3d) land in the window; the QBR (90d) does not.
+    assert "Acme contract renewal" in titles
+    assert "Jane Doe birthday" in titles
+    assert "Globex QBR" not in titles

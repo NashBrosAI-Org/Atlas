@@ -7,6 +7,7 @@ ThemeStatus = Literal["open", "watching", "resolved"]
 MeetingType = Literal["teams", "zoom", "other"]
 TranscriptSource = Literal["teams", "zoom", "manual"]
 NoteType = Literal["general", "risk", "issue", "decision"]
+KeyDateType = Literal["renewal", "qbr", "contract_end", "birthday", "milestone"]
 
 Priority = Literal["critical", "high", "medium", "low"]
 TaskStatus = Literal["open", "in_progress", "waiting", "done"]
@@ -104,3 +105,14 @@ class Tag(BaseModel):
 
 class TagAttach(BaseModel):
     name: str                             # tag name; created on the fly if new
+
+
+class KeyDate(BaseModel):
+    sys_id: Optional[str] = None
+    title: str
+    type: KeyDateType = "milestone"
+    date: Optional[str] = None            # ISO date (YYYY-MM-DD)
+    recurring: bool = False               # annual (renewals, birthdays)
+    reminder_lead_days: int = 7
+    client: Optional[str] = None          # sys_id of a Client
+    contact: Optional[str] = None         # sys_id of a Contact

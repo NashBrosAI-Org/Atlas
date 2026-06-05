@@ -5,6 +5,7 @@ import { OrgChart } from "./OrgChart";
 import { NoteComposer } from "./NoteComposer";
 import { TranscriptPaste } from "./TranscriptPaste";
 import { TagEditor } from "./TagEditor";
+import { KeyDateComposer } from "./KeyDateComposer";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -48,6 +49,16 @@ export function DossierView({ clientSysId, onBack }: { clientSysId: string; onBa
 
       <Section title={`Themes (${d.themes.length})`}>
         <ul>{d.themes.map((t) => <li key={t.sys_id}>{t.name} <em style={{ color: "#888" }}>{t.status}</em></li>)}</ul>
+      </Section>
+
+      <Section title={`Key dates (${d.key_dates.length})`}>
+        <ul>{d.key_dates.map((k) => (
+          <li key={k.sys_id}>
+            <span style={{ color: "#888" }}>{k.date}</span> — {k.title}{" "}
+            <em style={{ color: "#888" }}>{k.type}{k.recurring ? " · recurring" : ""}</em>
+          </li>
+        ))}</ul>
+        <KeyDateComposer clientSysId={clientSysId} onSaved={refresh} />
       </Section>
 
       <Section title={`Meetings (${d.meetings.length})`}>

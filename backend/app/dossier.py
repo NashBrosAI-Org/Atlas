@@ -21,6 +21,7 @@ async def build_dossier(sn: ServiceNowClient, client_sys_id: str) -> dict:
     themes = await sn.list(_t("theme"), query=by_client)
     tasks = await sn.list(_t("task"), query=by_client)
     meetings = await sn.list(_t("meeting"), query=by_client)
+    key_dates = await sn.list(_t("key_date"), query=by_client)
     all_notes = await sn.list(_t("note"))
 
     open_tasks = [t for t in tasks if t.get("status") != "done"]
@@ -35,6 +36,7 @@ async def build_dossier(sn: ServiceNowClient, client_sys_id: str) -> dict:
         "themes": themes,
         "open_tasks": open_tasks,
         "meetings": meetings,
+        "key_dates": sorted(key_dates, key=lambda k: k.get("date") or "9999-12-31"),
         "notes": notes,
         "tags": tags,
     }

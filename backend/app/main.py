@@ -24,7 +24,7 @@ from app.routers import clients, tasks  # noqa: E402
 from app.routers import dossier  # noqa: E402
 from app.routers import settings as settings_router  # noqa: E402
 from app.crud import crud_router  # noqa: E402
-from app.models import Contact, Engagement, Theme, Meeting, Transcript, Note  # noqa: E402
+from app.models import Contact, Engagement, Theme, Meeting, Transcript, Note, KeyDate  # noqa: E402
 
 app.include_router(clients.router)
 app.include_router(tasks.router)
@@ -34,6 +34,7 @@ app.include_router(crud_router("themes", "theme", Theme))
 app.include_router(crud_router("meetings", "meeting", Meeting))
 app.include_router(crud_router("transcripts", "transcript", Transcript))
 app.include_router(crud_router("notes", "note", Note))
+app.include_router(crud_router("key-dates", "key_date", KeyDate))
 app.include_router(dossier.router)
 app.include_router(settings_router.router)
 from app.routers import awareness as awareness_router  # noqa: E402
@@ -42,6 +43,8 @@ from app.routers import backup as backup_router  # noqa: E402
 app.include_router(backup_router.router)
 from app.routers import tags as tags_router  # noqa: E402
 app.include_router(tags_router.router)
+from app.routers import reminders as reminders_router  # noqa: E402
+app.include_router(reminders_router.router)
 
 _default_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 _dist = Path(os.environ["ATLAS_FRONTEND_DIST"]) if os.environ.get("ATLAS_FRONTEND_DIST") else _default_dist
