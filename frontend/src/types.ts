@@ -78,6 +78,14 @@ export interface SyncResult {
   skipped: number;
   tasks_created?: number;
 }
+export interface MeetingPrep {
+  meeting: Meeting;
+  client: Client | null;
+  open_tasks: Task[];
+  key_dates: KeyDate[];
+  notes: Note[];
+  recent_activity: ActivityEvent[];
+}
 export interface Dossier {
   client: Client;
   contacts: Contact[];

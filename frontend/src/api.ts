@@ -1,4 +1,4 @@
-import type { Client, Task, Contact, Dossier, Note, Transcript, AppSettings, AppStatus, TestResult, ActivityEvent, RadarEntry, BackupStatus, ExportResult, TagOnRecord, KeyDate, Reminder, Link, Briefing, SyncResult } from "./types";
+import type { Client, Task, Contact, Dossier, Note, Transcript, AppSettings, AppStatus, TestResult, ActivityEvent, RadarEntry, BackupStatus, ExportResult, TagOnRecord, KeyDate, Reminder, Link, Briefing, SyncResult, MeetingPrep } from "./types";
 const BASE = "/api";
 
 /** Fetch JSON, throwing on any non-2xx response (with FastAPI's `detail` if present)
@@ -103,4 +103,7 @@ export async function syncMail(): Promise<SyncResult> {
 }
 export async function syncCalendar(): Promise<SyncResult> {
   return http<SyncResult>("/m365/calendar/sync", { method: "POST" });
+}
+export async function getMeetingPrep(meetingId: string): Promise<MeetingPrep> {
+  return http<MeetingPrep>(`/m365/prep/${meetingId}`);
 }
