@@ -24,3 +24,16 @@ async def summarize_client(sn: ServiceNowClient, ai: AIClient, scope: str,
     lines.append("Recent notes: " + "; ".join(n.get("title", "") for n in doss["notes"]))
     prompt = "\n".join(lines)
     return await ai.complete(system=_SYSTEM, prompt=prompt, max_tokens=512)
+
+
+_TRANSCRIPT_SYSTEM = ("Summarize this meeting transcript into 3-6 bullet points: decisions, "
+                      "action items, and risks. Be faithful; do not invent commitments.")
+
+
+async def summarize_transcript(sn: ServiceNowClient, ai: AIClient, scope: str,
+                               transcript_id: str) -> Optional[str]:
+    rec = await sn.get(f"{scope}_transcript", transcript_id)
+    if rec is None:
+        return None
+    return await ai.complete(system=_TRANSCRIPT_SYSTEM, prompt=rec.get("full_text", ""),
+                             max_tokens=512)
