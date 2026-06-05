@@ -138,6 +138,8 @@ Significant decisions and their rationale, newest last.
 
 **D38 — Global search (backlog).** `app/search.py::search` does a deterministic, case-insensitive substring match across clients, tasks, contacts, notes, and engagements, returning hits with the owning client for navigation; `GET /api/search?q=`; a **Search** nav tab/view whose results link to the relevant dossier. Cheap interim before P3 semantic search. 162 backend tests green; frontend builds. Queue: [BACKLOG.md](BACKLOG.md).
 
+**D39 — Quick-capture (backlog).** A persistent **"＋ Capture"** nav button opens a modal (mirrors `MeetingPrepPanel`: backdrop, click-out + Escape to close) to create a Task or Note from anywhere — optional client (Notes pin to the client via `target_table`/`target_id` when chosen). Frontend-only via existing `createTask`/`createNote`; busy/error handling; text-only. Frontend builds. Queue: [BACKLOG.md](BACKLOG.md).
+
 ## Next plans (after the instance is live)
 - **Plan 3 — COMPLETE:** ✅ 3a activity timeline + stale-client radar (D16); ✅ 3d export/backup (D17); ✅ 3b tags (D18); ✅ 3c key dates + reminders (D19); ✅ Links (D20).
 - **Plan P2 — M365 (planned D22):** ✅ Phase 1 email (D23); ✅ Phase 2 calendar + meeting-prep (D24); ✅ Phase 3 briefing (D25); ✅ daily-driver UI — Today card + sync (D26); ✅ meeting-prep view (D27) — **entire deterministic P2 surface built & demo-able behind `FakeGraph`**; ⛔ only **live `HttpGraph` + auth (Phase 4)** remains, gated on the **[Entra recon spike](P2-ENTRA-RECON.md)** (R3/R4), work-Mac only. Plan: [`superpowers/plans/2026-06-04-atlas-p2-m365.md`](superpowers/plans/2026-06-04-atlas-p2-m365.md).
