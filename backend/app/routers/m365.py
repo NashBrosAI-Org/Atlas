@@ -6,9 +6,21 @@ from app import m365
 from app.config import get_settings
 from app.graph import GraphClient
 from app.main_deps import get_graph, get_sn
+from app.models import M365Payload
 from app.servicenow import ServiceNowClient
 
 router = APIRouter(prefix="/api/m365", tags=["m365"])
+
+
+@router.post("/ingest")
+async def ingest(payload: M365Payload,
+                 sn: ServiceNowClient = Depends(get_sn)) -> dict:
+    """Bridge ingest: accept Graph-shaped messages/events fetched *externally* (Claude
+    + an approved M365 connector) and run the standard ingestion against ServiceNow —
+    same normalize/match/dedup/flagged→task pipeline as /sync, but without Atlas needing
+    its own Graph app registration (risk R3). Localhost-only, like the rest of the app."""
+    return await m365.ingest_payload(sn, get_settings().sn_scope,
+                                     messages=payload.messages, events=payload.events)
 
 
 @router.post("/sync")

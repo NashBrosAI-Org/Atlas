@@ -6,7 +6,7 @@ risk R1/D2; keep the ingest filter narrow."""
 from typing import Optional
 
 from app import awareness, dossier
-from app.graph import GraphClient
+from app.graph import FakeGraph, GraphClient
 from app.models import Task
 from app.servicenow import ServiceNowClient
 
@@ -149,3 +149,26 @@ async def ingest_emails(graph: GraphClient, sn: ServiceNowClient, scope: str,
             await sn.create(f"{scope}_task", task.model_dump(exclude_none=True, exclude={"sys_id"}))
             tasks_created += 1
     return {"ingested": ingested, "skipped": skipped, "tasks_created": tasks_created}
+
+
+async def ingest_payload(sn: ServiceNowClient, scope: str,
+                         messages: Optional[list[dict]] = None,
+                         events: Optional[list[dict]] = None) -> dict:
+    """Run the standard mail/calendar ingestion over Graph payloads supplied by the
+    *caller* rather than Atlas pulling from Graph itself. This is the "Claude bridge":
+    when an in-app Graph app registration isn't available (risk R3), Claude reads mail
+    via an approved M365 connector and POSTs the raw Graph JSON here. It reuses the
+    exact same normalize/match/dedup/flagged→task pipeline as the live sync — Claude
+    stays a dumb pipe; all logic is server-side and deterministic. Retention into SN
+    remains the owned risk R1/D2. FakeGraph is just the in-memory GraphClient that
+    serves the supplied payload (the data itself is real)."""
+    graph = FakeGraph(messages=messages or [], events=events or [])
+    result: dict = {}
+    if messages:
+        result["mail"] = await ingest_emails(graph, sn, scope)
+    if events:
+        # Wide ISO bounds so every supplied event ingests regardless of its date
+        # (ingest_events filters by start.dateTime ∈ [start, end]).
+        result["calendar"] = await ingest_events(
+            graph, sn, scope, "0000-01-01T00:00:00Z", "9999-12-31T23:59:59Z")
+    return result
