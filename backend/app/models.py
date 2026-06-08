@@ -15,6 +15,14 @@ TaskSource = Literal["manual", "email", "meeting"]
 ClientStatus = Literal["active", "prospect", "dormant"]
 
 
+class M365Payload(BaseModel):
+    """Graph-shaped messages/events POSTed to /api/m365/ingest by the Claude bridge
+    (Claude reads mail via an approved M365 connector; Atlas runs the normal
+    ingestion). Dicts mirror Graph v1.0 message/event shapes."""
+    messages: list[dict] = []
+    events: list[dict] = []
+
+
 class Client(BaseModel):
     sys_id: Optional[str] = None
     name: str
