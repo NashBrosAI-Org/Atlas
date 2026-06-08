@@ -2,8 +2,16 @@ import { useEffect, useState } from "react";
 import type { Client, Task, Briefing } from "./types";
 import { getClients, getNow, completeTask, getBriefing, syncMail, syncCalendar, createTask, getAIStatus, suggestFocus } from "./api";
 import { MeetingPrepPanel } from "./MeetingPrepPanel";
+import { Button, Input, Select, Checkbox, Card, Badge, Toolbar } from "./ui";
 
 const PRIORITIES = ["critical", "high", "medium", "low"] as const;
+
+const PRIORITY_TONE: Record<string, "danger" | "warning" | "info" | "neutral"> = {
+  critical: "danger",
+  high: "warning",
+  medium: "info",
+  low: "neutral",
+};
 
 /** Plain-English reason a task sits where it does in the deterministic Now order. */
 function rankReason(t: Task): string {
@@ -44,23 +52,21 @@ function TaskComposer({ clients, defaultClient, onAdded }:
   }
 
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center", margin: "10px 0" }}>
-      <input style={{ flex: 1, minWidth: 180 }} placeholder="Add a task…" value={title}
+    <Toolbar wrap>
+      <Input style={{ flex: 1, minWidth: 180 }} placeholder="Add a task…" value={title}
         onChange={(e) => setTitle(e.target.value)} onKeyDown={(e) => e.key === "Enter" && add()} />
-      <select value={priority} onChange={(e) => setPriority(e.target.value as typeof priority)}>
+      <Select style={{ width: "auto" }} value={priority} onChange={(e) => setPriority(e.target.value as typeof priority)}>
         {PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
-      </select>
-      <select value={client} onChange={(e) => setClient(e.target.value)}>
+      </Select>
+      <Select style={{ width: "auto" }} value={client} onChange={(e) => setClient(e.target.value)}>
         <option value="">No client</option>
         {clients.map((c) => <option key={c.sys_id} value={c.sys_id}>{c.name}</option>)}
-      </select>
-      <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-      <label style={{ fontSize: 13 }}>
-        <input type="checkbox" checked={commitment} onChange={(e) => setCommitment(e.target.checked)} /> 🤝
-      </label>
-      <button disabled={busy || !title.trim()} onClick={add}>Add</button>
-      {err && <span style={{ color: "#b00020", fontSize: 13 }}>{err}</span>}
-    </div>
+      </Select>
+      <Input style={{ width: "auto" }} type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+      <Checkbox checked={commitment} onChange={(e) => setCommitment(e.target.checked)} label="🤝" />
+      <Button variant="primary" disabled={busy || !title.trim()} onClick={add}>Add</Button>
+      {err && <span className="err" style={{ fontSize: 13 }}>{err}</span>}
+    </Toolbar>
   );
 }
 
@@ -95,27 +101,27 @@ function TodayCard({ onSynced }: { onSynced: () => void }) {
     }
   }
 
-  if (!b) return msg ? <p style={{ color: "#b00020", fontSize: 13 }}>{msg}</p> : null;
+  if (!b) return msg ? <p className="err" style={{ fontSize: 13 }}>{msg}</p> : null;
 
   return (
-    <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 16, marginBottom: 24, background: "#fafafa" }}>
+    <Card variant="muted" className="section">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2 style={{ margin: 0, fontSize: 16 }}>Today · {b.date}</h2>
-        <span style={{ display: "flex", gap: 6 }}>
-          <button disabled={busy} onClick={() => run("mail")}>Sync mail</button>
-          <button disabled={busy} onClick={() => run("calendar")}>Sync calendar</button>
-        </span>
+        <h2 style={{ margin: 0 }}>Today · {b.date}</h2>
+        <Toolbar>
+          <Button size="sm" disabled={busy} onClick={() => run("mail")}>Sync mail</Button>
+          <Button size="sm" disabled={busy} onClick={() => run("calendar")}>Sync calendar</Button>
+        </Toolbar>
       </div>
-      {msg && <p style={{ fontSize: 13, color: "#555", margin: "6px 0 0" }}>{msg}</p>}
+      {msg && <p className="muted" style={{ fontSize: 13, marginTop: 6 }}>{msg}</p>}
 
-      <div style={{ marginTop: 10 }}>
+      <div style={{ marginTop: 12 }}>
         <strong style={{ fontSize: 13 }}>Meetings</strong>
-        {b.todays_meetings.length === 0 ? <span style={{ color: "#888" }}> — none today</span> : (
+        {b.todays_meetings.length === 0 ? <span className="muted"> — none today</span> : (
           <ul style={{ margin: "4px 0", paddingLeft: 18 }}>
             {b.todays_meetings.map((m, i) => (
               <li key={m.sys_id ?? i}>{m.title}{" "}
-                <span style={{ color: "#888" }}>{(m.datetime ?? "").slice(11, 16)}</span>{" "}
-                {m.sys_id && <button onClick={() => setPrepId(m.sys_id!)}>Prep</button>}</li>
+                <span className="muted">{(m.datetime ?? "").slice(11, 16)}</span>{" "}
+                {m.sys_id && <Button size="sm" variant="ghost" onClick={() => setPrepId(m.sys_id!)}>Prep</Button>}</li>
             ))}
           </ul>
         )}
@@ -123,11 +129,11 @@ function TodayCard({ onSynced }: { onSynced: () => void }) {
 
       <div style={{ marginTop: 6 }}>
         <strong style={{ fontSize: 13 }}>Reminders</strong>
-        {b.reminders.length === 0 ? <span style={{ color: "#888" }}> — nothing due</span> : (
+        {b.reminders.length === 0 ? <span className="muted"> — nothing due</span> : (
           <ul style={{ margin: "4px 0", paddingLeft: 18 }}>
             {b.reminders.map((r) => (
               <li key={r.sys_id}>
-                <span style={{ color: r.days_until <= 1 ? "#b00020" : "#0a7", fontWeight: 600 }}>
+                <span style={{ color: r.days_until <= 1 ? "var(--danger)" : "var(--success)", fontWeight: 600 }}>
                   📅 {whenLabel(r.days_until)}
                 </span>{" "}— {r.title}{r.client_name ? ` · ${r.client_name}` : ""}
               </li>
@@ -137,13 +143,13 @@ function TodayCard({ onSynced }: { onSynced: () => void }) {
       </div>
 
       {b.radar.length > 0 && (
-        <p style={{ fontSize: 13, color: "#b8860b", margin: "6px 0 0" }}>
+        <p style={{ fontSize: 13, color: "var(--warning)", margin: "8px 0 0" }}>
           ⚠ {b.radar.length} client{b.radar.length > 1 ? "s" : ""} need attention — see the Awareness tab.
         </p>
       )}
 
       {prepId && <MeetingPrepPanel meetingId={prepId} onClose={() => setPrepId(null)} />}
-    </div>
+    </Card>
   );
 }
 
@@ -174,16 +180,16 @@ function FocusPanel() {
   if (!enabled) return null;
 
   return (
-    <div style={{ border: "1px solid #e0d8c0", borderRadius: 8, padding: 12, margin: "12px 0", background: "#fcfbf6" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <Card variant="accent" style={{ margin: "12px 0" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
         <strong style={{ fontSize: 13 }}>AI focus (suggestion — your Now order is unchanged)</strong>
-        <button disabled={busy} onClick={run}>Suggest focus</button>
+        <Button size="sm" disabled={busy} onClick={run}>Suggest focus</Button>
       </div>
-      {msg && <p style={{ color: "#b00020", fontSize: 13, margin: "6px 0 0" }}>{msg}</p>}
+      {msg && <p className="err" style={{ fontSize: 13, marginTop: 6 }}>{msg}</p>}
       {suggestion && (
-        <div style={{ whiteSpace: "pre-wrap", fontSize: 13, marginTop: 8, color: "#333" }}>{suggestion}</div>
+        <div style={{ whiteSpace: "pre-wrap", fontSize: 13, marginTop: 8 }}>{suggestion}</div>
       )}
-    </div>
+    </Card>
   );
 }
 
@@ -197,27 +203,30 @@ export function NowView() {
   useEffect(() => { refresh(); }, [filter]);
 
   return (
-    <div style={{ maxWidth: 720, margin: "2rem auto", fontFamily: "system-ui" }}>
+    <div className="view view--narrow">
       <h1>Now</h1>
       <TodayCard onSynced={refresh} />
-      <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-        <option value="">All clients</option>
-        {clients.map((c) => <option key={c.sys_id} value={c.sys_id}>{c.name}</option>)}
-      </select>
-      <TaskComposer clients={clients} defaultClient={filter} onAdded={refresh} />
+      <div className="stack">
+        <Select style={{ width: "auto" }} value={filter} onChange={(e) => setFilter(e.target.value)}>
+          <option value="">All clients</option>
+          {clients.map((c) => <option key={c.sys_id} value={c.sys_id}>{c.name}</option>)}
+        </Select>
+        <TaskComposer clients={clients} defaultClient={filter} onAdded={refresh} />
+      </div>
       <FocusPanel />
-      <p style={{ fontSize: 12, color: "#888", margin: "8px 0 0" }}>
+      <p className="muted" style={{ fontSize: 12, margin: "12px 0 0" }}>
         Ordered deterministically: <strong>priority</strong> → <strong>due date</strong> →
         commitments first. (Hover a task to see why it ranks where it does.)
       </p>
-      <ul style={{ listStyle: "none", padding: 0 }}>
+      <ul style={{ listStyle: "none", padding: 0, margin: "4px 0 0" }}>
         {tasks.map((t) => (
-          <li key={t.sys_id} title={rankReason(t)}
-              style={{ display: "flex", gap: 8, padding: "8px 0", borderBottom: "1px solid #eee" }}>
-            <span style={{ width: 70, fontWeight: 600 }}>{t.priority}</span>
+          <li key={t.sys_id} title={rankReason(t)} className="list-row">
+            <span style={{ width: 78 }}>
+              <Badge tone={PRIORITY_TONE[t.priority ?? "medium"] ?? "neutral"}>{t.priority}</Badge>
+            </span>
             <span style={{ flex: 1 }}>{t.is_commitment ? "🤝 " : ""}{t.title}</span>
-            <span style={{ width: 100, color: "#888" }}>{t.due_date ?? "—"}</span>
-            <button onClick={() => completeTask(t.sys_id!).then(refresh)}>Done</button>
+            <span className="muted" style={{ width: 100 }}>{t.due_date ?? "—"}</span>
+            <Button size="sm" onClick={() => completeTask(t.sys_id!).then(refresh)}>Done</Button>
           </li>
         ))}
       </ul>
