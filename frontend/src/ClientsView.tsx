@@ -1,21 +1,15 @@
 import { useEffect, useState } from "react";
 import type { Client } from "./types";
 import { getClients, createClient, updateClient } from "./api";
-import { InfoHint } from "./InfoHint";
+import { Button, Input, Select, Textarea, Field, Card, Badge } from "./ui";
 
 const STATUSES = ["active", "prospect", "dormant"];
 
-const inputStyle: React.CSSProperties = {
-  display: "block", width: "100%", boxSizing: "border-box",
-  padding: "6px 8px", margin: "4px 0", fontSize: 14,
-  border: "1px solid #ccc", borderRadius: 4, fontFamily: "inherit",
+const STATUS_TONE: Record<string, "success" | "info" | "neutral"> = {
+  active: "success",
+  prospect: "info",
+  dormant: "neutral",
 };
-const labelStyle: React.CSSProperties = { fontSize: 12, color: "#555", marginTop: 8 };
-const btnStyle: React.CSSProperties = {
-  padding: "6px 12px", fontSize: 14, border: "1px solid #ccc",
-  borderRadius: 4, background: "#f7f7f7", cursor: "pointer",
-};
-const helpStyle: React.CSSProperties = { fontSize: 12, color: "#888", margin: "4px 0 0" };
 
 export function ClientsView({ onOpen }: { onOpen: (sysId: string) => void }) {
   const [clients, setClients] = useState<Client[]>([]);
@@ -44,27 +38,31 @@ export function ClientsView({ onOpen }: { onOpen: (sysId: string) => void }) {
   }
 
   return (
-    <div style={{ maxWidth: 720, margin: "2rem auto", fontFamily: "system-ui" }}>
+    <div className="view view--narrow">
       <h1>Clients</h1>
 
-      <div style={{ border: "1px solid #eee", borderRadius: 6, padding: 12, marginBottom: 16, background: "#fafafa" }}>
-        <strong style={{ fontSize: 14 }}>Add client</strong>
-        <label style={labelStyle}>Name *
-          <input style={inputStyle} value={name} onChange={(e) => setName(e.target.value)} placeholder="Acme Corp" />
-        </label>
-        <label style={labelStyle}>Short code
-          <input style={inputStyle} value={shortCode} onChange={(e) => setShortCode(e.target.value)} placeholder="ACME" />
-        </label>
-        <label style={labelStyle}>Status
-          <select style={inputStyle} value={status} onChange={(e) => setStatus(e.target.value)}>
-            {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-        </label>
-        <button style={{ ...btnStyle, marginTop: 8 }} disabled={busy || !name.trim()} onClick={add}>Add client</button>
-        {msg && <p style={{ ...helpStyle, color: "#b00020" }}>{msg}</p>}
-      </div>
+      <Card variant="muted" className="section">
+        <h2>Add client</h2>
+        <div className="stack">
+          <Field label="Name *">
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Acme Corp" />
+          </Field>
+          <Field label="Short code">
+            <Input value={shortCode} onChange={(e) => setShortCode(e.target.value)} placeholder="ACME" />
+          </Field>
+          <Field label="Status">
+            <Select value={status} onChange={(e) => setStatus(e.target.value)}>
+              {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+            </Select>
+          </Field>
+          <div>
+            <Button variant="primary" disabled={busy || !name.trim()} onClick={add}>Add client</Button>
+          </div>
+          {msg && <p className="err" style={{ fontSize: 12 }}>{msg}</p>}
+        </div>
+      </Card>
 
-      <ul style={{ listStyle: "none", padding: 0 }}>
+      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
         {clients.map((c) => (
           <ClientRow key={c.sys_id} client={c} onOpen={onOpen} onSaved={refresh} />
         ))}
@@ -107,39 +105,42 @@ function ClientRow({ client, onOpen, onSaved }: {
   }
 
   return (
-    <li style={{ padding: "8px 0", borderBottom: "1px solid #eee" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <button onClick={() => onOpen(client.sys_id!)} style={{ background: "none", border: "none", color: "#0a7", cursor: "pointer", fontSize: 16, flex: 1, textAlign: "left", padding: 0 }}>
+    <li style={{ borderBottom: "1px solid var(--border)", padding: "10px 0" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <Button variant="ghost" onClick={() => onOpen(client.sys_id!)}
+          style={{ flex: 1, justifyContent: "flex-start", fontSize: 15 }}>
           {client.name}{client.short_code ? ` (${client.short_code})` : ""}
-        </button>
-        <span style={{ fontSize: 12, color: "#999" }}>{client.status}</span>
-        <button style={btnStyle} onClick={() => setEditing((v) => !v)}>{editing ? "Cancel" : "Edit"}</button>
+        </Button>
+        <Badge tone={STATUS_TONE[client.status ?? "active"] ?? "neutral"}>{client.status}</Badge>
+        <Button size="sm" onClick={() => setEditing((v) => !v)}>{editing ? "Cancel" : "Edit"}</Button>
       </div>
 
       {editing && (
-        <div style={{ marginTop: 8, paddingLeft: 4 }}>
-          <label style={labelStyle}>Short code
-            <input style={inputStyle} value={draft.short_code ?? ""} onChange={(e) => set({ short_code: e.target.value })} />
-          </label>
-          <label style={labelStyle}>Status
-            <select style={inputStyle} value={draft.status ?? "active"} onChange={(e) => set({ status: e.target.value })}>
+        <div className="stack" style={{ marginTop: 10, paddingLeft: 4 }}>
+          <Field label="Short code">
+            <Input value={draft.short_code ?? ""} onChange={(e) => set({ short_code: e.target.value })} />
+          </Field>
+          <Field label="Status">
+            <Select value={draft.status ?? "active"} onChange={(e) => set({ status: e.target.value })}>
               {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
-          </label>
-          <label style={labelStyle}>Email domains
-            <InfoHint text="Domains (e.g. acme.com) auto-match incoming mail/meetings to this client." />
-            <input style={inputStyle} value={draft.email_domains ?? ""} onChange={(e) => set({ email_domains: e.target.value })} placeholder="acme.com, acme.io" />
-          </label>
-          <label style={labelStyle}>Email aliases
-            <InfoHint text="Specific addresses a client also writes from, e.g. a personal gmail." />
-            <input style={inputStyle} value={draft.email_aliases ?? ""} onChange={(e) => set({ email_aliases: e.target.value })} placeholder="someone@gmail.com" />
-          </label>
-          <p style={helpStyle}>Domains and aliases drive automatic email/meeting → client matching.</p>
-          <label style={labelStyle}>Notes
-            <textarea style={{ ...inputStyle, minHeight: 60, resize: "vertical" }} value={draft.notes ?? ""} onChange={(e) => set({ notes: e.target.value })} />
-          </label>
-          <button style={{ ...btnStyle, marginTop: 8 }} disabled={busy} onClick={save}>Save</button>
-          {err && <p style={{ ...helpStyle, color: "#b00020" }}>{err}</p>}
+            </Select>
+          </Field>
+          <Field label="Email domains"
+            hint="Domains (e.g. acme.com) auto-match incoming mail/meetings to this client."
+            help="Domains and aliases drive automatic email/meeting → client matching.">
+            <Input value={draft.email_domains ?? ""} onChange={(e) => set({ email_domains: e.target.value })} placeholder="acme.com, acme.io" />
+          </Field>
+          <Field label="Email aliases"
+            hint="Specific addresses a client also writes from, e.g. a personal gmail.">
+            <Input value={draft.email_aliases ?? ""} onChange={(e) => set({ email_aliases: e.target.value })} placeholder="someone@gmail.com" />
+          </Field>
+          <Field label="Notes">
+            <Textarea value={draft.notes ?? ""} onChange={(e) => set({ notes: e.target.value })} />
+          </Field>
+          <div>
+            <Button variant="primary" size="sm" disabled={busy} onClick={save}>Save</Button>
+          </div>
+          {err && <p className="err" style={{ fontSize: 12 }}>{err}</p>}
         </div>
       )}
     </li>
