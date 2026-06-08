@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createNote } from "./api";
+import { Button, Input, Select, Toolbar } from "./ui";
 
 const TYPES = ["general", "risk", "issue", "decision"] as const;
 
@@ -16,13 +17,13 @@ export function NoteComposer({ targetTable, targetId, onSaved }:
   }
 
   return (
-    <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
-      <select value={noteType} onChange={(e) => setNoteType(e.target.value as typeof noteType)}>
+    <Toolbar wrap>
+      <Select style={{ width: "auto" }} value={noteType} onChange={(e) => setNoteType(e.target.value as typeof noteType)}>
         {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-      </select>
-      <input style={{ flex: 1 }} placeholder="Add a note…" value={title}
+      </Select>
+      <Input style={{ flex: 1, minWidth: 160 }} placeholder="Add a note…" value={title}
         onChange={(e) => setTitle(e.target.value)} onKeyDown={(e) => e.key === "Enter" && save()} />
-      <button onClick={save}>Pin</button>
-    </div>
+      <Button variant="primary" onClick={save}>Pin</Button>
+    </Toolbar>
   );
 }

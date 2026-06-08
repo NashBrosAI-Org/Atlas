@@ -18,6 +18,6 @@ function Node({ contact, all }: { contact: Contact; all: Contact[] }) {
 export function OrgChart({ contacts }: { contacts: Contact[] }) {
   const ids = new Set(contacts.map((c) => c.sys_id));
   const roots = contacts.filter((c) => !c.reports_to || !ids.has(c.reports_to));
-  if (contacts.length === 0) return <p style={{ color: "#888" }}>No contacts yet.</p>;
+  if (contacts.length === 0) return <p className="muted">No contacts yet.</p>;
   return <ul>{roots.map((r) => <Node key={r.sys_id} contact={r} all={contacts} />)}</ul>;
 }

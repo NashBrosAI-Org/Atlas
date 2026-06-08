@@ -143,7 +143,7 @@ export function SettingsView({ onSaved }: { onSaved?: () => void }) {
 
       <fieldset>
         <legend>Microsoft 365 retention<InfoHint text="Controls which corporate mail is ingested into ServiceNow. Keep it narrow — retaining content past company policy is an accepted, owned risk (R1)." /></legend>
-        <p style={{ fontSize: 13, color: "#666", margin: "0 0 6px" }}>
+        <p className="muted" style={{ fontSize: 13, margin: "0 0 6px" }}>
           Which mail the live Microsoft 365 sync ingests. Narrower scopes retain less corporate
           content. (Applied once live M365 is connected.)
         </p>

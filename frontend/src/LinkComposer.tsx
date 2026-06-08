@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createLink } from "./api";
+import { Button, Input, Toolbar } from "./ui";
 
 export function LinkComposer({ clientSysId, onSaved }:
   { clientSysId: string; onSaved: () => void }) {
@@ -15,12 +16,12 @@ export function LinkComposer({ clientSysId, onSaved }:
   }
 
   return (
-    <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
-      <input style={{ flex: 1, minWidth: 120 }} placeholder="Title…" value={title}
+    <Toolbar wrap>
+      <Input style={{ flex: 1, minWidth: 120 }} placeholder="Title…" value={title}
         onChange={(e) => setTitle(e.target.value)} />
-      <input style={{ flex: 2, minWidth: 180 }} placeholder="https://…" value={url}
+      <Input style={{ flex: 2, minWidth: 180 }} placeholder="https://…" value={url}
         onChange={(e) => setUrl(e.target.value)} onKeyDown={(e) => e.key === "Enter" && save()} />
-      <button onClick={save}>Add link</button>
-    </div>
+      <Button variant="primary" onClick={save}>Add link</Button>
+    </Toolbar>
   );
 }
