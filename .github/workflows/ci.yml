@@ -1,10 +1,20 @@
 name: CI
 
+# PR-only. `main` is PR-protected and the PR already tests the merged result, so
+# a post-merge push run re-tests identical code — wasted Actions minutes. Docs-only
+# changes skip CI (no required status checks gate merges, so this is safe).
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+
+# Cancel superseded runs when a PR is pushed again, instead of letting every
+# intermediate push run all jobs to completion.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   backend:
