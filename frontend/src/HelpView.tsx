@@ -1,7 +1,7 @@
 export function HelpView() {
   return (
-    <div className="help" style={{ padding: 16, maxWidth: 720, fontFamily: "system-ui", lineHeight: 1.5 }}>
-      <h2>Setting up Atlas</h2>
+    <div className="help">
+      <h1>Setting up Atlas</h1>
       <p>
         Atlas runs entirely on your Mac and talks to your own ServiceNow instance. Nothing is
         hosted anywhere. Follow these steps once to connect it.

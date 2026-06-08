@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getSettings, saveSettings, testConnection, getBackupStatus, runExport, restoreBackup } from "./api";
 import type { AppSettings, TestResult, BackupStatus } from "./types";
 import { InfoHint } from "./InfoHint";
+import { Button } from "./ui";
 
 export function SettingsView({ onSaved }: { onSaved?: () => void }) {
   const [s, setS] = useState<AppSettings | null>(null);
@@ -92,7 +93,7 @@ export function SettingsView({ onSaved }: { onSaved?: () => void }) {
 
   return (
     <div className="settings">
-      <h2>Settings &amp; Integrations</h2>
+      <h1>Settings &amp; Integrations</h1>
       <p>
         Connect Atlas to your ServiceNow instance. Your password is stored in the macOS
         Keychain, never in a file. Tip: install the Atlas scoped app on your instance first.
@@ -170,14 +171,16 @@ export function SettingsView({ onSaved }: { onSaved?: () => void }) {
               : "No backups yet"
             : "…"}
         </p>
-        <button disabled={busy} onClick={exportNow}>Export now</button>
-        <button disabled={busy || !bk?.last_backup} onClick={restoreNow} style={{ marginLeft: 8 }}>Restore latest</button>
+        <div className="settings-actions">
+          <Button disabled={busy} onClick={exportNow}>Export now</Button>
+          <Button disabled={busy || !bk?.last_backup} onClick={restoreNow}>Restore latest</Button>
+        </div>
         {bkMsg && <p className="settings-msg">{bkMsg}</p>}
       </fieldset>
 
       <div className="settings-actions">
-        <button disabled={busy} onClick={save}>Save</button>
-        <button disabled={busy || s.use_fake} onClick={runTest}>Test connection</button>
+        <Button variant="primary" disabled={busy} onClick={save}>Save</Button>
+        <Button disabled={busy || s.use_fake} onClick={runTest}>Test connection</Button>
       </div>
 
       {msg && <p className="settings-msg">{msg}</p>}

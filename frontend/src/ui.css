@@ -409,6 +409,42 @@ mark {
   padding: 0 6px;
   color: var(--text-h);
 }
+.settings label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin-top: 12px;
+}
+.settings input:not([type="checkbox"]),
+.settings select,
+.settings textarea {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-h);
+}
+.settings input:focus,
+.settings select:focus,
+.settings textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+.settings input[type="checkbox"] {
+  accent-color: var(--accent-strong);
+  margin-right: 6px;
+}
+.settings fieldset[disabled] {
+  opacity: 0.55;
+}
 .settings-actions {
   display: flex;
   gap: 10px;
