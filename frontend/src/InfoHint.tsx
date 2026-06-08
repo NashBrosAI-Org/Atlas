@@ -4,7 +4,7 @@ export function InfoHint({ text }: { text: string }) {
   return (
     <span role="img" aria-label={text} title={text}
       style={{ display: "inline-block", marginLeft: 4, width: 14, height: 14, lineHeight: "14px",
-        textAlign: "center", fontSize: 10, color: "#fff", background: "#9aa", borderRadius: "50%",
+        textAlign: "center", fontSize: 10, color: "#fff", background: "var(--muted)", borderRadius: "50%",
         cursor: "help", userSelect: "none", verticalAlign: "middle" }}>i</span>
   );
 }

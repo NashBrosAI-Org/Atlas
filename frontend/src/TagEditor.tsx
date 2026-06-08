@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { TagOnRecord } from "./types";
 import { attachTag, detachTag } from "./api";
 import { InfoHint } from "./InfoHint";
+import { Input, Badge } from "./ui";
 
 /** Tag chips for a record, with inline add (Enter) and per-chip remove (×). */
 export function TagEditor({ targetTable, targetId, tags, onChanged }:
@@ -35,18 +36,14 @@ export function TagEditor({ targetTable, targetId, tags, onChanged }:
   return (
     <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
       {tags.map((t) => (
-        <span key={t.link_id} style={{
-          background: "#0a7", color: "#fff", borderRadius: 12,
-          padding: "2px 8px", fontSize: 13, display: "inline-flex", gap: 6, alignItems: "center",
-        }}>
+        <Badge key={t.link_id} tone="accent" pill
+          onRemove={busy ? undefined : () => remove(t.sys_id)} removeLabel={`Remove ${t.name}`}>
           {t.name}
-          <button aria-label={`Remove ${t.name}`} disabled={busy} onClick={() => remove(t.sys_id)}
-            style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", padding: 0 }}>×</button>
-        </span>
+        </Badge>
       ))}
-      <input placeholder="Add tag…" value={name} disabled={busy}
+      <Input placeholder="Add tag…" value={name} disabled={busy}
         onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && add()}
-        style={{ width: 120, fontSize: 13 }} />
+        style={{ width: 140 }} />
       <InfoHint text="Tags are cross-cutting labels you can filter and search by." />
     </div>
   );

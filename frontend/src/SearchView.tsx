@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { search } from "./api";
 import type { SearchHit } from "./types";
+import { Button, Input, Checkbox, Card } from "./ui";
 
 // Display order + labels for every searchable type. `defaultOn: false` keeps
 // transcripts out of the default scope (long, noisy) — opt in via the filter menu.
@@ -105,56 +106,55 @@ export function SearchView({ onOpenClient }: { onOpenClient: (id: string) => voi
   })).filter((g) => g.items.length > 0);
 
   return (
-    <div style={{ padding: 16, fontFamily: "system-ui", maxWidth: 820 }}>
-      <h2>Search</h2>
-      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <input
+    <div className="view">
+      <h1>Search</h1>
+      <div className="toolbar">
+        <Input
           type="text"
           value={q}
           autoFocus
           placeholder="Search across all records…"
           onChange={(e) => setQ(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && run(q, enabled)}
-          style={{ flex: 1, padding: "8px 10px", fontSize: 16, boxSizing: "border-box" }}
+          style={{ flex: 1 }}
         />
-        <button onClick={() => setShowFilters((s) => !s)} aria-expanded={showFilters}>
+        <Button onClick={() => setShowFilters((s) => !s)} aria-expanded={showFilters}>
           Types ({enabled.length})
-        </button>
+        </Button>
       </div>
 
       {showFilters && (
-        <div style={{ border: "1px solid #ddd", padding: "8px 12px", marginTop: 6, display: "flex", flexWrap: "wrap", gap: "4px 16px" }}>
+        <Card variant="muted" style={{ marginTop: 8, display: "flex", flexWrap: "wrap", gap: "6px 18px" }}>
           {TYPES.map((t) => (
-            <label key={t.key} style={{ whiteSpace: "nowrap", fontSize: 13 }}>
-              <input type="checkbox" checked={enabled.includes(t.key)} onChange={() => toggle(t.key)} /> {t.label}
-            </label>
+            <Checkbox key={t.key} checked={enabled.includes(t.key)} onChange={() => toggle(t.key)} label={t.label} />
           ))}
-        </div>
+        </Card>
       )}
 
-      {err && <p style={{ color: "#b00020" }}>{err}</p>}
+      {err && <p className="err">{err}</p>}
       {busy && hits === null && <p>Searching…</p>}
-      {!busy && q.trim() === "" && <p style={{ color: "#888" }}>Type to search across all records.</p>}
-      {!busy && q.trim() !== "" && hits !== null && hits.length === 0 && <p>No matches.</p>}
+      {!busy && q.trim() === "" && <p className="muted">Type to search across all records.</p>}
+      {!busy && q.trim() !== "" && hits !== null && hits.length === 0 && <p className="muted">No matches.</p>}
 
       {grouped.map((g) => (
         <div key={g.type}>
           <h3 style={{ marginTop: 24 }}>
             {TYPE_LABEL[g.type] ?? g.type}
             {g.items.length > PER_TYPE_CAP ? (
-              <span style={{ color: "#888", fontWeight: "normal", fontSize: 14 }}> · showing {PER_TYPE_CAP} of {g.items.length}</span>
+              <span className="muted" style={{ fontWeight: "normal", textTransform: "none" }}> · showing {PER_TYPE_CAP} of {g.items.length}</span>
             ) : null}
           </h3>
           <ul style={{ listStyle: "none", padding: 0 }}>
             {g.items.slice(0, PER_TYPE_CAP).map((h) => (
               <li
                 key={`${h.type}:${h.sys_id}`}
-                style={{ padding: "6px 0", borderBottom: "1px solid #eee", cursor: h.client ? "pointer" : "default" }}
+                className={h.client ? "list-row link-row" : "list-row"}
+                style={{ display: "block" }}
                 onClick={() => h.client && onOpenClient(h.client)}
               >
                 <strong>{highlight(h.label, q)}</strong>
-                {h.client_name ? <span style={{ color: "#888" }}> · {h.client_name}</span> : null}
-                {h.snippet ? <div style={{ color: "#666", fontSize: 13 }}>{highlight(h.snippet, q)}</div> : null}
+                {h.client_name ? <span className="muted"> · {h.client_name}</span> : null}
+                {h.snippet ? <div className="muted" style={{ fontSize: 13 }}>{highlight(h.snippet, q)}</div> : null}
               </li>
             ))}
           </ul>

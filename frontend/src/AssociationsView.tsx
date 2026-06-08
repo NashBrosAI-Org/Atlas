@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getAssociations, getClients, reassignAssociation } from "./api";
 import type { Association, Client } from "./types";
+import { Button, Select } from "./ui";
 
 const NONE = "";
 
@@ -38,26 +39,22 @@ export function AssociationsView({ onOpenClient }: { onOpenClient: (id: string) 
       <>
         <h3 style={{ marginTop: 24 }}>{title}</h3>
         {rows === null ? <p>Loading…</p>
-          : rows.length === 0 ? <p>Nothing to review.</p>
+          : rows.length === 0 ? <p className="muted">Nothing to review.</p>
           : (
             <ul style={{ listStyle: "none", padding: 0 }}>
               {rows.map((row) => (
-                <li key={row.sys_id} style={{ padding: "6px 0", borderBottom: "1px solid #eee" }}>
-                  <strong>{row.label}</strong>
-                  {row.who ? <span style={{ color: "#888" }}> · {row.who}</span> : null}
-                  {row.client_name ? (
-                    <>
-                      {" "}
-                      <button
-                        style={{ border: "none", background: "none", color: "#06c", cursor: "pointer", padding: 0 }}
-                        onClick={() => onOpenClient(row.client)}
-                      >
+                <li key={row.sys_id} className="list-row" style={{ flexWrap: "wrap" }}>
+                  <span style={{ flex: 1, minWidth: 200 }}>
+                    <strong>{row.label}</strong>
+                    {row.who ? <span className="muted"> · {row.who}</span> : null}
+                    {row.client_name ? (
+                      <Button variant="ghost" onClick={() => onOpenClient(row.client)}>
                         {row.client_name}
-                      </button>
-                    </>
-                  ) : null}
-                  {" "}
-                  <select
+                      </Button>
+                    ) : null}
+                  </span>
+                  <Select
+                    style={{ width: "auto" }}
                     value={row.client || NONE}
                     disabled={busy === row.sys_id}
                     onChange={(e) => reassign(row, e.target.value)}
@@ -66,7 +63,7 @@ export function AssociationsView({ onOpenClient }: { onOpenClient: (id: string) 
                     {clients.map((c) => (
                       <option key={c.sys_id} value={c.sys_id ?? ""}>{c.name}</option>
                     ))}
-                  </select>
+                  </Select>
                 </li>
               ))}
             </ul>
@@ -76,10 +73,10 @@ export function AssociationsView({ onOpenClient }: { onOpenClient: (id: string) 
   }
 
   return (
-    <div style={{ padding: 16, fontFamily: "system-ui", maxWidth: 820 }}>
-      <h2>Associations</h2>
-      <p style={{ color: "#888" }}>Confirm or correct the client auto-assigned to each ingested email and meeting.</p>
-      {err && <p style={{ color: "#b00020" }}>{err}</p>}
+    <div className="view">
+      <h1>Associations</h1>
+      <p className="muted">Confirm or correct the client auto-assigned to each ingested email and meeting.</p>
+      {err && <p className="err">{err}</p>}
       {section("Emails", emails)}
       {section("Meetings", meetings)}
     </div>

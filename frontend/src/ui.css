@@ -1,0 +1,470 @@
+/* Atlas design system — vanilla CSS built on the tokens in index.css.
+   Component primitives live in src/ui/; these are their classes. */
+
+/* ---------- layout helpers ---------- */
+.view {
+  padding: 28px 32px 64px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.view--narrow {
+  max-width: 720px;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.stack--lg {
+  gap: 24px;
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.toolbar--wrap {
+  flex-wrap: wrap;
+}
+.spacer {
+  flex: 1;
+}
+.muted {
+  color: var(--muted);
+}
+.section {
+  margin-bottom: 28px;
+}
+
+/* ---------- buttons ---------- */
+.btn {
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-h);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    opacity 0.12s ease;
+}
+.btn:hover {
+  background: var(--surface-2);
+}
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn--primary {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: var(--accent-contrast);
+}
+.btn--primary:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.btn--danger {
+  background: var(--bg);
+  border-color: var(--border);
+  color: var(--danger);
+}
+.btn--danger:hover:not(:disabled) {
+  background: var(--danger-bg);
+}
+.btn--ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--info);
+  padding: 4px 6px;
+}
+.btn--ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+.btn--sm {
+  font-size: 12.5px;
+  padding: 5px 9px;
+}
+.btn--icon {
+  padding: 4px 8px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1;
+}
+.btn--icon:hover:not(:disabled) {
+  background: var(--surface-2);
+  color: var(--danger);
+}
+
+/* ---------- form controls ---------- */
+.input,
+.textarea,
+.select {
+  font: inherit;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-h);
+}
+.textarea {
+  resize: vertical;
+  min-height: 72px;
+  line-height: 1.45;
+}
+.input:focus,
+.textarea:focus,
+.select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+.input--invalid,
+.textarea--invalid {
+  border-color: var(--danger);
+}
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--muted);
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+}
+.checkbox input {
+  accent-color: var(--accent-strong);
+  width: 16px;
+  height: 16px;
+}
+
+/* ---------- field (label + control + help/error) ---------- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.field__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+.field__help {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.field__error {
+  font-size: 12.5px;
+  color: var(--danger);
+}
+
+/* ---------- card ---------- */
+.card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  padding: 16px 18px;
+}
+.card--muted {
+  background: var(--surface);
+}
+.card--accent {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+.card--warning {
+  background: var(--warning-bg);
+  border-color: var(--warning);
+}
+
+/* ---------- badge ---------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  white-space: nowrap;
+}
+.badge--pill {
+  border-radius: var(--radius-pill);
+}
+.badge--accent {
+  background: var(--accent-bg);
+  color: var(--accent-strong);
+}
+.badge--success {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.badge--danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.badge--warning {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.badge--info {
+  background: var(--info-bg);
+  color: var(--info);
+}
+.badge__remove {
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.7;
+}
+.badge__remove:hover {
+  opacity: 1;
+}
+
+/* ---------- modal ---------- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 12, 18, 0.5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 8vh 16px 16px;
+  z-index: 50;
+}
+.modal {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  width: 100%;
+  max-width: 520px;
+  max-height: 84vh;
+  overflow: auto;
+}
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.modal__title {
+  margin: 0;
+  font-size: 17px;
+}
+.modal__body {
+  padding: 18px;
+}
+
+/* ---------- sidebar shell ---------- */
+.app-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 12px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  color: var(--sidebar-fg);
+}
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 10px 14px;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: #fff;
+}
+.sidebar__mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--accent);
+  display: inline-block;
+}
+.sidebar__capture {
+  margin: 0 4px 12px;
+}
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sidebar__item {
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--sidebar-fg);
+  cursor: pointer;
+  width: 100%;
+}
+.sidebar__item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+.sidebar__item--active {
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-active-fg);
+  font-weight: 600;
+}
+.sidebar__item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.sidebar__footer {
+  margin-top: auto;
+  padding-top: 12px;
+}
+.sidebar__heading {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--sidebar-fg-muted);
+  padding: 10px 10px 4px;
+}
+
+/* ---------- misc re-homed view bits ---------- */
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+.list-row:last-child {
+  border-bottom: none;
+}
+.link-row {
+  cursor: pointer;
+}
+.link-row:hover {
+  color: var(--text-h);
+}
+mark {
+  background: var(--accent-bg);
+  color: var(--text-h);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+/* settings + help (previously in the dead App.css, so unstyled until now) */
+.settings,
+.help {
+  padding: 28px 32px 64px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.settings fieldset {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin: 0 0 16px;
+}
+.settings legend {
+  font-weight: 600;
+  font-size: 13px;
+  padding: 0 6px;
+  color: var(--text-h);
+}
+.settings label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin-top: 12px;
+}
+.settings input:not([type="checkbox"]),
+.settings select,
+.settings textarea {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-h);
+}
+.settings input:focus,
+.settings select:focus,
+.settings textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+.settings input[type="checkbox"] {
+  accent-color: var(--accent-strong);
+  margin-right: 6px;
+}
+.settings fieldset[disabled] {
+  opacity: 0.55;
+}
+.settings-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 8px;
+}
+.settings-msg {
+  font-size: 13.5px;
+}
+.settings-msg.ok,
+.ok {
+  color: var(--success);
+}
+.settings-msg.err,
+.err {
+  color: var(--danger);
+}
+.help h3 {
+  color: var(--text-h);
+  text-transform: none;
+  font-size: 16px;
+  margin-top: 20px;
+}

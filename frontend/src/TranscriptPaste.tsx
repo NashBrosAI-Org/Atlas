@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createTranscript } from "./api";
+import { Button, Textarea, Toolbar } from "./ui";
 
 export function TranscriptPaste({ clientSysId, onSaved }:
   { clientSysId: string; onSaved: () => void }) {
@@ -14,15 +15,15 @@ export function TranscriptPaste({ clientSysId, onSaved }:
     onSaved();
   }
 
-  if (!open) return <button onClick={() => setOpen(true)}>+ Paste transcript</button>;
+  if (!open) return <Button onClick={() => setOpen(true)}>+ Paste transcript</Button>;
   return (
-    <div style={{ marginTop: 8 }}>
-      <textarea style={{ width: "100%", height: 120 }} placeholder="Paste meeting transcript text…"
+    <div className="stack" style={{ marginTop: 8 }}>
+      <Textarea style={{ minHeight: 120 }} placeholder="Paste meeting transcript text…"
         value={text} onChange={(e) => setText(e.target.value)} />
-      <div style={{ display: "flex", gap: 6 }}>
-        <button onClick={save}>Save transcript</button>
-        <button onClick={() => setOpen(false)}>Cancel</button>
-      </div>
+      <Toolbar>
+        <Button variant="primary" onClick={save}>Save transcript</Button>
+        <Button onClick={() => setOpen(false)}>Cancel</Button>
+      </Toolbar>
     </div>
   );
 }

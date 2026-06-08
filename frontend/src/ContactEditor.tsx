@@ -1,20 +1,15 @@
 import { useEffect, useState } from "react";
 import type { Contact } from "./types";
 import { createContact, updateContact, getAIStatus, extractContactFromSignature } from "./api";
+import { Button, Input, Select, Textarea, Field, Card, Badge } from "./ui";
 
 const SENTIMENTS: Contact["sentiment"][] = ["champion", "neutral", "detractor"];
 
-const inputStyle: React.CSSProperties = {
-  display: "block", width: "100%", boxSizing: "border-box",
-  padding: "6px 8px", margin: "4px 0", fontSize: 14,
-  border: "1px solid #ccc", borderRadius: 4, fontFamily: "inherit",
+const SENTIMENT_TONE: Record<string, "success" | "danger" | "neutral"> = {
+  champion: "success",
+  detractor: "danger",
+  neutral: "neutral",
 };
-const labelStyle: React.CSSProperties = { fontSize: 12, color: "#555", marginTop: 8 };
-const btnStyle: React.CSSProperties = {
-  padding: "6px 12px", fontSize: 14, border: "1px solid #ccc",
-  borderRadius: 4, background: "#f7f7f7", cursor: "pointer",
-};
-const helpStyle: React.CSSProperties = { fontSize: 12, color: "#888", margin: "4px 0 0" };
 
 /** Composer (add a new contact) + editable list (per-row edit) for a client's
  *  contacts. The OrgChart hierarchy display lives above this in the dossier. */
@@ -97,50 +92,51 @@ function ContactComposer({ contacts, clientSysId, onSaved }: {
   }
 
   return (
-    <div style={{ border: "1px solid #eee", borderRadius: 6, padding: 12, background: "#fafafa" }}>
-      <strong style={{ fontSize: 14 }}>Add contact</strong>
-      {aiEnabled && (
-        <div style={{ marginTop: 8, paddingBottom: 8, borderBottom: "1px solid #eee" }}>
-          <label style={labelStyle}>Autofill from signature
-            <textarea
-              style={{ ...inputStyle, minHeight: 64, resize: "vertical" }}
-              value={signature}
-              onChange={(e) => setSignature(e.target.value)}
-              placeholder="Paste an email signature here…"
-            />
-          </label>
-          <button style={btnStyle} disabled={autofilling || !signature.trim()} onClick={autofill}>
-            {autofilling ? "Autofilling…" : "Autofill"}
-          </button>
-          <p style={helpStyle}>Pre-fills the fields below — review before adding.</p>
+    <Card variant="muted">
+      <h2>Add contact</h2>
+      <div className="stack">
+        {aiEnabled && (
+          <div className="stack" style={{ paddingBottom: 12, borderBottom: "1px solid var(--border)" }}>
+            <Field label="Autofill from signature" help="Pre-fills the fields below — review before adding.">
+              <Textarea value={signature} onChange={(e) => setSignature(e.target.value)}
+                placeholder="Paste an email signature here…" />
+            </Field>
+            <div>
+              <Button size="sm" disabled={autofilling || !signature.trim()} onClick={autofill}>
+                {autofilling ? "Autofilling…" : "Autofill"}
+              </Button>
+            </div>
+          </div>
+        )}
+        <Field label="Name *">
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Doe" />
+        </Field>
+        <Field label="Role / title">
+          <Input value={roleTitle} onChange={(e) => setRoleTitle(e.target.value)} placeholder="VP Engineering" />
+        </Field>
+        <Field label="Email">
+          <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jane@acme.com" />
+        </Field>
+        <Field label="Phone">
+          <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 555 0100" />
+        </Field>
+        <Field label="Sentiment">
+          <Select value={sentiment ?? "neutral"} onChange={(e) => setSentiment(e.target.value as Contact["sentiment"])}>
+            {SENTIMENTS.map((s) => <option key={s} value={s}>{s}</option>)}
+          </Select>
+        </Field>
+        <Field label="Reports to">
+          <Select value={reportsTo} onChange={(e) => setReportsTo(e.target.value)}>
+            <option value="">— none —</option>
+            {contacts.map((c) => <option key={c.sys_id} value={c.sys_id}>{c.name}</option>)}
+          </Select>
+        </Field>
+        <div>
+          <Button variant="primary" disabled={busy || !name.trim()} onClick={add}>Add contact</Button>
         </div>
-      )}
-      <label style={labelStyle}>Name *
-        <input style={inputStyle} value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Doe" />
-      </label>
-      <label style={labelStyle}>Role / title
-        <input style={inputStyle} value={roleTitle} onChange={(e) => setRoleTitle(e.target.value)} placeholder="VP Engineering" />
-      </label>
-      <label style={labelStyle}>Email
-        <input style={inputStyle} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jane@acme.com" />
-      </label>
-      <label style={labelStyle}>Phone
-        <input style={inputStyle} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 555 0100" />
-      </label>
-      <label style={labelStyle}>Sentiment
-        <select style={inputStyle} value={sentiment ?? "neutral"} onChange={(e) => setSentiment(e.target.value as Contact["sentiment"])}>
-          {SENTIMENTS.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
-      </label>
-      <label style={labelStyle}>Reports to
-        <select style={inputStyle} value={reportsTo} onChange={(e) => setReportsTo(e.target.value)}>
-          <option value="">— none —</option>
-          {contacts.map((c) => <option key={c.sys_id} value={c.sys_id}>{c.name}</option>)}
-        </select>
-      </label>
-      <button style={{ ...btnStyle, marginTop: 8 }} disabled={busy || !name.trim()} onClick={add}>Add contact</button>
-      {err && <p style={{ ...helpStyle, color: "#b00020" }}>{err}</p>}
-    </div>
+        {err && <p className="err" style={{ fontSize: 12 }}>{err}</p>}
+      </div>
+    </Card>
   );
 }
 
@@ -182,42 +178,44 @@ function ContactRow({ contact, contacts, onSaved }: {
   }
 
   return (
-    <li style={{ padding: "8px 0", borderBottom: "1px solid #eee" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    <li style={{ borderBottom: "1px solid var(--border)", padding: "10px 0" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <span style={{ flex: 1 }}>
           <strong>{contact.name}</strong>{contact.role_title ? ` — ${contact.role_title}` : ""}
         </span>
-        <span style={{ fontSize: 12, color: "#999" }}>{contact.sentiment ?? "neutral"}</span>
-        <button style={btnStyle} onClick={() => setEditing((v) => !v)}>{editing ? "Cancel" : "Edit"}</button>
+        <Badge tone={SENTIMENT_TONE[contact.sentiment ?? "neutral"] ?? "neutral"}>{contact.sentiment ?? "neutral"}</Badge>
+        <Button size="sm" onClick={() => setEditing((v) => !v)}>{editing ? "Cancel" : "Edit"}</Button>
       </div>
 
       {editing && (
-        <div style={{ marginTop: 8, paddingLeft: 4 }}>
-          <label style={labelStyle}>Name *
-            <input style={inputStyle} value={draft.name ?? ""} onChange={(e) => set({ name: e.target.value })} />
-          </label>
-          <label style={labelStyle}>Role / title
-            <input style={inputStyle} value={draft.role_title ?? ""} onChange={(e) => set({ role_title: e.target.value })} />
-          </label>
-          <label style={labelStyle}>Email
-            <input style={inputStyle} value={draft.email ?? ""} onChange={(e) => set({ email: e.target.value })} />
-          </label>
-          <label style={labelStyle}>Phone
-            <input style={inputStyle} value={draft.phone ?? ""} onChange={(e) => set({ phone: e.target.value })} />
-          </label>
-          <label style={labelStyle}>Sentiment
-            <select style={inputStyle} value={draft.sentiment ?? "neutral"} onChange={(e) => set({ sentiment: e.target.value as Contact["sentiment"] })}>
+        <div className="stack" style={{ marginTop: 10, paddingLeft: 4 }}>
+          <Field label="Name *">
+            <Input value={draft.name ?? ""} onChange={(e) => set({ name: e.target.value })} />
+          </Field>
+          <Field label="Role / title">
+            <Input value={draft.role_title ?? ""} onChange={(e) => set({ role_title: e.target.value })} />
+          </Field>
+          <Field label="Email">
+            <Input value={draft.email ?? ""} onChange={(e) => set({ email: e.target.value })} />
+          </Field>
+          <Field label="Phone">
+            <Input value={draft.phone ?? ""} onChange={(e) => set({ phone: e.target.value })} />
+          </Field>
+          <Field label="Sentiment">
+            <Select value={draft.sentiment ?? "neutral"} onChange={(e) => set({ sentiment: e.target.value as Contact["sentiment"] })}>
               {SENTIMENTS.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
-          </label>
-          <label style={labelStyle}>Reports to
-            <select style={inputStyle} value={draft.reports_to ?? ""} onChange={(e) => set({ reports_to: e.target.value })}>
+            </Select>
+          </Field>
+          <Field label="Reports to">
+            <Select value={draft.reports_to ?? ""} onChange={(e) => set({ reports_to: e.target.value })}>
               <option value="">— none —</option>
               {managerOptions.map((c) => <option key={c.sys_id} value={c.sys_id}>{c.name}</option>)}
-            </select>
-          </label>
-          <button style={{ ...btnStyle, marginTop: 8 }} disabled={busy || !draft.name.trim()} onClick={save}>Save</button>
-          {err && <p style={{ ...helpStyle, color: "#b00020" }}>{err}</p>}
+            </Select>
+          </Field>
+          <div>
+            <Button variant="primary" size="sm" disabled={busy || !draft.name.trim()} onClick={save}>Save</Button>
+          </div>
+          {err && <p className="err" style={{ fontSize: 12 }}>{err}</p>}
         </div>
       )}
     </li>
