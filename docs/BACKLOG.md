@@ -36,7 +36,7 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
   (1000/page) until a short page, so large tables come back whole. Shipped (PR #42).
 - 🟢 **Frontend tests.** Vitest + Testing Library + jsdom; smoke tests (OrgChart, ClientsView) + a CI
   `npm run test` step. Config split into `vitest.config.ts` so the build's `tsc` stays clean. Shipped (PR #49).
-- 🟢 **Backend test isolation (hygiene).** Tests no longer read the dev `.env`/Keychain (`ATLAS_ENV_FILE` opt-out + autouse `ATLAS_DATA_DIR`/Keychain isolation in conftest), so local runs match CI. Shipped (PR #55).
+- 🟢 **Backend test isolation (hygiene).** Tests no longer read the dev `.env`/Keychain (`ATLAS_ENV_FILE` opt-out + autouse `ATLAS_DATA_DIR`/Keychain isolation in conftest), so local runs match CI. Shipped (PR #56).
 
 ### AI (P3, behind `FakeAI` — buildable now)
 - 🟢 **P3 extraction capability** — `extract_contact_fields` (AI-primary + regex fallback) +
@@ -53,8 +53,11 @@ Status: 🔵 queued · 🟡 in progress · 🟢 done.
   emails crud router added). Shipped (PR #53).
 - 🟢 **Quick-capture** — a global "＋ Capture" nav button opens a modal (Task|Note, optional client,
   Escape/click-out to close). Shipped (PR #48).
-- 🟢 **Global search** — `GET /api/search` across clients/tasks/contacts/notes/engagements + a Search
-  tab. Shipped (PR #47).
+- 🟢 **Global search** — `GET /api/search` + a Search tab. Shipped across
+  clients/tasks/contacts/notes/engagements (PR #47), then enhanced (PR #55): tiered ranking
+  (title exact > prefix > contains > secondary > body), 5 more types (meetings/themes/key-dates/
+  links/transcripts), body-match snippets, and a `types=` filter (transcripts off by default,
+  persisted in the UI), with a per-type result limit.
 - 🟢 **Self-documenting UI (user request)** — reusable `InfoHint` (accessible ⓘ) + concise explainers on the non-obvious fields (Settings thresholds/backup/connection, client domains/aliases, key-date recurring, tags). Shipped (PR #51).
 - 🟢 **Modal a11y** — Escape-to-close + focus + `role=dialog` on `MeetingPrepPanel` (QuickCapture already had Escape). Shipped (PR #50).
 - 🟢 **Prioritization explainability** — Now list shows an ordering legend + per-row hover "why it ranks" (priority→due→commitment). Shipped (PR #50).
