@@ -34,10 +34,18 @@ export function Sidebar(
 
   return (
     <aside className="app-sidebar">
-      <div className="sidebar__brand">
+      <a
+        href="/"
+        className="sidebar__brand"
+        onClick={(e) => {
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+          e.preventDefault();
+          onNavigate("now");
+        }}
+      >
         <span className="sidebar__mark" aria-hidden="true" />
         Atlas
-      </div>
+      </a>
 
       <div className="sidebar__capture">
         <Button variant="primary" onClick={onCapture} style={{ width: "100%" }}>
